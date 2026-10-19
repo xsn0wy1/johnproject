@@ -1830,5 +1830,16 @@
     "other": "{count} transfers"
   },
   "documents.grid_result_summary": "{count} {result}. Page {page} of {pages}.",
-  "theme.appearance": "Appearance"
+  "theme.appearance": "Appearance",
+  "recovery.unavailable": "Email recovery is not configured. Please try again later.",
+  "recovery.requested": "If the email belongs to an eligible account, you will receive a link to change your password. Check your spam folder too. The link expires in 30 minutes.",
+  "recovery.email_subject": "Reset password — Hospital (school project)",
+  "recovery.email_body": "A password change was requested for your Hospital school-project account.\n\nOpen this link to choose a new password:\n{url}\n\nThe link expires in 30 minutes and can only be used once. If the website runs on localhost, open it on the computer running the website.\n\nIf you did not request this change, ignore this email. Your password will stay the same.",
+  "recovery.invalid_token": "This link is invalid or has expired. Request another recovery link.",
+  "recovery.new_password": "New password",
+  "recovery.confirm_password": "Confirm password",
+  "recovery.save_password": "Save password",
+  "recovery.request_another": "Request another link",
+  "recovery.password_help": "Use at least 12 characters and no more than 72 UTF-8 bytes.",
+  "recovery.password_mismatch": "The passwords do not match."
 }

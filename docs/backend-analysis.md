@@ -2,7 +2,7 @@
 
 Reviewed: 12 October 2026. This is a requirements and integration analysis of the existing frontend, not an audit of an existing database implementation.
 
-Historical baseline: the observations and file counts below describe 12 October, before the backend slices. As of 19 October, identity/account administration, settings, documents, transfers/simulation, six management catalogs and surveys are implemented (schema 001–011). Calendar/appointment management and reports remain deferred, with unavailable navigation removed; the patient appointment count is read-only. Current behavior/contracts and verification are maintained in AGENTS.md and api-contracts.md.
+Historical baseline: the observations and file counts below describe 12 October, before the backend slices. As of 19 October, identity/account administration, email password recovery, settings, documents, transfers/simulation, six management catalogs and surveys are implemented (schema 001–012). Brevo sender configuration and real inbox verification await the user's provider setup. Calendar/appointment management and reports remain deferred, with unavailable navigation removed; the patient appointment count is read-only. Current behavior/contracts and verification are maintained in AGENTS.md and api-contracts.md.
 
 ## Confirmed scope
 

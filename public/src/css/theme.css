@@ -116,9 +116,12 @@ html[data-theme="light"][data-theme-styles~="pass-restore"] .volver { color: var
 html[data-theme="light"][data-theme-styles~="pass-restore"] .volver:hover { color: var(--light-text); }
 
 /* auth-interactions */
-html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta input:enabled:hover,
-html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta input:enabled:focus { border-color: rgba(88, 108, 151, 0.48); background-color: rgba(89, 110, 167, 0.12); }
-html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta input:enabled:focus { box-shadow: 0 0 0 4px rgba(44, 61, 104, 0.02); }
+html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta input:not(:where(.campo input)):enabled:hover,
+html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta input:not(:where(.campo input)):enabled:focus { border-color: rgba(88, 108, 151, 0.48); background-color: rgba(89, 110, 167, 0.12); }
+html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta input:not(:where(.campo input)):enabled:focus { box-shadow: 0 0 0 4px rgba(44, 61, 104, 0.02); }
+html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta .campo:has(input:enabled):hover,
+html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta .campo:has(input:enabled):focus-within { border-color: rgba(88, 108, 151, 0.48); background-color: rgba(89, 110, 167, 0.2256); }
+html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta .campo:has(input:enabled):focus-within { box-shadow: 0 0 0 4px rgba(44, 61, 104, 0.02); }
 html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta button:enabled:not(.btn-toggle-eye):hover { border-color: rgba(88, 108, 151, 0.465); box-shadow: 0 16px 30px rgba(44, 61, 104, 0.085); }
 html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta a:hover { color: var(--light-text); }
 html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta button:focus-visible,

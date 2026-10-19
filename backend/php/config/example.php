@@ -7,6 +7,10 @@ return [
     'session_idle_seconds' => 1800,
     'session_absolute_seconds' => 28800,
     'bcrypt_cost' => 12,
+    'app_url' => 'http://127.0.0.1:8080/', // Application root, including /hospital/ if mounted there. Never inferred from Host.
+    'brevo_api_key' => '', // Private Brevo API key; HOSPITAL_BREVO_API_KEY also supported.
+    'mail_from_email' => '', // Mailbox verified as a sender in Brevo; HOSPITAL_MAIL_FROM_EMAIL.
+    'mail_from_name' => 'Hospital — Proyecto educativo',
     'storage_path' => dirname(__DIR__, 3) . '/storage', // Private writable directory, outside public/.
     'document_scanner' => '', // Optional absolute path to local clamscan; configured scans fail closed.
     'route_mapping_enabled' => true, // User-triggered cached demo address/road lookup; saves remain usable offline.

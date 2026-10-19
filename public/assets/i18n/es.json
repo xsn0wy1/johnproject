@@ -1830,5 +1830,16 @@
     "other": "{count} traslados"
   },
   "documents.grid_result_summary": "{count} {result}. Página {page} de {pages}.",
-  "theme.appearance": "Apariencia"
+  "theme.appearance": "Apariencia",
+  "recovery.unavailable": "La recuperación por email no está configurada. Intentá nuevamente más tarde.",
+  "recovery.requested": "Si el email corresponde a una cuenta habilitada, recibirás un enlace para cambiar tu contraseña. Revisá también el correo no deseado. El enlace vence en 30 minutos.",
+  "recovery.email_subject": "Recuperar contraseña — Hospital (proyecto educativo)",
+  "recovery.email_body": "Se solicitó cambiar la contraseña de tu cuenta del proyecto educativo Hospital.\n\nAbrí este enlace para elegir una nueva contraseña:\n{url}\n\nEl enlace vence en 30 minutos y se puede usar una sola vez. Si el sitio funciona en localhost, abrilo en la computadora que ejecuta el sitio.\n\nSi no solicitaste este cambio, ignorá este email. Tu contraseña seguirá igual.",
+  "recovery.invalid_token": "El enlace no es válido o venció. Solicitá otro enlace de recuperación.",
+  "recovery.new_password": "Nueva contraseña",
+  "recovery.confirm_password": "Confirmar contraseña",
+  "recovery.save_password": "Guardar contraseña",
+  "recovery.request_another": "Solicitar otro enlace",
+  "recovery.password_help": "Usá al menos 12 caracteres y un máximo de 72 bytes.",
+  "recovery.password_mismatch": "Las contraseñas no coinciden."
 }

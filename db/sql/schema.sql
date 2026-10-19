@@ -1,4 +1,4 @@
--- Hospital user system, schema versions 001–011. MySQL 5.7+/MariaDB 10.4 compatible.
+-- Hospital user system, schema versions 001–012. MySQL 5.7+/MariaDB 10.4 compatible.
 -- Fresh installation: import this file with an administrative SQL account.
 -- Run the PHP setup/migration commands for upgrades. Future changes belong in numbered db/sql/migrations files.
 CREATE DATABASE IF NOT EXISTS hospital CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -660,4 +660,15 @@ CREATE TABLE IF NOT EXISTS survey_answers (
     KEY ix_survey_answers_item (item_id,response_id),
     CONSTRAINT fk_survey_answer_response FOREIGN KEY (response_id) REFERENCES survey_responses(id) ON DELETE RESTRICT,
     CONSTRAINT fk_survey_answer_item FOREIGN KEY (item_id) REFERENCES survey_items(id) ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+-- One current single-use password recovery credential per staff account.
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    user_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
+    token_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    auth_version INT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL,
+    expires_at DATETIME NOT NULL,
+    UNIQUE KEY uq_password_reset_token (token_hash),
+    CONSTRAINT fk_password_reset_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;

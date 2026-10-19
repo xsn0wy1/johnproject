@@ -47,7 +47,7 @@ files=[ROOT/'public/index.html',*(ROOT/'public/src/views').rglob('*.html')]
 baseline=json.loads(args.baseline.read_text()) if args.baseline else None
 for path in files:
  page=Page();page.feed(path.read_text())
- assert 'i18n.js' in page.scripts[0],path
+ assert 'i18n.js' in next(src for src in page.scripts if 'theme.js' not in src),path
  for src in page.scripts:
   if not src.startswith(('http:','https:')):assert (path.parent/src.split('?')[0]).resolve().is_file(),(path,src)
  if baseline:

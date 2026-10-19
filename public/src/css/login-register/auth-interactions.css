@@ -8,13 +8,23 @@
         transform 0.22s ease;
 }
 
-.tarjeta input:enabled:hover,
-.tarjeta input:enabled:focus {
+.tarjeta input:not(:where(.campo input)):enabled:hover,
+.tarjeta input:not(:where(.campo input)):enabled:focus {
     border-color: rgba(171, 186, 234, 0.64);
     background-color: rgba(255, 255, 255, 0.12);
 }
 
-.tarjeta input:enabled:focus {
+.tarjeta input:not(:where(.campo input)):enabled:focus {
+    box-shadow: 0 0 0 4px rgba(122, 145, 220, 0.08);
+}
+
+.tarjeta .campo:has(input:enabled):hover,
+.tarjeta .campo:has(input:enabled):focus-within {
+    border-color: rgba(171, 186, 234, 0.64);
+    background-color: rgba(255, 255, 255, 0.2256);
+}
+
+.tarjeta .campo:has(input:enabled):focus-within {
     box-shadow: 0 0 0 4px rgba(122, 145, 220, 0.08);
 }
 

@@ -71,6 +71,9 @@ final class SettingsService
                 if ($stmt->fetchColumn()) $name = self::text($name, 'full_name', 100, false);
             }
             if ($email !== null) {
+                if ($email !== $user['email']) {
+                    $stmt = $this->db->prepare('DELETE FROM password_reset_tokens WHERE user_id = ?'); $stmt->execute([$id]);
+                }
                 $stmt = $this->db->prepare('UPDATE users SET email_verified_at = IF(email = ?, email_verified_at, NULL), email = ?, version = version + 1 WHERE id = ?'); $stmt->execute([$email, $email, $id]);
             }
             if ($name !== null) {

@@ -27,6 +27,8 @@ Quick-search suggestions use the current session's explicit roles: patient/docto
 | `GET auth/csrf.php` | Public | None | `{csrf_token}`; 200, anonymous CSRF session created when needed |
 | `POST auth/register.php` | Anonymous | `username`, `email`, `password`, `national_id` | `{user_id,status:"pending",message}`; 201 |
 | `POST auth/login.php` | Public + CSRF | `username`, `password` | Current-user payload below; 200, cookie/token rotated |
+| `POST auth/reset-request.php` | Public + CSRF | `email` | `{requested:true,message}`; uniform 202 for eligible, unknown and disabled addresses |
+| `POST auth/reset-password.php` | Public + CSRF | `token`, `new_password` | `{changed:true,sign_in_required:true}`; 200; no automatic login |
 | `GET auth/me.php` | Active staff | None | Current-user payload; 200; does not extend idle expiry |
 | `POST auth/heartbeat.php` | Active staff + CSRF | Empty object | Current-user payload; 200, records activity |
 | `POST auth/logout.php` | Cookie + CSRF | Empty object | `{logged_out:true}`; 200, revokes session/expires cookie |
@@ -90,7 +92,7 @@ Registration conflicts use `409 ACCOUNT_CONFLICT` without identifying which fiel
 
 Use the same bootstrap, request/response helpers, actor/session checks, CSRF and database factory for later APIs. Mutable settings use partial fields plus an opaque record version. Staff identity data belongs to `staff`; account credentials/admission belong to `users`. Do not create another profile JSON database or reintroduce old `/api/users`, `/api/settings_get.php` or `/src/api-connection` paths into new code.
 
-The modules below, including surveys, are implemented. Calendar/appointment management, reports and email-based password recovery remain deferred. Unavailable Reports/Calendar navigation entries are omitted. The patient appointment count reads existing scheduled rows only; there is no workflow to create, edit or cancel appointments. The public recovery form keeps email submission disabled; its availability and administrator-help notices are omitted from the interface.
+The modules below, including surveys and email password recovery, are implemented. Calendar/appointment management and reports remain deferred. Unavailable Reports/Calendar navigation entries are omitted. The patient appointment count reads existing scheduled rows only; there is no workflow to create, edit or cancel appointments. Recovery uses Brevo; this checkout requires private sender configuration before real delivery.
 
 ## Account administration and passwords
 
@@ -103,7 +105,19 @@ All administrator endpoints require the explicit admin role. POST requires CSRF 
 | POST admin/users/reset-password.php | user_id, version, new_password | changed:true; target sessions revoked; self-reset uses own settings instead |
 | POST auth/change-password.php | current_password, new_password | changed:true, sign_in_required:true; every old session revoked |
 
-Approval can grant several of admin/staff/records_manager/dispatcher. Existing active accounts can change roles; disabled accounts can reactivate with their preserved roles and active staff identity. Pending/disabled accounts cannot use the role-edit action. All management writes recheck actor/session and target revision in a transaction. Disabling/removing admin from the last active administrator returns LAST_ADMIN. Role changes/disable/reset/session-revoke advance auth_version and invalidate existing sessions. Passwords require 12 characters through 72 UTF-8 bytes; invalid current passwords return 422 so the settings page retains input. No email delivery or reset-token store is claimed.
+Approval can grant several of admin/staff/records_manager/dispatcher. Existing active accounts can change roles; disabled accounts can reactivate with their preserved roles and active staff identity. Pending/disabled accounts cannot use the role-edit action. All management writes recheck actor/session and target revision in a transaction. Disabling/removing admin from the last active administrator returns LAST_ADMIN. Role changes/disable/reset/session-revoke advance auth_version and invalidate existing sessions. Passwords require 12 characters through 72 UTF-8 bytes; invalid current passwords return 422 so the settings page retains input.
+
+### Email password recovery (schema 012)
+
+Request trims/lowercases email and matches `users.email`. Pending applications and active accounts with active linked staff are eligible; disabled accounts and inactive staff receive no mail. Recovery never changes approval, roles, staff links or `email_verified_at`. Separate registration/email-change verification remains deferred; recovery proves possession of the currently saved mailbox through a single-use credential.
+
+`password_reset_tokens` holds one SHA-256 token hash per user, issuing `auth_version`, creation time and 30-minute expiry. Links use 32 random bytes encoded as lowercase hex, in `#token=...`, with optional `?lang=en`. Only POST carries the raw token to the API; it is never returned by the request endpoint or stored in browser persistence/logs. New requests replace previous tokens. Changing email removes outstanding tokens; all password-change paths remove them. Redemption locks the account then token, rechecks current eligibility/revision/expiry, and atomically updates the password, increments user/auth revisions, consumes the token, revokes all target sessions and writes an ID-only audit. The current browser session is cleared after success. Invalid, expired, replaced or consumed credentials return `422 RESET_TOKEN_INVALID`; invalid passwords preserve the token.
+
+The shared SQL limiter applies 3 requests/email/15 minutes, 20 requests/IP/hour, and 20 redemption attempts/IP/15 minutes; exceeded limits return 429. Missing/invalid sender or application-URL configuration returns `503 RECOVERY_UNAVAILABLE` before email lookup. Brevo delivery runs outside transactions, using one PHP/cURL request with bounded timeouts and normal TLS verification. Provider rejection/timeout removes only that attempted token and logs a sanitized server diagnostic; the HTTP request still returns the same generic 202, meaning requested rather than delivered. No queue, webhook or retry worker is required.
+
+Private configuration/environment: `brevo_api_key`/`HOSPITAL_BREVO_API_KEY`, `mail_from_email`/`HOSPITAL_MAIL_FROM_EMAIL`, optional `mail_from_name`/`HOSPITAL_MAIL_FROM_NAME`, and `app_url`/`HOSPITAL_APP_URL` (absolute application root including mount). Default root is `http://127.0.0.1:8080/`, incorporating configured `base_path` when no explicit URL is supplied; the HTTP Host header never builds links. The sender must be verified/activated in Brevo. Plain-text email uses the request language and identifies this as a school project. Localhost links open on the computer serving the website. This user's Brevo signup/key/sender and real inbox verification are deliberately deferred until they configure the provider.
+
+The existing public recovery page switches between request and password/confirmation forms, remains accessible when signed in, and uses the existing translations/themes/styles. Generic confirmation is visible; all errors remain console-only and preserve fields. Success clears the fragment/password fields and returns to the localized login page.
 
 Login checks that the locked account still has the password hash and auth_version originally verified. A concurrent password reset/change or authentication revision change returns INVALID_CREDENTIALS rather than establishing a session with stale credentials.
 

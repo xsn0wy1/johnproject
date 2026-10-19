@@ -2,7 +2,7 @@
 
 Run commands from the project root. The inspected macOS installation is `/Applications/XAMPP/xamppfiles`, with PHP 8.0.28 and MariaDB 10.4.28. On Windows, use your XAMPP `php/php.exe` in place of the macOS PHP path. MySQL/MariaDB must be running; this project does not start the normal XAMPP services automatically.
 
-Current workspace scope (19 October 2026): identity/account administration, settings, documents, transfers/simulated tracking, all six management catalogs and surveys are implemented, with migrations 001–011. Calendar/appointment management, reports, light theme and email recovery remain deferred. Patient appointment counts are read-only integration, not a scheduling workflow. Older slice notes in the architecture documents are historical; AGENTS.md and api-contracts.md record current behavior. Deployment copies must be updated explicitly.
+Current workspace scope (19 October 2026): identity/account administration, email password recovery, settings, documents, transfers/simulated tracking, all six management catalogs and surveys are implemented, with migrations 001–012 and shared Spanish/English and dark/light interfaces. The user will configure the Brevo sender later; real email delivery remains unverified. Calendar/appointment management and reports remain deferred. Patient appointment counts are read-only integration, not a scheduling workflow. Older slice notes in the architecture documents are historical; AGENTS.md and api-contracts.md record current behavior. Deployment copies must be updated explicitly.
 
 ## 1. Install the database and private configuration
 

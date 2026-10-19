@@ -27,6 +27,10 @@ final class Config
         $config['session_idle_seconds'] = (int) $env('SESSION_IDLE_SECONDS', $config['session_idle_seconds'] ?? 1800);
         $config['session_absolute_seconds'] = (int) $env('SESSION_ABSOLUTE_SECONDS', $config['session_absolute_seconds'] ?? 28800);
         $config['bcrypt_cost'] = (int) $env('BCRYPT_COST', $config['bcrypt_cost'] ?? 12);
+        $config['app_url'] = rtrim((string) $env('APP_URL', $config['app_url'] ?? 'http://127.0.0.1:8080' . $config['base_path']), '/') . '/';
+        $config['brevo_api_key'] = (string) $env('BREVO_API_KEY', $config['brevo_api_key'] ?? '');
+        $config['mail_from_email'] = (string) $env('MAIL_FROM_EMAIL', $config['mail_from_email'] ?? '');
+        $config['mail_from_name'] = (string) $env('MAIL_FROM_NAME', $config['mail_from_name'] ?? 'Hospital — Proyecto educativo');
         $config['storage_path'] = (string) $env('STORAGE_PATH', $config['storage_path'] ?? dirname(__DIR__, 2) . '/storage');
         $config['document_scanner'] = (string) $env('DOCUMENT_SCANNER', $config['document_scanner'] ?? '');
         $config['route_mapping_enabled'] = filter_var($env('ROUTE_MAPPING_ENABLED', $config['route_mapping_enabled'] ?? true), FILTER_VALIDATE_BOOLEAN);
