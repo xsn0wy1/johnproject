@@ -1,10 +1,14 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await window.HospitalI18n.ready;
+    await window.HospitalAuth.ready;
+
   const api=window.HospitalApi;
   const pageSize=6;
   const iconBase='../../../assets/Icons/';
-  const typeCodes={Hospital:'hospital',Sanatorio:'sanatorium','Centro de salud':'health_center',Otro:'other'};
-  const fromApi=d=>({...d,type:Object.keys(typeCodes).find(k=>typeCodes[k]===d.facility_type),archived:d.status==='archived',
-    status:d.status==='active' && d.availability==='active'?'Activo':'Inactivo'});
+  const typeCodes={hospital:'hospital',sanatorium:'sanatorium',health_center:'health_center',other:'other'};
+  const typeLabels={get hospital() { return window.HospitalI18n.t("destinations.hospital"); },get sanatorium() { return window.HospitalI18n.t("destinations.sanatorio"); },get health_center() { return window.HospitalI18n.t("destinations.centro_de_salud"); },get other() { return window.HospitalI18n.t("trace_new.otro"); }},statusLabels={get active() { return window.HospitalI18n.t("destinations.activo"); },get inactive() { return window.HospitalI18n.t("destinations.inactivo"); }};
+  const fromApi=d=>({...d,type:d.facility_type,archived:d.status==='archived',
+    status:d.status==='active' && d.availability==='active'?'active':'inactive'});
   const rows = document.getElementById('destinations-rows');
   const search = document.getElementById('destinations-search');
   const form = document.getElementById('destinations-form');
@@ -23,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let destinations = [];
   let busy=false,dirty=false,editingVersion=null,deletingVersion=null;
-  let activeFilter = 'Activo';
+  let activeFilter = 'active';
   let currentPage = 1;
   let editingId = null;
   let detailId = null;
@@ -59,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function getMatchingDestinations() {
     const words = normalize(search.value).split(' ').filter(Boolean);
     return destinations.filter(destination => {
-      const content = normalize(`${destination.name} ${destination.address} ${destination.locality} ${destination.type} ${destination.phone}`);
+      const content = normalize(`${destination.name} ${destination.address} ${destination.locality} ${typeLabels[destination.type]} ${destination.phone}`);
       return destination.status === activeFilter &&
         words.every(word => content.includes(word));
     });
@@ -68,15 +72,15 @@ document.addEventListener('DOMContentLoaded', () => {
   function makeIcon(file) {
     const icon = document.createElement('img');
     icon.src = iconBase + file;
-    icon.alt = '';
+    window.HospitalI18n.bindAttr(icon, "alt", () => '');
     icon.setAttribute('aria-hidden', 'true');
     return icon;
   }
 
   function makeCell(text) {
     const cell = document.createElement('td');
-    cell.textContent = text;
-    cell.title = text;
+    window.HospitalI18n.bindText(cell, () => text);
+    window.HospitalI18n.bindAttr(cell, "title", () => text);
     return cell;
   }
 
@@ -86,8 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
     button.className = 'row-action';
     button.dataset.action = action;
     button.dataset.id = destination.id;
-    button.setAttribute('aria-label', `${label} ${destination.name}`);
-    button.title = `${label} ${destination.name}`;
+    window.HospitalI18n.bindAttr(button, "aria-label", () => `${label} ${destination.name}`);
+    window.HospitalI18n.bindAttr(button, "title", () => `${label} ${destination.name}`);
     button.append(makeIcon(icon));
     return button;
   }
@@ -104,10 +108,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const copy = document.createElement('span');
     copy.className = 'destination-copy';
     const name = document.createElement('strong');
-    name.textContent = destination.name;
-    name.title = destination.name;
+    window.HospitalI18n.bindText(name, () => destination.name);
+    window.HospitalI18n.bindAttr(name, "title", () => destination.name);
     const type = document.createElement('small');
-    type.textContent = destination.type;
+    window.HospitalI18n.bindText(type, () => (typeLabels)[destination.type]);
     copy.append(name, type);
     nameContent.append(avatar, copy);
     nameCell.append(nameContent);
@@ -116,17 +120,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const status = document.createElement('span');
     status.className = 'status-text';
     const dot = document.createElement('span');
-    dot.className = 'status-dot' + (destination.status === 'Inactivo' ? ' is-inactive' : '');
+    dot.className = 'status-dot' + (destination.status === 'inactive' ? ' is-inactive' : '');
     dot.setAttribute('aria-hidden', 'true');
-    status.append(dot, document.createTextNode(destination.archived?'Archivado':destination.status));
+    status.append(dot, window.HospitalI18n.textNode(() => destination.archived?window.HospitalI18n.t("personnel.archivado"):statusLabels[destination.status]));
     statusCell.append(status);
 
     const actionsCell = document.createElement('td');
     const actions = document.createElement('div');
     actions.className = 'row-actions';
-    actions.append(makeAction('view','Ver','eye.svg',destination));
-    if(destination.archived)actions.append(makeAction('restore','Restaurar','save-floppy.svg',destination));
-    else actions.append(makeAction('edit','Editar','pencil-icon.svg',destination),makeAction('delete','Eliminar','trash-icon.svg',destination));
+    actions.append(makeAction('view',window.HospitalI18n.t("personnel.ver"),'eye.svg',destination));
+    if(destination.archived)actions.append(makeAction('restore',window.HospitalI18n.t("personnel.restaurar"),'save-floppy.svg',destination));
+    else actions.append(makeAction('edit',window.HospitalI18n.t("trace_view.editar"),'pencil-icon.svg',destination),makeAction('delete',window.HospitalI18n.t("routes.eliminar"),'trash-icon.svg',destination));
     actionsCell.append(actions);
     row.append(nameCell, makeCell(destination.address), makeCell(destination.locality), statusCell, actionsCell);
     return row;
@@ -141,42 +145,41 @@ document.addEventListener('DOMContentLoaded', () => {
     rows.replaceChildren(...visible.map(makeRow));
 
     const statusCount = destinations.filter(destination => destination.status === activeFilter).length;
-    document.getElementById('list-title').textContent = `Destinos ${activeFilter === 'Activo' ? 'activos' : 'inactivos'}`;
-    document.getElementById('list-count').textContent =
-      `Total de ${statusCount} ${statusCount === 1 ? 'destino registrado' : 'destinos registrados'}.`;
-    document.getElementById('results-summary').textContent = matching.length
-      ? `Mostrando ${start + 1} a ${start + visible.length} de ${matching.length} resultados`
-      : 'Mostrando 0 resultados';
-    document.getElementById('page-number').textContent = String(currentPage);
+    window.HospitalI18n.bindText(document.getElementById('list-title'), () => window.HospitalI18n.t("destinations.destinos_value", {value0: activeFilter === 'active' ? window.HospitalI18n.t("shared.activos") : window.HospitalI18n.t("shared.inactivos")}));
+    window.HospitalI18n.bindText(document.getElementById('list-count'), () => window.HospitalI18n.t("destinations.total_de_value_value", {value0: statusCount, value1: statusCount === 1 ? window.HospitalI18n.t("destinations.destino_registrado") : window.HospitalI18n.t("destinations.destinos_registrados")}));
+    window.HospitalI18n.bindText(document.getElementById('results-summary'), () => matching.length
+      ? window.HospitalI18n.t("personnel.mostrando_value_a_value_de_value_resultados", {value0: start + 1, value1: start + visible.length, value2: matching.length})
+      : window.HospitalI18n.t("personnel.mostrando_0_resultados"));
+    window.HospitalI18n.bindText(document.getElementById('page-number'), () => String(currentPage));
     document.getElementById('page-prev').disabled = currentPage === 1;
     document.getElementById('page-next').disabled = currentPage === pageCount;
 
     const noRecords = destinations.length === 0;
     document.getElementById('empty-state').hidden = matching.length > 0;
-    document.getElementById('empty-title').textContent = noRecords ? 'Aún no hay destinos' : 'No se encontraron destinos';
-    document.getElementById('empty-description').textContent = noRecords
-      ? 'Agrega el primer destino desde el formulario.' : 'Prueba con otro nombre, dirección, localidad o estado.';
-    document.getElementById('empty-action').textContent = noRecords ? 'Agregar destino' : 'Limpiar búsqueda';
+    window.HospitalI18n.bindText(document.getElementById('empty-title'), () => noRecords ? window.HospitalI18n.t("destinations.aun_no_hay_destinos") : window.HospitalI18n.t("destinations.no_se_encontraron_destinos"));
+    window.HospitalI18n.bindText(document.getElementById('empty-description'), () => noRecords
+      ? window.HospitalI18n.t("destinations.agrega_el_primer_destino_desde_el_formulario") : window.HospitalI18n.t("destinations.prueba_con_otro_nombre_direccion_localidad_o_estado"));
+    window.HospitalI18n.bindText(document.getElementById('empty-action'), () => noRecords ? window.HospitalI18n.t("destinations.agregar_destino") : window.HospitalI18n.t("destinations.limpiar_busqueda"));
   }
 
   function showFeedback(message, tone = '') {
-    if (tone === 'error') { console.error(message); feedback.textContent = ''; return; }
-    feedback.textContent = message;
+    if (tone === 'error') { console.error(window.HospitalI18n.resolve(message)); window.HospitalI18n.bindText(feedback, () => ''); return; }
+    window.HospitalI18n.bindText(feedback, () => window.HospitalI18n.resolve(message));
     feedback.className = 'form-feedback' + (tone ? ` is-${tone}` : '');
   }
 
   function updateStatus() {
-    const inactive = statusInput.value === 'Inactivo';
+    const inactive = statusInput.value === 'inactive';
     document.getElementById('form-status-dot').classList.toggle('is-inactive', inactive);
   }
 
   function clearForm() {
     form.reset();
     editingId = null; editingVersion=null;dirty=false;
-    document.getElementById('form-title').textContent = 'Agregar destino';
-    document.getElementById('form-subtitle').textContent = 'Completa la información del destino.';
-    document.getElementById('save-label').textContent = 'Guardar';
-    [nameInput, addressInput, localityInput, phoneInput].forEach(input => input.setCustomValidity(''));
+    window.HospitalI18n.bindText(document.getElementById('form-title'), () => window.HospitalI18n.t("destinations.agregar_destino"));
+    window.HospitalI18n.bindText(document.getElementById('form-subtitle'), () => window.HospitalI18n.t("destinations.completa_la_informacion_del_destino"));
+    window.HospitalI18n.bindText(document.getElementById('save-label'), () => window.HospitalI18n.t("accounts.guardar"));
+    [nameInput, addressInput, localityInput, phoneInput].forEach(input => window.HospitalI18n.bindValidity(input, () => ''));
     showFeedback('');
     updateStatus();
   }
@@ -195,9 +198,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function editDestination(destination) {
     clearForm();
     editingId = destination.id; editingVersion=destination.version;
-    document.getElementById('form-title').textContent = 'Editar destino';
-    document.getElementById('form-subtitle').textContent = 'Actualiza la información del destino.';
-    document.getElementById('save-label').textContent = 'Actualizar';
+    window.HospitalI18n.bindText(document.getElementById('form-title'), () => window.HospitalI18n.t("destinations.editar_destino"));
+    window.HospitalI18n.bindText(document.getElementById('form-subtitle'), () => window.HospitalI18n.t("destinations.actualiza_la_informacion_del_destino"));
+    window.HospitalI18n.bindText(document.getElementById('save-label'), () => window.HospitalI18n.t("destinations.actualizar"));
     nameInput.value = destination.name;
     addressInput.value = destination.address;
     localityInput.value = destination.locality;
@@ -216,14 +219,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const details = document.getElementById('dialog-details');
     details.replaceChildren();
     [
-      ['Nombre', destination.name], ['Tipo', destination.type], ['Dirección', destination.address],
-      ['Localidad', destination.locality], ['Teléfono', destination.phone || 'Sin teléfono registrado'],
-      ['Estado', destination.archived?'Archivado':destination.status], ['Acceso', destination.notes || 'Sin referencia de acceso']
+      [window.HospitalI18n.t("settings.nombre"), destination.name], [window.HospitalI18n.t("shared.tipo"), typeLabels[destination.type]], [window.HospitalI18n.t("destinations.direccion"), destination.address],
+      [window.HospitalI18n.t("destinations.localidad"), destination.locality], [window.HospitalI18n.t("destinations.telefono"), destination.phone || window.HospitalI18n.t("destinations.sin_telefono_registrado")],
+      [window.HospitalI18n.t("trace_view.estado"), destination.archived?window.HospitalI18n.t("personnel.archivado"):statusLabels[destination.status]], [window.HospitalI18n.t("shared.acceso"), destination.notes || window.HospitalI18n.t("destinations.sin_referencia_de_acceso")]
     ].forEach(([label, value]) => {
       const term = document.createElement('dt');
       const description = document.createElement('dd');
-      term.textContent = label;
-      description.textContent = value;
+      window.HospitalI18n.bindText(term, () => label);
+      window.HospitalI18n.bindText(description, () => value);
       details.append(term, description);
     });
     detailDialog.showModal();
@@ -231,10 +234,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function confirmDeletion(destination) {
     deletingId = destination.id;deletingVersion=destination.version;
-    document.getElementById('delete-title').textContent=destination.archived?'Restaurar destino':'Eliminar destino';
-    document.getElementById('delete-confirm').querySelector('span').textContent=destination.archived?'Restaurar destino':'Eliminar destino';
-    document.getElementById('delete-description').textContent =
-      destination.archived?`¿Restaurar “${destination.name}” con su estado anterior?`:`¿Archivar “${destination.name}”? Se conservará el historial y podrás restaurarlo desde Inactivos.`;
+    window.HospitalI18n.bindText(document.getElementById('delete-title'), () => destination.archived?window.HospitalI18n.t("destinations.restaurar_destino"):window.HospitalI18n.t("destinations.eliminar_destino"));
+    window.HospitalI18n.bindText(document.getElementById('delete-confirm').querySelector('span'), () => destination.archived?window.HospitalI18n.t("destinations.restaurar_destino"):window.HospitalI18n.t("destinations.eliminar_destino"));
+    window.HospitalI18n.bindText(document.getElementById('delete-description'), () => destination.archived?window.HospitalI18n.t("destinations.restaurar_value_con_su_estado_anterior", {value0: destination.name}):window.HospitalI18n.t("destinations.archivar_value_se_conservara_el_historial_y_podras_restaurarlo_desde_inactivos", {value0: destination.name}));
     deleteDialog.showModal();
   }
 
@@ -245,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('form-cancel').addEventListener('click', () => { clearForm(); render(); });
   statusInput.addEventListener('change', updateStatus);
   [nameInput, addressInput, localityInput, phoneInput].forEach(input => {
-    input.addEventListener('input', () => { input.setCustomValidity(''); showFeedback(''); });
+    input.addEventListener('input', () => { window.HospitalI18n.bindValidity(input, () => ''); showFeedback(''); });
   });
   document.getElementById('empty-action').addEventListener('click', () => {
     search.value = '';
@@ -263,13 +265,13 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', async event => {
     event.preventDefault();if(busy)return;showFeedback('');
     const requiredInputs = [
-      [nameInput, 'Ingresa el nombre del destino.'],
-      [addressInput, 'Ingresa la dirección del destino.'],
-      [localityInput, 'Ingresa la localidad del destino.']
+      [nameInput, () => window.HospitalI18n.t("destinations.ingresa_el_nombre_del_destino")],
+      [addressInput, () => window.HospitalI18n.t("destinations.ingresa_la_direccion_del_destino")],
+      [localityInput, () => window.HospitalI18n.t("destinations.ingresa_la_localidad_del_destino")]
     ];
     for (const [input, message] of requiredInputs) {
       if (!input.value.trim()) {
-        input.setCustomValidity(message);
+        window.HospitalI18n.bindValidity(input, message);
         input.checkValidity();
         showFeedback(message, 'error');
         return;
@@ -277,14 +279,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const phone = phoneInput.value.trim();
     if (phone && (!/^\+?[\d\s().-]+$/.test(phone) || phone.replace(/\D/g, '').length < 8 || phone.replace(/\D/g, '').length > 15)) {
-      phoneInput.setCustomValidity('Ingresa un teléfono de 8 a 15 dígitos o deja el campo vacío.');
+      window.HospitalI18n.bindValidity(phoneInput, () => window.HospitalI18n.t("destinations.ingresa_un_telefono_de_8_a_15_digitos_o_deja_el_campo_vacio"));
       phoneInput.checkValidity();
-      showFeedback('Revisa el teléfono de contacto.', 'error');
+      showFeedback(() => window.HospitalI18n.t("destinations.revisa_el_telefono_de_contacto"), 'error');
       return;
     }
     if(!form.checkValidity())return;
     const record={name:nameInput.value.trim(),address:addressInput.value.trim(),locality:localityInput.value.trim(),
-      facility_type:typeCodes[typeInput.value],phone,notes:notesInput.value.trim(),availability:statusInput.value==='Activo'?'active':'inactive'};
+      facility_type:typeCodes[typeInput.value],phone,notes:notesInput.value.trim(),availability:statusInput.value==='active'?'active':'inactive'};
     const wasEditing=editingId!==null;
     if(wasEditing)Object.assign(record,{id:editingId,version:editingVersion});
     setBusy(true);
@@ -292,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const saved=upsert(await api.post(`destinations/${wasEditing?'update':'create'}.php`,record));
       clearForm();search.value='';setFilter(saved.status);
       currentPage=Math.floor(getMatchingDestinations().findIndex(d=>d.id===saved.id)/pageSize)+1;
-      showFeedback(wasEditing?'Destino actualizado.':'Destino guardado.');
+      showFeedback(() => wasEditing?window.HospitalI18n.t("destinations.destino_actualizado"):window.HospitalI18n.t("destinations.destino_guardado"));
     } catch(error){report(error);}finally{setBusy(false);render();}
 
   });
@@ -310,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       upsert(await api.post(`destinations/${destination.archived?'restore':'archive'}.php`,{id:destination.id,version:deletingVersion}));
       if(editingId===destination.id)clearForm();
-      deleteDialog.close();showFeedback(destination.archived?'Destino restaurado.':'Destino eliminado del listado.');
+      deleteDialog.close();showFeedback(() => destination.archived?window.HospitalI18n.t("destinations.destino_restaurado"):window.HospitalI18n.t("destinations.destino_eliminado_del_listado"));
     } catch(error){report(error);}finally{setBusy(false);render();}
 
   });
@@ -328,12 +330,14 @@ document.addEventListener('DOMContentLoaded', () => {
   deleteDialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
   window.addEventListener('focus',()=>{if(!busy && !dirty && !editingId && !detailDialog.open && !deleteDialog.open)refresh().catch(report);});
   async function start(){
-    setBusy(true);updateStatus();document.getElementById('list-count').textContent='Cargando destinos…';
+    setBusy(true);updateStatus();window.HospitalI18n.bindText(document.getElementById('list-count'), () => window.HospitalI18n.t("destinations.cargando_destinos"));
     try {
       const session=await window.HospitalAuth.ready;if(!session)return;
       if(!session.user.roles.includes('dispatcher')){location.replace(api.page('src/views/management/management.html'));return;}
       await refresh();setBusy(false);
-    } catch(error){report(error);document.getElementById('list-count').textContent='';}
+    } catch(error){report(error);window.HospitalI18n.bindText(document.getElementById('list-count'), () => '');}
   }
   start();
+  window.addEventListener('hospital:localechange',()=>{render();if(detailDialog.open){const item=destinations.find(d=>d.id===detailId);if(item)showDestination(item);}});
+
 });

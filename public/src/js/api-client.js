@@ -37,16 +37,18 @@
     }
 
     async function request(path, options = {}, retryCsrf = true, envelope = false) {
+        await window.HospitalI18n.ready;
         const method = (options.method || 'GET').toUpperCase();
         const headers = new Headers(options.headers || {});
         headers.set('Accept', 'application/json');
+        headers.set('X-Hospital-Locale', window.HospitalI18n.locale);
         const write = !['GET', 'HEAD'].includes(method);
         if (write) headers.set('X-CSRF-Token', await token());
         let response;
         try {
             response = await fetch(new URL(path, apiRoot), { ...options, method, headers, credentials: 'same-origin', cache: 'no-store' });
         } catch (_) {
-            const error = new ApiError('No se pudo conectar con el servidor. Revisá la conexión e intentá nuevamente.', 0, 'NETWORK_ERROR');
+            const error = new ApiError(window.HospitalI18n.t("api_client.no_se_pudo_conectar_con_el_servidor_revisa_la_conexion_e_intenta_nuevamente"), 0, 'NETWORK_ERROR');
             report(error); throw error;
         }
         let payload;
@@ -55,11 +57,11 @@
             payload = await response.json();
             if (typeof payload.success !== 'boolean') throw new Error();
         } catch (_) {
-            const error = new ApiError('El servidor devolvió una respuesta inválida. Revisá la configuración de PHP y la API.', response.status, 'INVALID_RESPONSE');
+            const error = new ApiError(window.HospitalI18n.t("api_client.el_servidor_devolvio_una_respuesta_invalida_revisa_la_configuracion_de_php_y_la_api"), response.status, 'INVALID_RESPONSE');
             report(error); throw error;
         }
         if (!response.ok || payload.success !== true) {
-            const error = new ApiError(payload.error?.message || 'No se pudo completar la operación.', response.status, payload.error?.code || 'REQUEST_FAILED', payload.error?.fields);
+            const error = new ApiError(payload.error?.message || window.HospitalI18n.t("api_client.no_se_pudo_completar_la_operacion"), response.status, payload.error?.code || 'REQUEST_FAILED', payload.error?.fields);
             error.requestId = payload.meta?.request_id;
             if (write && error.code === 'CSRF_INVALID' && retryCsrf) {
                 await token(true);
@@ -84,6 +86,6 @@
     // Prevent browser validation bubbles as well as application error notices.
     document.addEventListener('invalid', event => {
         event.preventDefault();
-        report(new ApiError(event.target.validationMessage, 422, 'VALIDATION_FAILED'), 'validation');
+        report(new ApiError(window.HospitalI18n.validationMessage(event.target), 422, 'VALIDATION_FAILED'), 'validation');
     }, true);
 })();

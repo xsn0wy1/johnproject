@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cargar Documento</title>
+  <title data-i18n="documents_upload.cargar_documento">Cargar Documento</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -13,12 +13,13 @@
   <link rel="icon" type="image/x-icon" href="../../../assets/hospital-dark.ico">
   <link rel="stylesheet" href="../../css/main-menu.css?v=20261012-settings">
   <link rel="stylesheet" href="../../css/documents/documents-upload.css?v=20261012-documents">
-  <script src="../../js/api-client.js" defer></script>
-  <script src="../../js/auth-session.js?v=20261014-audit" defer></script>
-  <script src="../../js/main-menu.js?v=20260927-global" defer></script>
-  <script src="../../js/universal-search.js?v=20261014-surveys" defer></script>
-  <script src="../../js/documents/document-api.js?v=20261012-documents" defer></script>
-  <script src="../../js/documents/document-form.js?v=20261012-documents" defer></script>
+  <script src="../../js/i18n.js?v=20261019-i18n" defer></script>
+  <script src="../../js/api-client.js?v=20261019-i18n" defer></script>
+  <script src="../../js/auth-session.js?v=20261019-i18n" defer></script>
+  <script src="../../js/main-menu.js?v=20261019-i18n" defer></script>
+  <script src="../../js/universal-search.js?v=20261019-role-shortcuts" defer></script>
+  <script src="../../js/documents/document-api.js?v=20261019-i18n" defer></script>
+  <script src="../../js/documents/document-form.js?v=20261019-i18n" defer></script>
 </head>
 
 <body>
@@ -27,7 +28,7 @@
 
   <main class="app-shell document-workspace">
     <aside class="sidebar">
-      <button type="button" class="sidebar-action" aria-label="Abrir menú" aria-expanded="false">
+      <button type="button" class="sidebar-action" aria-label="Abrir menú" data-i18n-aria-label="main_menu.abrir_menu" aria-expanded="false">
         <span></span>
         <span></span>
         <span></span>
@@ -37,35 +38,27 @@
         <div class="nav-indicator"></div>
 
         <a href="../main-menu.html" class="nav-item">
-          <img src="../../../assets/Icons/house-icon.svg" alt="Inicio">
-          <span>Inicio</span>
+          <img src="../../../assets/Icons/house-icon.svg" alt="Inicio" data-i18n-alt="main_menu.inicio">
+          <span data-i18n="main_menu.inicio">Inicio</span>
         </a>
         <a href="documents.html" class="nav-item active" aria-current="page">
-          <img src="../../../assets/Icons/folder-icon.svg" alt="Documentos">
-          <span>Documentos</span>
+          <img src="../../../assets/Icons/folder-icon.svg" alt="Documentos" data-i18n-alt="main_menu.documentos">
+          <span data-i18n="main_menu.documentos">Documentos</span>
         </a>
         <a href="../traces/trace.html" class="nav-item">
-          <img src="../../../assets/Icons/location-icon.svg" alt="Ambulancias">
-          <span>Ambulancias</span>
-        </a>
-        <a href="../analytics/analytics.html" class="nav-item">
-          <img src="../../../assets/Icons/analytics-icon.svg" alt="Reportes">
-          <span>Reportes</span>
-        </a>
-        <a href="../calendar/calendar.html" class="nav-item">
-          <img src="../../../assets/Icons/calendar-icon.svg" alt="Calendario">
-          <span>Calendario</span>
+          <img src="../../../assets/Icons/location-icon.svg" alt="Ambulancias" data-i18n-alt="main_menu.ambulancias">
+          <span data-i18n="main_menu.ambulancias">Ambulancias</span>
         </a>
         <a href="../surveys/survey.html" class="nav-item">
-          <img src="../../../assets/Icons/survey-icon.svg" alt="Encuestas">
-          <span>Encuestas</span>
+          <img src="../../../assets/Icons/survey-icon.svg" alt="Encuestas" data-i18n-alt="main_menu.encuestas">
+          <span data-i18n="main_menu.encuestas">Encuestas</span>
         </a>
 
         <div class="nav-spacer"></div>
 
         <a href="../settings.html" class="nav-item">
-          <img src="../../../assets/Icons/settings-icon.svg" alt="Configuración">
-          <span>Configuración</span>
+          <img src="../../../assets/Icons/settings-icon.svg" alt="Configuración" data-i18n-alt="main_menu.configuracion">
+          <span data-i18n="main_menu.configuracion">Configuración</span>
         </a>
       </nav>
     </aside>
@@ -73,13 +66,13 @@
     <section class="content-card document-content-card">
       <header class="topbar">
         <div class="brand">
-          <img src="../../../assets/Icons/hospital-logo.png" alt="Hospital de Clínicas">
-          <span>HOSPITAL DE CLINICAS</span>
+          <img src="../../../assets/Icons/hospital-logo.png" alt="Hospital de Clínicas" data-i18n-alt="main_menu.hospital_de_clinicas">
+          <span data-i18n="main_menu.hospital_de_clinicas_2">HOSPITAL DE CLINICAS</span>
         </div>
 
         <div class="search-wrapper">
-          <input type="search" class="search-input" placeholder="Buscar documento..." autocomplete="off">
-          <button type="button" class="topbar-action search-action" aria-label="Buscar" aria-expanded="false">
+          <input type="search" class="search-input" placeholder="Buscar documento..." data-i18n-placeholder="documents.buscar_documento" autocomplete="off">
+          <button type="button" class="topbar-action search-action" aria-label="Buscar" data-i18n-aria-label="trace_new.buscar" aria-expanded="false">
             <img src="../../../assets/Icons/search-icon.svg" alt="" aria-hidden="true">
           </button>
         </div>
@@ -89,7 +82,7 @@
         <div class="document-form-content">
           <a href="documents.html" class="back-link">
             <span aria-hidden="true">←</span>
-            Volver a documentos
+            <i18n-text data-i18n="documents_upload.volver_a_documentos" style="display:contents">Volver a documentos</i18n-text>
           </a>
 
           <div class="document-form-heading">
@@ -97,8 +90,8 @@
               <img src="../../../assets/Icons/cloud-upload.svg" alt="" aria-hidden="true">
             </div>
             <div>
-              <h1 id="page-title">Cargar Documento</h1>
-              <p>Registrá los datos y adjuntá el archivo correspondiente.</p>
+              <h1 id="page-title" data-i18n="documents_upload.cargar_documento">Cargar Documento</h1>
+              <p data-i18n="documents_upload.registra_los_datos_y_adjunta_el_archivo_correspondiente">Registrá los datos y adjuntá el archivo correspondiente.</p>
             </div>
           </div>
 
@@ -114,30 +107,30 @@
               <section class="form-section details-section" aria-labelledby="document-data-title">
                 <h2 id="document-data-title">
                   <span class="section-marker" aria-hidden="true"></span>
-                  Datos del documento
+                  <i18n-text data-i18n="documents_upload.datos_del_documento" style="display:contents">Datos del documento</i18n-text>
                 </h2>
 
                 <div class="document-field">
-                  <label for="nombre">Nombre del documento</label>
+                  <label for="nombre" data-i18n="documents_upload.nombre_del_documento">Nombre del documento</label>
                   <input
                     type="text"
                     id="nombre"
                     name="nombre"
                     maxlength="150"
-                    placeholder="Ej. Informe médico"
+                    placeholder="Ej. Informe médico" data-i18n-placeholder="documents_upload.ej_informe_medico"
                     autocomplete="off"
                     required>
                 </div>
 
                 <div class="document-field">
-                  <label for="paciente">Paciente del hospital</label>
+                  <label for="paciente" data-i18n="documents_upload.paciente_del_hospital">Paciente del hospital</label>
                   <input
                     type="text"
                     id="paciente"
                     name="paciente"
                     list="patient-options"
                     maxlength="180"
-                    placeholder="Buscá por nombre o cédula"
+                    placeholder="Buscá por nombre o cédula" data-i18n-placeholder="documents_upload.busca_por_nombre_o_cedula"
                     autocomplete="off"
                     required>
                 </div>
@@ -146,35 +139,35 @@
 
                 <div class="field-row">
                   <div class="document-field">
-                    <label for="fecha">Fecha del documento</label>
+                    <label for="fecha" data-i18n="documents_upload.fecha_del_documento">Fecha del documento</label>
                     <input type="date" id="fecha" name="fecha" required>
                   </div>
 
                   <div class="document-field">
-                    <label for="categoria">Categoría</label>
+                    <label for="categoria" data-i18n="survey.categoria">Categoría</label>
                     <select id="categoria" name="categoria" required>
-                      <option value="">Seleccioná una opción...</option>
-                      <option value="informe">Informe Médico</option>
-                      <option value="estudio">Estudio de Laboratorio</option>
-                      <option value="administrativo">Documento Administrativo</option>
+                      <option value="" data-i18n="documents_upload.selecciona_una_opcion">Seleccioná una opción...</option>
+                      <option value="informe" data-i18n="catalog.document_categories.medical_report">Informe Médico</option>
+                      <option value="estudio" data-i18n="catalog.document_categories.laboratory_study">Estudio de Laboratorio</option>
+                      <option value="administrativo" data-i18n="catalog.document_categories.administrative">Documento Administrativo</option>
                     </select>
                   </div>
                 </div>
 
                 <div class="document-field description-field">
-                  <label for="descripcion">Descripción</label>
+                  <label for="descripcion" data-i18n="documents_upload.descripcion">Descripción</label>
                   <textarea
                     id="descripcion"
                     name="descripcion"
                     maxlength="1000"
-                    placeholder="Agregá una descripción del documento..."></textarea>
+                    placeholder="Agregá una descripción del documento..." data-i18n-placeholder="documents_upload.agrega_una_descripcion_del_documento"></textarea>
                 </div>
               </section>
 
               <section class="form-section file-section" aria-labelledby="file-data-title">
                 <h2 id="file-data-title">
                   <span class="section-marker" aria-hidden="true"></span>
-                  Archivo adjunto
+                  <i18n-text data-i18n="documents_upload.archivo_adjunto" style="display:contents">Archivo adjunto</i18n-text>
                 </h2>
 
                 <label class="upload-area" id="uploadArea" for="archivo">
@@ -186,8 +179,8 @@
                     aria-describedby="fileHelp"
                     required>
                   <img src="../../../assets/Icons/cloud-upload.svg" alt="" aria-hidden="true">
-                  <strong>Seleccioná o arrastrá un archivo</strong>
-                  <span id="fileHelp">PDF, DOCX, JPG o PNG · máximo 10 MiB</span>
+                  <strong data-i18n="documents_upload.selecciona_o_arrastra_un_archivo">Seleccioná o arrastrá un archivo</strong>
+                  <span id="fileHelp" data-i18n="documents_upload.pdf_docx_jpg_o_png_maximo_10_mib">PDF, DOCX, JPG o PNG · máximo 10 MiB</span>
                 </label>
 
                 <div class="file-summary" id="fileSummary" hidden>
@@ -196,14 +189,14 @@
                     <strong id="selectedFileName"></strong>
                     <span id="selectedFileMeta"></span>
                   </div>
-                  <button type="button" id="clearFile" aria-label="Quitar archivo seleccionado">&times;</button>
+                  <button type="button" id="clearFile" aria-label="Quitar archivo seleccionado" data-i18n-aria-label="documents_upload.quitar_archivo_seleccionado" data-i18n="documents_upload.times">&times;</button>
                 </div>
 
                 <p class="form-message" id="formMessage" role="status" aria-live="polite"></p>
 
                 <div class="form-actions">
-                  <a href="documents.html" class="cancel-button">Cancelar</a>
-                  <button type="submit" class="save-button">Subir Documento</button>
+                  <a href="documents.html" class="cancel-button" data-i18n="settings.cancelar">Cancelar</a>
+                  <button type="submit" class="save-button" data-i18n="documents_upload.subir_documento">Subir Documento</button>
                 </div>
               </section>
             </div>

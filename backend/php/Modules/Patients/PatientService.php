@@ -13,13 +13,13 @@ final class PatientService
     public function __construct(\PDO $db,array $config) { $this->db=$db; $this->config=$config; }
     public function access(string $actor): void
     {
-        if (!in_array('records_manager',(new UserRepository($this->db))->roles($actor),true)) throw new ApiException(403,'FORBIDDEN','Se requiere permiso de gestión de registros.');
+        if (!in_array('records_manager',(new UserRepository($this->db))->roles($actor),true)) throw new ApiException(403,'FORBIDDEN',\Hospital\I18n::t("patients.se_requiere_permiso_de_gestion_de_registros"));
     }
     private function actor(?string $actor): void
     {
         if ($actor===null) return; // Trusted local CLI only; HTTP always supplies an ID.
         $u=(new UserRepository($this->db))->byId($actor,true);
-        if (!$u || $u['status']!=='active' || $u['staff_status']!=='active' || (int)$u['auth_version']!==(int)($_SESSION['auth_version']??0)) throw new ApiException(401,'SESSION_EXPIRED','La sesión ya no tiene acceso.');
+        if (!$u || $u['status']!=='active' || $u['staff_status']!=='active' || (int)$u['auth_version']!==(int)($_SESSION['auth_version']??0)) throw new ApiException(401,'SESSION_EXPIRED',\Hospital\I18n::t("errors.la_sesion_ya_no_tiene_acceso"));
         $this->access($actor);
     }
     private function audit(?string $actor,string $action,string $id): void { (new TransferAccess($this->db,$this->config))->audit($actor,$action,$id,'patient'); }
@@ -30,7 +30,7 @@ final class PatientService
             try { $this->actor($actor); $result=$work(); $this->db->commit(); return $result; }
             catch (\Throwable $error) {
                 if ($this->db->inTransaction()) $this->db->rollBack();
-                if ($error instanceof \PDOException && ($error->errorInfo[1]??0)===1062) throw new ApiException(409,'PATIENT_CONFLICT','Ya existe un registro con ese documento.');
+                if ($error instanceof \PDOException && ($error->errorInfo[1]??0)===1062) throw new ApiException(409,'PATIENT_CONFLICT',\Hospital\I18n::t("errors.ya_existe_un_registro_con_ese_documento"));
                 throw $error;
             }
         });
@@ -38,8 +38,8 @@ final class PatientService
     private function lock(string $id,?int $version=null): array
     {
         $s=$this->db->prepare('SELECT * FROM patients WHERE id=? FOR UPDATE'); $s->execute([$id]); $p=$s->fetch();
-        if (!$p) throw new ApiException(404,'PATIENT_NOT_FOUND','No se encontró el paciente.');
-        if ($version!==null && (int)$p['version']!==$version) throw new ApiException(409,'VERSION_CONFLICT','El paciente cambió. Volvé a abrirlo antes de guardar.');
+        if (!$p) throw new ApiException(404,'PATIENT_NOT_FOUND',\Hospital\I18n::t("errors.no_se_encontro_el_paciente"));
+        if ($version!==null && (int)$p['version']!==$version) throw new ApiException(409,'VERSION_CONFLICT',\Hospital\I18n::t("errors.el_paciente_cambio_volve_a_abrirlo_antes_de_guardar"));
         return $p;
     }
     private function joins(): string
@@ -67,7 +67,7 @@ final class PatientService
     public function get(string $actor,string $id): array
     {
         $this->access($actor); $s=$this->db->prepare($this->select().$this->joins().' WHERE p.id=?'); $s->execute([$id]); $p=$s->fetch();
-        if (!$p) throw new ApiException(404,'PATIENT_NOT_FOUND','No se encontró el paciente.');
+        if (!$p) throw new ApiException(404,'PATIENT_NOT_FOUND',\Hospital\I18n::t("errors.no_se_encontro_el_paciente"));
         $this->audit($actor,'patient.viewed',$id); return $this->serialize($p);
     }
     public function listing(string $actor,array $input): array
@@ -144,11 +144,11 @@ final class PatientService
     public function create(string $actor,array $input): array
     {
         $f=PatientInput::fields($input); $token=$input['create_token']??null;
-        if (!is_string($token) || !preg_match('/^[a-f0-9]{64}$/',$token)) throw new ApiException(422,'CREATE_TOKEN_REQUIRED','Se requiere una referencia de creación válida.');
+        if (!is_string($token) || !preg_match('/^[a-f0-9]{64}$/',$token)) throw new ApiException(422,'CREATE_TOKEN_REQUIRED',\Hospital\I18n::t("errors.se_requiere_una_referencia_de_creacion_valida"));
         $key=hash('sha256',$actor.':'.$token); $fingerprint=hash('sha256',json_encode($f,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR));
         $id=$this->transaction($actor,function() use($actor,$f,$key,$fingerprint) {
             $s=$this->db->prepare('SELECT id,create_fingerprint FROM patients WHERE create_key=?'); $s->execute([$key]); $existing=$s->fetch();
-            if ($existing) { if (!hash_equals($existing['create_fingerprint'],$fingerprint)) throw new ApiException(409,'CREATE_TOKEN_REUSED','La referencia ya se utilizó con otros datos.'); return (string)$existing['id']; }
+            if ($existing) { if (!hash_equals($existing['create_fingerprint'],$fingerprint)) throw new ApiException(409,'CREATE_TOKEN_REUSED',\Hospital\I18n::t("errors.la_referencia_ya_se_utilizo_con_otros_datos")); return (string)$existing['id']; }
             $values=$this->identityValues($f,null); array_push($values,$key,$fingerprint);
             $s=$this->db->prepare('INSERT INTO patients (full_name,national_id,date_of_birth,sex,estimated_age,age_recorded_on,phone,blood_group,allergies,create_key,create_fingerprint) VALUES (?,?,?,?,?,?,?,?,?,?,?)'); $s->execute($values); $id=$this->db->lastInsertId();
             $this->saveRelated($id,$f,null); $this->audit($actor,'patient.created',$id); return $id;
@@ -159,7 +159,7 @@ final class PatientService
     {
         $f=PatientInput::fields($input); $version=PatientInput::version($input['version']??null);
         $this->transaction($actor,function() use($actor,$id,$f,$version) {
-            $p=$this->lock($id,$version); if ($p['status']!=='active') throw new ApiException(409,'PATIENT_ARCHIVED','Restaurá el paciente antes de editarlo.');
+            $p=$this->lock($id,$version); if ($p['status']!=='active') throw new ApiException(409,'PATIENT_ARCHIVED',\Hospital\I18n::t("errors.restaura_el_paciente_antes_de_editarlo"));
             $values=$this->identityValues($f,$p); $values[]=$id;
             $s=$this->db->prepare('UPDATE patients SET full_name=?,national_id=?,date_of_birth=?,sex=?,estimated_age=?,age_recorded_on=?,phone=?,blood_group=?,allergies=?,version=version+1 WHERE id=?'); $s->execute($values);
             $this->saveRelated($id,$f,$p); $this->audit($actor,'patient.updated',$id);
@@ -170,12 +170,12 @@ final class PatientService
     {
         $this->transaction($actor,function() use($actor,$id,$version,$restore) {
             $p=$this->lock($id,$version); $wanted=$restore?'active':'archived';
-            if ($p['status']===$wanted) throw new ApiException(409,'PATIENT_STATE_CONFLICT','El estado del registro cambió.');
+            if ($p['status']===$wanted) throw new ApiException(409,'PATIENT_STATE_CONFLICT',\Hospital\I18n::t("errors.el_estado_del_registro_cambio"));
             if (!$restore) {
                 $s=$this->db->prepare("SELECT id FROM transfers WHERE patient_id=? AND status NOT IN ('completed','cancelled') LIMIT 1"); $s->execute([$id]);
-                if ($s->fetchColumn()) throw new ApiException(409,'PATIENT_IN_USE','El paciente tiene un traslado pendiente o en curso.');
+                if ($s->fetchColumn()) throw new ApiException(409,'PATIENT_IN_USE',\Hospital\I18n::t("errors.el_paciente_tiene_un_traslado_pendiente_o_en_curso"));
                 $s=$this->db->prepare("SELECT id FROM patient_appointments WHERE patient_id=? AND status='scheduled' AND scheduled_at>=UTC_TIMESTAMP() LIMIT 1"); $s->execute([$id]);
-                if ($s->fetchColumn()) throw new ApiException(409,'PATIENT_IN_USE','El paciente tiene una cita pendiente.');
+                if ($s->fetchColumn()) throw new ApiException(409,'PATIENT_IN_USE',\Hospital\I18n::t("errors.el_paciente_tiene_una_cita_pendiente"));
             }
             $s=$this->db->prepare('UPDATE patients SET status=?,archived_at=?,version=version+1 WHERE id=?'); $s->execute([$wanted,$restore?null:gmdate('Y-m-d H:i:s'),$id]);
             $this->audit($actor,$restore?'patient.restored':'patient.archived',$id);

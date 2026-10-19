@@ -16,9 +16,9 @@ final class DocumentService
     private function actor(string $actor): void
     {
         $user = (new UserRepository($this->db))->byId($actor, true);
-        if (!$user || $user['status'] !== 'active' || $user['staff_status'] !== 'active' || (int) $user['auth_version'] !== (int) ($_SESSION['auth_version'] ?? 0)) throw new ApiException(401, 'SESSION_EXPIRED', 'La sesión ya no tiene acceso.');
+        if (!$user || $user['status'] !== 'active' || $user['staff_status'] !== 'active' || (int) $user['auth_version'] !== (int) ($_SESSION['auth_version'] ?? 0)) throw new ApiException(401, 'SESSION_EXPIRED', \Hospital\I18n::t("errors.la_sesion_ya_no_tiene_acceso"));
     }
-    private function missing(): void { throw new ApiException(404, 'DOCUMENT_NOT_FOUND', 'No se encontró el documento.'); }
+    private function missing(): void { throw new ApiException(404, 'DOCUMENT_NOT_FOUND', \Hospital\I18n::t("errors.no_se_encontro_el_documento")); }
     private function row(string $actor, string $id, bool $lock = false): array
     {
         $sql = 'SELECT d.*, c.code AS category_code, c.name AS category_name, c.requires_patient, p.full_name AS patient_name, p.national_id AS patient_national_id, p.status AS patient_status, COALESCE(NULLIF(s.full_name,\'\'), u.username) AS uploader_name FROM documents d JOIN document_categories c ON c.id = d.category_id LEFT JOIN patients p ON p.id = d.patient_id JOIN users u ON u.id = d.uploader_user_id JOIN staff s ON s.id = u.staff_id WHERE d.id = ?';
@@ -30,29 +30,29 @@ final class DocumentService
     }
     private function revision(array $row, $version): void
     {
-        if ((!is_int($version) && !is_string($version)) || !preg_match('/^[1-9][0-9]{0,9}$/', (string) $version)) throw new ApiException(422, 'VERSION_REQUIRED', 'Se requiere la revisión actual.');
-        if ((int) $row['version'] !== (int) $version) throw new ApiException(409, 'VERSION_CONFLICT', 'El documento cambió. Volvé a abrirlo antes de guardar.');
+        if ((!is_int($version) && !is_string($version)) || !preg_match('/^[1-9][0-9]{0,9}$/', (string) $version)) throw new ApiException(422, 'VERSION_REQUIRED', \Hospital\I18n::t("errors.se_requiere_la_revision_actual"));
+        if ((int) $row['version'] !== (int) $version) throw new ApiException(409, 'VERSION_CONFLICT', \Hospital\I18n::t("errors.el_documento_cambio_volve_a_abrirlo_antes_de_guardar"));
     }
     private function metadata(array $input, bool $lock = false, ?string $existingPatient = null): array
     {
         $description = $input['description'] ?? '';
-        if (!is_string($description) || !mb_check_encoding($description, 'UTF-8')) throw new ApiException(422, 'VALIDATION_FAILED', 'Descripción no válida.');
+        if (!is_string($description) || !mb_check_encoding($description, 'UTF-8')) throw new ApiException(422, 'VALIDATION_FAILED', \Hospital\I18n::t("errors.descripcion_no_valida"));
         $description = trim(str_replace(["\r\n", "\r"], "\n", $description));
-        if (mb_strlen($description, 'UTF-8') > 1000 || preg_match('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]|[\p{Cf}\p{Cs}\p{Co}\p{Cn}]/u', $description)) throw new ApiException(422, 'VALIDATION_FAILED', 'Revisá la descripción y su longitud.');
+        if (mb_strlen($description, 'UTF-8') > 1000 || preg_match('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]|[\p{Cf}\p{Cs}\p{Co}\p{Cn}]/u', $description)) throw new ApiException(422, 'VALIDATION_FAILED', \Hospital\I18n::t("errors.revisa_la_descripcion_y_su_longitud"));
         $fields = ['title' => SettingsService::text($input['title'] ?? null, 'title', 150, false),
             'description' => $description,
             'category_id' => Request::id($input['category_id'] ?? null)];
         $date = $input['document_date'] ?? null;
-        if (!is_string($date) || !preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $date, $parts) || (int) $parts[1] < 1900 || !checkdate((int) $parts[2], (int) $parts[3], (int) $parts[1])) throw new ApiException(422, 'VALIDATION_FAILED', 'Ingresá una fecha válida.', ['document_date' => 'Fecha inválida.']);
+        if (!is_string($date) || !preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $date, $parts) || (int) $parts[1] < 1900 || !checkdate((int) $parts[2], (int) $parts[3], (int) $parts[1])) throw new ApiException(422, 'VALIDATION_FAILED', \Hospital\I18n::t("errors.ingresa_una_fecha_valida"), ['document_date' => \Hospital\I18n::t("errors.fecha_invalida")]);
         $fields['document_date'] = $date;
         $stmt = $this->db->prepare('SELECT requires_patient FROM document_categories WHERE id = ?'); $stmt->execute([$fields['category_id']]); $category = $stmt->fetch();
-        if (!$category) throw new ApiException(422, 'VALIDATION_FAILED', 'Seleccioná una categoría válida.');
+        if (!$category) throw new ApiException(422, 'VALIDATION_FAILED', \Hospital\I18n::t("errors.selecciona_una_categoria_valida"));
         $patient = $input['patient_id'] ?? null;
         $fields['patient_id'] = ($patient === null || $patient === '') ? null : Request::id($patient);
-        if ($category['requires_patient'] && $fields['patient_id'] === null) throw new ApiException(422, 'VALIDATION_FAILED', 'Seleccioná un paciente del hospital.', ['patient_id' => 'Paciente requerido.']);
+        if ($category['requires_patient'] && $fields['patient_id'] === null) throw new ApiException(422, 'VALIDATION_FAILED', \Hospital\I18n::t("document_form.selecciona_un_paciente_del_hospital"), ['patient_id' => \Hospital\I18n::t("errors.paciente_requerido")]);
         if ($fields['patient_id'] !== null) {
             $stmt = $this->db->prepare('SELECT id FROM patients WHERE id = ?' . ($fields['patient_id'] === $existingPatient ? '' : " AND status = 'active'") . ($lock ? ' FOR UPDATE' : '')); $stmt->execute([$fields['patient_id']]);
-            if (!$stmt->fetchColumn()) throw new ApiException(422, 'VALIDATION_FAILED', 'Seleccioná un paciente activo del hospital.');
+            if (!$stmt->fetchColumn()) throw new ApiException(422, 'VALIDATION_FAILED', \Hospital\I18n::t("errors.selecciona_un_paciente_activo_del_hospital"));
         }
         return $fields;
     }
@@ -73,7 +73,7 @@ final class DocumentService
     {
         $fields = $this->metadata($input);
         $key = $input['create_token'] ?? null;
-        if (!is_string($key) || !preg_match('/^[a-f0-9]{64}$/', $key)) throw new ApiException(422, 'CREATE_TOKEN_REQUIRED', 'Se requiere la referencia de esta carga.');
+        if (!is_string($key) || !preg_match('/^[a-f0-9]{64}$/', $key)) throw new ApiException(422, 'CREATE_TOKEN_REQUIRED', \Hospital\I18n::t("errors.se_requiere_la_referencia_de_esta_carga"));
         $file = $this->files->stage($upload); $committed = false;
         try {
             $fingerprint = hash('sha256', json_encode([$fields, $file['sha256'], $file['name']], JSON_THROW_ON_ERROR));
@@ -81,7 +81,7 @@ final class DocumentService
             // The actor row serializes retries even from independent browser sessions.
             $stmt = $this->db->prepare('SELECT id, create_fingerprint FROM documents WHERE uploader_user_id = ? AND create_key = ?'); $stmt->execute([$actor, hash('sha256', $key)]); $existing = $stmt->fetch();
             if ($existing) {
-                if (!hash_equals($existing['create_fingerprint'], $fingerprint)) throw new ApiException(409, 'CREATE_TOKEN_REUSED', 'Esta referencia de carga ya se utilizó con otros datos.');
+                if (!hash_equals($existing['create_fingerprint'], $fingerprint)) throw new ApiException(409, 'CREATE_TOKEN_REUSED', \Hospital\I18n::t("errors.esta_referencia_de_carga_ya_se_utilizo_con_otros_datos"));
                 $id = (string) $existing['id']; $this->db->commit(); $this->files->discard($file);
                 return $this->get($actor, $id);
             }
@@ -102,18 +102,18 @@ final class DocumentService
         try {
             // Permission/version checks precede parsing potentially expensive uploads.
             $row = $this->row($actor, $id); $this->revision($row, $input['version'] ?? null);
-            if ($row['archived_at'] !== null) throw new ApiException(409, 'DOCUMENT_ARCHIVED', 'Restaurá el documento antes de editarlo.');
+            if ($row['archived_at'] !== null) throw new ApiException(409, 'DOCUMENT_ARCHIVED', \Hospital\I18n::t("document_form.restaura_el_documento_antes_de_editarlo"));
             $hasMetadata = array_key_exists('title', $input);
             if ($upload === null || $hasMetadata) $this->metadata($input, false, $row['patient_id'] === null ? null : (string) $row['patient_id']);
             if ($upload !== null) $file = $this->files->stage($upload);
             $this->db->beginTransaction(); $this->actor($actor);
             $row = $this->row($actor, $id, true); $this->revision($row, $input['version'] ?? null);
-            if ($row['archived_at'] !== null) throw new ApiException(409, 'DOCUMENT_ARCHIVED', 'Restaurá el documento antes de editarlo.');
+            if ($row['archived_at'] !== null) throw new ApiException(409, 'DOCUMENT_ARCHIVED', \Hospital\I18n::t("document_form.restaura_el_documento_antes_de_editarlo"));
             if ($upload === null || $hasMetadata) {
                 $fields = $this->metadata($input, true, $row['patient_id'] === null ? null : (string) $row['patient_id']);
                 $stmt = $this->db->prepare('UPDATE documents SET title = ?, description = ?, category_id = ?, patient_id = ?, document_date = ? WHERE id = ?');
                 $stmt->execute([$fields['title'], $fields['description'], $fields['category_id'], $fields['patient_id'], $fields['document_date'], $id]);
-            } elseif (array_diff(array_keys($input), ['id', 'version'])) throw new ApiException(422, 'VALIDATION_FAILED', 'Enviá todos los datos o solamente el archivo.');
+            } elseif (array_diff(array_keys($input), ['id', 'version'])) throw new ApiException(422, 'VALIDATION_FAILED', \Hospital\I18n::t("errors.envia_todos_los_datos_o_solamente_el_archivo"));
             if ($file !== null) {
                 $this->files->publish($file); $next = (int) $row['current_file_version'] + 1;
                 $this->addFile($actor, $id, $next, $file);
@@ -132,7 +132,7 @@ final class DocumentService
         $this->db->beginTransaction();
         try {
             $this->actor($actor); $row = $this->row($actor, $id, true); $this->revision($row, $version);
-            if (($row['archived_at'] === null) === $restore) throw new ApiException(409, 'DOCUMENT_STATE_CONFLICT', 'El estado del documento ya cambió.');
+            if (($row['archived_at'] === null) === $restore) throw new ApiException(409, 'DOCUMENT_STATE_CONFLICT', \Hospital\I18n::t("errors.el_estado_del_documento_ya_cambio"));
             $stmt = $this->db->prepare('UPDATE documents SET archived_at = ' . ($restore ? 'NULL' : 'UTC_TIMESTAMP()') . ', version = version + 1, updated_at = UTC_TIMESTAMP() WHERE id = ?'); $stmt->execute([$id]);
             $this->audit($actor, $restore ? 'document.restored' : 'document.archived', $id); $this->db->commit();
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
@@ -167,12 +167,12 @@ final class DocumentService
 
     public function listing(string $actor, array $query): array
     {
-        if (array_diff(array_keys($query), ['page', 'page_size', 'q', 'type', 'sort', 'state'])) throw new ApiException(422, 'UNEXPECTED_FIELDS', 'Filtro no permitido.');
-        foreach ($query as $value) if (!is_string($value)) throw new ApiException(422, 'VALIDATION_FAILED', 'Filtro inválido.');
+        if (array_diff(array_keys($query), ['page', 'page_size', 'q', 'type', 'sort', 'state'])) throw new ApiException(422, 'UNEXPECTED_FIELDS', \Hospital\I18n::t("errors.filtro_no_permitido"));
+        foreach ($query as $value) if (!is_string($value)) throw new ApiException(422, 'VALIDATION_FAILED', \Hospital\I18n::t("errors.filtro_invalido"));
         $page = $query['page'] ?? '1'; $size = $query['page_size'] ?? '20';
-        if (!preg_match('/^[1-9][0-9]{0,5}$/', $page) || !preg_match('/^[1-9][0-9]{0,2}$/', $size) || (int) $size > 100) throw new ApiException(422, 'VALIDATION_FAILED', 'Paginación inválida.');
+        if (!preg_match('/^[1-9][0-9]{0,5}$/', $page) || !preg_match('/^[1-9][0-9]{0,2}$/', $size) || (int) $size > 100) throw new ApiException(422, 'VALIDATION_FAILED', \Hospital\I18n::t("errors.paginacion_invalida"));
         $q = SettingsService::text($query['q'] ?? '', 'q', 150, true); $type = $query['type'] ?? ''; $sort = $query['sort'] ?? 'recent'; $state = $query['state'] ?? 'active';
-        if (!in_array($type, ['', 'pdf', 'docx', 'png', 'jpg'], true) || !in_array($sort, ['recent', 'oldest'], true) || !in_array($state, ['active', 'archived'], true)) throw new ApiException(422, 'VALIDATION_FAILED', 'Filtro inválido.');
+        if (!in_array($type, ['', 'pdf', 'docx', 'png', 'jpg'], true) || !in_array($sort, ['recent', 'oldest'], true) || !in_array($state, ['active', 'archived'], true)) throw new ApiException(422, 'VALIDATION_FAILED', \Hospital\I18n::t("errors.filtro_invalido"));
         $where = ['d.archived_at IS ' . ($state === 'active' ? 'NULL' : 'NOT NULL')]; $params = [];
         if (!$this->manager($actor)) { $where[] = 'd.uploader_user_id = ?'; $params[] = $actor; }
         if ($type !== '') { $where[] = 'v.extension = ?'; $params[] = $type; }

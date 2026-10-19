@@ -199,9 +199,9 @@
 .doctors-page .field-control :is(input, select):focus-visible { outline: none; }
 .field-control input::placeholder, .form-grid textarea::placeholder { color: #818ca5; }
 .status-dot { color: #56d695; }
-.status-dot[data-status="En consulta"] { color: #86b2ff; }
-.status-dot[data-status="De guardia"] { color: #eec078; }
-.status-dot[data-status="Inactivo"] { color: #fb8195; }
+.status-dot[data-status="consulting"] { color: #86b2ff; }
+.status-dot[data-status="on_call"] { color: #eec078; }
+.status-dot[data-status="inactive"] { color: #fb8195; }
 .time-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .time-fields .field-control { padding: 0 9px; }
 .full-width { grid-column: 1 / -1; }

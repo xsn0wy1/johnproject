@@ -4,27 +4,31 @@
  * Dark Matter. OpenStreetMap is the keyless default and the tile-error fallback.
  * Positions come only from the authenticated shared server simulation.
  */
-(() => {
+(async () => {
   'use strict';
+    const i18nSourceUrl = document.currentScript.src;
+    await window.HospitalI18n.ready;
+    await window.HospitalAuth.ready;
 
-  const ICON_ROOT = new URL('../../../assets/Icons/', document.currentScript.src).href;
+
+  const ICON_ROOT = new URL('../../../assets/Icons/', i18nSourceUrl).href;
   const CENTER = [-34.8833, -56.1667];
   const INITIAL_ZOOM = 12.5;
   const STATUS = Object.freeze({
-    'EN CURSO': { className: 'status-progress', label: 'En curso' },
-    PROGRAMADO: { className: 'status-scheduled', label: 'Programado' },
-    DEMORADO: { className: 'status-delayed', label: 'Demorado' },
-    'EN DESTINO': { className: 'status-progress', label: 'En destino' },
-    FINALIZADO: { className: 'status-scheduled', label: 'Finalizado' },
-    CANCELADO: { className: 'status-scheduled', label: 'Cancelado' }
+    get 'in_progress'() { return { className: 'status-progress', get label() { return window.HospitalI18n.t("trace_map.en_curso_2"); } }; },
+    get scheduled() { return { className: 'status-scheduled', get label() { return window.HospitalI18n.t("trace_map.programado_2"); } }; },
+    get delayed() { return { className: 'status-delayed', get label() { return window.HospitalI18n.t("trace_map.demorado_2"); } }; },
+    get 'arrived'() { return { className: 'status-progress', get label() { return window.HospitalI18n.t("trace_view.en_destino"); } }; },
+    get completed() { return { className: 'status-scheduled', get label() { return window.HospitalI18n.t("trace_view.finalizado"); } }; },
+    get cancelled() { return { className: 'status-scheduled', get label() { return window.HospitalI18n.t("trace_api.cancelado"); } }; }
   });
 
   const transfers = [];
   let requestedTransfer = new URLSearchParams(location.search).get('transfer');
   if (requestedTransfer && !/^[1-9][0-9]*$/.test(requestedTransfer)) {
-    window.TraceApi.report(new Error('Identificador de traslado no válido.')); requestedTransfer = null;
+    window.TraceApi.report(new Error(window.HospitalI18n.t("trace_map.identificador_de_traslado_no_valido"))); requestedTransfer = null;
   }
-  const filterStatuses = ['EN CURSO','PROGRAMADO','DEMORADO'];
+  const filterStatuses = ['in_progress','scheduled','delayed'];
   let loaded = false, polling = false, stopped = false, lastSnapshot, historical = false;
 
   const $ = (id) => document.getElementById(id);
@@ -57,57 +61,57 @@
   const normalize = (value) => String(value).normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
   const icon = (name, className = 'icon') => `<span class="${className}" style="--icon-image:url('${ICON_ROOT}${name}')" aria-hidden="true"></span>`;
-  const badge = (transfer) => `<span class="status-badge ${STATUS[transfer.status].className}">${escapeHTML(transfer.status)}</span>`;
+  const badge = (transfer) => `<span class="status-badge ${STATUS[transfer.status].className}">${escapeHTML(STATUS[transfer.status].label)}</span>`;
   const vehicleBadge = (transfer) => `<span class="vehicle-badge" style="--route-color:${transfer.color}">${icon('steering-wheel.svg')}</span>`;
 
   function getVisibleTransfers() {
     const words = normalize(state.query).split(' ').filter(Boolean);
-    return transfers.filter((transfer) => state.statuses.has(filterStatuses.includes(transfer.status)?transfer.status:'EN CURSO') && words.every((word) =>
+    return transfers.filter((transfer) => state.statuses.has(filterStatuses.includes(transfer.status)?transfer.status:'in_progress') && words.every((word) =>
       normalize(`${transfer.id} ${transfer.name} ${transfer.ambulance} ${transfer.origin} ${transfer.destination} ${transfer.status}`).includes(word)
     ));
   }
 
   function renderList(visible) {
     const focusedId = document.activeElement?.closest('.transfer-card')?.dataset.transferId;
-    elements.list.innerHTML = visible.map((transfer) => `
+    window.HospitalI18n.setHTML(elements.list, visible.map((transfer) => `
       <button class="transfer-card" type="button" data-transfer-id="${transfer.id}"
         aria-pressed="${transfer.id === state.selectedId}" style="--route-color:${transfer.color}"
-        aria-label="${escapeHTML(`${transfer.name}, Ambulancia ${transfer.ambulance}, ${STATUS[transfer.status].label}, destino ${transfer.destination}, llegada estimada ${transfer.eta}`)}">
+        aria-label="${escapeHTML(window.HospitalI18n.t("trace_map.value_ambulancia_value_value_destino_value_llegada_estimada_value", {value0: transfer.name, value1: transfer.ambulance, value2: STATUS[transfer.status].label, value3: transfer.destination, value4: transfer.eta}))}">
         <span class="transfer-card-top">
           ${vehicleBadge(transfer)}
           <span class="transfer-card-copy">
             <span class="transfer-card-title"><strong>${escapeHTML(transfer.name)}</strong>${badge(transfer)}</span>
-            <span class="ambulance-name">Ambulancia ${escapeHTML(transfer.ambulance)}</span>
+            <span class="ambulance-name">${window.HospitalI18n.mark("trace.ambulancia_value", {value0: escapeHTML(transfer.ambulance)})}</span>
           </span>
         </span>
         <span class="card-destination"><span aria-hidden="true">→</span><span>${escapeHTML(transfer.destination)}</span></span>
-        <span class="transfer-card-footer"><span>${icon('time-icon.svg')}Llegada estimada</span><time datetime="${transfer.eta}">${transfer.eta}</time></span>
-      </button>`).join('');
+        <span class="transfer-card-footer"><span>${icon('time-icon.svg')}${window.HospitalI18n.mark("trace_map.llegada_estimada")}</span><time datetime="${transfer.eta}">${transfer.eta}</time></span>
+      </button>`).join(''));
     if (focusedId) elements.list.querySelector(`[data-transfer-id="${focusedId}"]`)?.focus({ preventScroll: true });
     $('empty-state').hidden = !loaded || visible.length > 0;
-    $('visible-count').textContent = visible.length;
-    $('result-announcement').textContent = `${visible.length} ${visible.length === 1 ? 'traslado visible' : 'traslados visibles'}`;
+    window.HospitalI18n.bindText($('visible-count'), () => visible.length);
+    window.HospitalI18n.bindText($('result-announcement'), () => `${visible.length} ${visible.length === 1 ? window.HospitalI18n.t("trace_map.traslado_visible") : window.HospitalI18n.t("trace_map.traslados_visibles")}`);
   }
 
   function renderLegend(visible) {
-    elements.legend.innerHTML = visible.length ? visible.map((transfer) => `
+    window.HospitalI18n.setHTML(elements.legend, visible.length ? visible.map((transfer) => `
       <button class="legend-row" type="button" data-transfer-id="${transfer.id}" style="--route-color:${transfer.color}"
-        aria-label="Seleccionar ${escapeHTML(transfer.name)}">
-        <span class="legend-line" aria-hidden="true"></span><span>Traslado ${transfer.id}</span>
+        aria-label="${window.HospitalI18n.html("trace_map.seleccionar_value", {value0: escapeHTML(transfer.name)})}" data-i18n-aria-label="trace_map.seleccionar_value" data-i18n-aria-label-params="${window.HospitalI18n.escape(JSON.stringify({value0: escapeHTML(transfer.name)}))}">
+        <span class="legend-line" aria-hidden="true"></span><span>${window.HospitalI18n.mark("trace_map.traslado_value", {value0: transfer.id})}</span>
         <small>${STATUS[transfer.status].label}</small>
-      </button>`).join('') : '<p class="legend-empty">Sin rutas visibles</p>';
+      </button>`).join('') : `<p class="legend-empty">${window.HospitalI18n.mark("trace_map.sin_rutas_visibles")}</p>`);
   }
 
   function renderMetrics() {
-    $('total-count').textContent = transfers.length;
-    $('progress-count').textContent = transfers.filter((item) => ['EN CURSO','EN DESTINO'].includes(item.status)).length;
-    $('scheduled-count').textContent = transfers.filter((item) => item.status === 'PROGRAMADO').length;
-    $('delayed-count').textContent = transfers.filter((item) => item.status === 'DEMORADO').length;
+    window.HospitalI18n.bindText($('total-count'), () => transfers.length);
+    window.HospitalI18n.bindText($('progress-count'), () => transfers.filter((item) => ['in_progress','arrived'].includes(item.status)).length);
+    window.HospitalI18n.bindText($('scheduled-count'), () => transfers.filter((item) => item.status === 'scheduled').length);
+    window.HospitalI18n.bindText($('delayed-count'), () => transfers.filter((item) => item.status === 'delayed').length);
     document.querySelectorAll('#filter-panel input[name="status"]').forEach((input) => {
-      input.parentElement.querySelector('.filter-number').textContent = transfers.filter((item) => item.status === input.value).length;
+      window.HospitalI18n.bindText(input.parentElement.querySelector('.filter-number'), () => transfers.filter((item) => item.status === input.value).length);
     });
     const excluded = filterStatuses.length - state.statuses.size;
-    $('filter-count').textContent = excluded;
+    window.HospitalI18n.bindText($('filter-count'), () => excluded);
     $('filter-count').hidden = excluded === 0;
     $('filter-toggle').classList.toggle('has-filters', excluded > 0);
   }
@@ -158,11 +162,11 @@
     return `<div class="popup-inner" style="--route-color:${transfer.color}">
       <div class="popup-heading">${vehicleBadge(transfer)}<div class="popup-identity">
         <div class="popup-title"><strong>${escapeHTML(transfer.name)}</strong>${badge(transfer)}</div>
-        <p>Ambulancia ${escapeHTML(transfer.ambulance)}</p>
+        <p>${window.HospitalI18n.mark("trace.ambulancia_value", {value0: escapeHTML(transfer.ambulance)})}</p>
       </div></div>
       <div class="popup-route">${escapeHTML(transfer.origin)} <span aria-hidden="true">→</span> ${escapeHTML(transfer.destination)}</div>
-      <div class="popup-eta">${icon('time-icon.svg')}<span>Llegada estimada</span><time datetime="${transfer.eta}">${transfer.eta}</time></div>
-      <button class="details-button" type="button" data-detail-id="${transfer.id}">Ver detalles<span aria-hidden="true">↗</span></button>
+      <div class="popup-eta">${icon('time-icon.svg')}<span>${window.HospitalI18n.mark("trace_map.llegada_estimada")}</span><time datetime="${transfer.eta}">${transfer.eta}</time></div>
+      <button class="details-button" type="button" data-detail-id="${transfer.id}">${window.HospitalI18n.mark("trace.ver_detalles")}<span aria-hidden="true">↗</span></button>
     </div>`;
   }
 
@@ -214,7 +218,7 @@
 
   function toast(message) {
     clearTimeout(toastTimeout);
-    $('toast').textContent = message;
+    window.HospitalI18n.bindText($('toast'), () => window.HospitalI18n.resolve(message));
     $('toast').hidden = false;
     toastTimeout = setTimeout(() => { $('toast').hidden = true; }, 5500);
   }
@@ -222,10 +226,10 @@
   function createBasemap() {
     return window.TraceMapShared.createBasemap(map, {
       onLoad: () => { elements.loading.hidden = true; },
-      onFallback: () => console.warn('Se activó el mapa alternativo de OpenStreetMap.'),
+      onFallback: () => console.warn(window.HospitalI18n.t("trace_map.se_activo_el_mapa_alternativo_de_openstreetmap")),
       onError: () => {
         elements.loading.hidden = true;
-        console.error('No se pudo cargar el mapa. Revisa tu conexión a internet.');
+        console.error(window.HospitalI18n.t("trace_map.no_se_pudo_cargar_el_mapa_revisa_tu_conexion_a_internet"));
       }
     });
   }
@@ -241,7 +245,7 @@
     if (compactScreen.matches) setPanelVisible(false, { pan: false });
     if (!window.L) {
       elements.loading.hidden = true;
-      console.error('No se pudo iniciar el mapa. Revisa tu conexión y recarga la página.');
+      console.error(window.HospitalI18n.t("trace_map.no_se_pudo_iniciar_el_mapa_revisa_tu_conexion_y_recarga_la_pagina"));
       ['zoom-in', 'zoom-out', 'locate', 'layers-toggle', 'fullscreen-toggle', 'reset-view'].forEach((id) => { $(id).disabled = true; });
       return;
     }
@@ -278,8 +282,8 @@
     popup.on('add', () => {
       popupVisible = true;
       const close = popup.getElement()?.querySelector('.leaflet-popup-close-button');
-      close?.setAttribute('aria-label', 'Cerrar información del traslado');
-      close?.setAttribute('title', 'Cerrar');
+      close?.setAttribute('aria-label', window.HospitalI18n.t("trace_map.cerrar_informacion_del_traslado"));
+      close?.setAttribute('title', window.HospitalI18n.t("settings.cerrar"));
     });
     map.on('zoomend', () => {
       $('zoom-in').disabled = map.getZoom() >= map.getMaxZoom();
@@ -337,15 +341,15 @@
         }).bindTooltip(escapeHTML(transfer.destination), { direction: 'top', offset: [0, -12] })
       ]).addTo(map);
       const vehicle = L.marker(transfer.currentPosition, {
-        icon: makeVehicleIcon(transfer), title: `${transfer.name} · Ambulancia ${transfer.ambulance}`,
-        alt: `Ambulancia ${transfer.ambulance}`, zIndexOffset: 500, keyboard: true,
+        icon: makeVehicleIcon(transfer), title: window.HospitalI18n.t("trace_map.value_ambulancia_value", {value0: transfer.name, value1: transfer.ambulance}),
+        alt: window.HospitalI18n.t("trace.ambulancia_value", {value0: transfer.ambulance}), zIndexOffset: 500, keyboard: true,
         riseOnHover: true
       }).addTo(map);
       vehicle.on('click', () => selectTransfer(transfer.id, { scroll: true }));
       // Reapply accessible names whenever filtering reattaches a div marker.
       const labelVehicle = () => {
         vehicle.getElement()?.setAttribute('role', 'button');
-        vehicle.getElement()?.setAttribute('aria-label', `Ver ${transfer.name}, Ambulancia ${transfer.ambulance}`);
+        vehicle.getElement()?.setAttribute('aria-label', window.HospitalI18n.t("trace_map.ver_value_ambulancia_value", {value0: transfer.name, value1: transfer.ambulance}));
       };
       vehicle.on('add', labelVehicle);
       labelVehicle();
@@ -357,17 +361,17 @@
     const simulation=lastSnapshot?.simulation, label=document.querySelector('.live-indicator');
     if (historical) {
       const sample=transfers[0]?.sampledAt;
-      label.lastChild.textContent='Histórico · simulado';
-      $('panel-update').textContent=window.TraceApi.time(sample);
-      $('panel-update').title=sample?window.TraceApi.dateTime(sample):'';
+      window.HospitalI18n.bindText(label.lastChild, () => window.HospitalI18n.t("trace_map.historico_simulado"));
+      window.HospitalI18n.bindText($('panel-update'), () => window.TraceApi.time(sample));
+      window.HospitalI18n.bindAttr($('panel-update'), "title", () => sample?window.TraceApi.dateTime(sample):'');
       return;
     }
     const heartbeat=simulation?.heartbeat_at?Date.parse(simulation.heartbeat_at):0;
     const stale=!heartbeat||Date.now()-heartbeat>15000;
-    label.lastChild.textContent=simulation?.status==='stopped'?'Simulación detenida':stale?'Simulación sin actualización':simulation?.status==='paused'?'Simulación pausada':'Simulación';
-    $('panel-update').textContent=stale?'Sin actualización':window.TraceApi.time(simulation.heartbeat_at);
+    window.HospitalI18n.bindText(label.lastChild, () => simulation?.status==='stopped'?window.HospitalI18n.t("trace_map.simulacion_detenida"):stale?window.HospitalI18n.t("trace_map.simulacion_sin_actualizacion"):simulation?.status==='paused'?window.HospitalI18n.t("trace_map.simulacion_pausada"):window.HospitalI18n.t("trace_map.simulacion"));
+    window.HospitalI18n.bindText($('panel-update'), () => stale?window.HospitalI18n.t("trace_map.sin_actualizacion"):window.TraceApi.time(simulation.heartbeat_at));
     label.classList.toggle('stale',stale);
-    $('panel-update').title=simulation?.heartbeat_at?`Última actualización: ${window.TraceApi.dateTime(simulation.heartbeat_at)}`:'';
+    window.HospitalI18n.bindAttr($('panel-update'), "title", () => simulation?.heartbeat_at?window.HospitalI18n.t("trace_map.ultima_actualizacion_value", {value0: window.TraceApi.dateTime(simulation.heartbeat_at)}):'');
   }
   async function poll() {
     if(polling||stopped)return;polling=true;
@@ -384,7 +388,7 @@
       const previous=signature(transfers.find(item=>item.id===state.selectedId));
       routeLayers.forEach((layers,id)=>{if(!ids.has(id)){[layers.route,layers.stops,layers.vehicle].forEach(layer=>map?.removeLayer(layer));routeLayers.delete(id);}});
       const first=!loaded;transfers.splice(0,transfers.length,...next);loaded=true;transfers.forEach(ensureLayers);
-      $('transfer-panel-title').textContent=result.transfers.some(item=>item.id===requestedTransfer && item.geometry.length<2)?'Ruta pendiente de definir':historical?'Traslado histórico':'Traslados activos';
+      window.HospitalI18n.bindText($('transfer-panel-title'), () => result.transfers.some(item=>item.id===requestedTransfer && item.geometry.length<2)?window.HospitalI18n.t("trace_map.ruta_pendiente_de_definir"):historical?window.HospitalI18n.t("trace_map.traslado_historico"):window.HospitalI18n.t("trace_map.traslados_activos"));
       $('filter-toggle').disabled=historical;
       if(first&&ids.has(requestedTransfer))state.selectedId=requestedTransfer;
       const changed=previous!==signature(transfers.find(item=>item.id===state.selectedId));
@@ -403,19 +407,19 @@
     if (!transfer) return;
     lastDialogTrigger = trigger || document.activeElement;
     elements.dialog.style.setProperty('--route-color', transfer.color);
-    const distance = (routeDistance(transfer) / 1000).toLocaleString('es-UY', { maximumFractionDigits: 1 });
-    elements.dialogContent.innerHTML = `
+    const distance = (routeDistance(transfer) / 1000).toLocaleString(window.HospitalI18n.locale, { maximumFractionDigits: 1 });
+    window.HospitalI18n.setHTML(elements.dialogContent, `
       <div style="--route-color:${transfer.color}">${vehicleBadge(transfer)}</div>
       <h2 id="detail-title"><a href="trace-view.html?id=${encodeURIComponent(transfer.id)}" style="color:inherit;text-decoration:none">${escapeHTML(transfer.name)}</a></h2>
-      <p class="detail-subtitle">Ambulancia ${escapeHTML(transfer.ambulance)} &nbsp; ${badge(transfer)}</p>
+      <p class="detail-subtitle">${window.HospitalI18n.mark("trace_map.ambulancia_value_value", {value0: escapeHTML(transfer.ambulance), value1: badge(transfer)})}</p>
       <div class="detail-route" style="--route-color:${transfer.color}">
-        <div class="detail-stop"><small>Origen</small><strong>${escapeHTML(transfer.origin)}</strong></div>
-        <div class="detail-stop"><small>Destino</small><strong>${escapeHTML(transfer.destination)}</strong></div>
+        <div class="detail-stop"><small>${window.HospitalI18n.mark("trace_view.origen")}</small><strong>${escapeHTML(transfer.origin)}</strong></div>
+        <div class="detail-stop"><small>${window.HospitalI18n.mark("trace_view.destino")}</small><strong>${escapeHTML(transfer.destination)}</strong></div>
       </div>
-      <dl class="detail-stats"><div><dt>Llegada estimada</dt><dd><time datetime="${transfer.eta}">${transfer.eta}</time></dd></div>
-        <div><dt>Distancia de la ruta</dt><dd>${distance} <small>km</small></dd></div></dl>
-      <p class="detail-demo-note">Datos de demostración. Las posiciones y los horarios son simulados; la distancia es aproximada.</p>
-      <button class="details-button" type="button" data-focus-route="${transfer.id}">Centrar en el mapa<span aria-hidden="true">↗</span></button>`;
+      <dl class="detail-stats"><div><dt>${window.HospitalI18n.mark("trace_map.llegada_estimada")}</dt><dd><time datetime="${transfer.eta}">${transfer.eta}</time></dd></div>
+        <div><dt>${window.HospitalI18n.mark("trace_map.distancia_de_la_ruta")}</dt><dd>${distance} <small>${window.HospitalI18n.mark("trace_map.km")}</small></dd></div></dl>
+      <p class="detail-demo-note">${window.HospitalI18n.mark("trace_map.datos_de_demostracion_las_posiciones_y_los_horarios_son_simulados_la_distancia_es_aproxima")}</p>
+      <button class="details-button" type="button" data-focus-route="${transfer.id}">${window.HospitalI18n.mark("trace_map.centrar_en_el_mapa")}<span aria-hidden="true">↗</span></button>`);
     if (!elements.dialog.open) elements.dialog.showModal();
   }
 
@@ -430,9 +434,9 @@
   function setPanelVisible(visible, { pan = true } = {}) {
     elements.panel.hidden = !visible;
     $('list-toggle').setAttribute('aria-expanded', String(visible));
-    const label = visible ? 'Ocultar lista de traslados' : 'Mostrar lista de traslados';
-    $('list-toggle').setAttribute('aria-label', label);
-    $('list-toggle').title = label;
+    const label = visible ? window.HospitalI18n.t("trace_map.ocultar_lista_de_traslados") : window.HospitalI18n.t("trace_map.mostrar_lista_de_traslados");
+    window.HospitalI18n.bindAttr($('list-toggle'), "aria-label", () => (visible ? window.HospitalI18n.t("trace_map.ocultar_lista_de_traslados") : window.HospitalI18n.t("trace_map.mostrar_lista_de_traslados")));
+    window.HospitalI18n.bindAttr($('list-toggle'), "title", () => (visible ? window.HospitalI18n.t("trace_map.ocultar_lista_de_traslados") : window.HospitalI18n.t("trace_map.mostrar_lista_de_traslados")));
     if (map && compactScreen.matches) {
       if (visible) map.closePopup();
       else if (pan && state.selectedId && !popupVisible) showTransferPopup(transfers.find((item) => item.id === state.selectedId));
@@ -450,7 +454,7 @@
   function setSearchExpanded(expanded, { focus = true } = {}) {
     $('map-search').classList.toggle('search-active', expanded);
     $('search-toggle').setAttribute('aria-expanded', String(expanded));
-    $('search-toggle').setAttribute('aria-label', expanded ? 'Cerrar búsqueda' : 'Abrir búsqueda');
+    window.HospitalI18n.bindAttr($('search-toggle'), "aria-label", () => expanded ? window.HospitalI18n.t("universal_search.cerrar_busqueda") : window.HospitalI18n.t("main_menu.abrir_busqueda"));
     elements.search.setAttribute('aria-hidden', String(!expanded));
     elements.search.tabIndex = expanded ? 0 : -1;
     elements.search.hidden = !expanded;
@@ -507,7 +511,7 @@
     $('menu-toggle').addEventListener('click', () => {
       const expanded = $('app-shell').classList.toggle('menu-open');
       $('menu-toggle').setAttribute('aria-expanded', String(expanded));
-      $('menu-toggle').setAttribute('aria-label', expanded ? 'Cerrar menú' : 'Abrir menú');
+      window.HospitalI18n.bindAttr($('menu-toggle'), "aria-label", () => expanded ? window.HospitalI18n.t("trace_map.cerrar_menu") : window.HospitalI18n.t("main_menu.abrir_menu"));
       $('sidebar-links').inert = !expanded;
       $('sidebar-links').setAttribute('aria-hidden', String(!expanded));
       requestAnimationFrame(updateNavigationIndicator);
@@ -548,7 +552,7 @@
     $('fit-fleet').addEventListener('click', () => {
       if (!map) return;
       const points = getVisibleTransfers().flatMap((item) => item.coordinates);
-      if (!points.length) { toast('No hay rutas visibles para centrar.'); return; }
+      if (!points.length) { toast(() => window.HospitalI18n.t("trace_map.no_hay_rutas_visibles_para_centrar")); return; }
       map.closePopup();
       const leftPadding = !compactScreen.matches && !elements.panel.hidden ? elements.panel.offsetWidth + 45 : 35;
       const bottomPadding = compactScreen.matches && !elements.panel.hidden ? elements.sidebar.offsetHeight + 35 : 55;
@@ -559,13 +563,13 @@
       if (!map) return;
       map.closePopup();
       map.setView(CENTER, INITIAL_ZOOM, { animate: !reduceMotion });
-      toast('Vista de Montevideo restablecida.');
+      toast(() => window.HospitalI18n.t("trace_map.vista_de_montevideo_restablecida"));
     });
     $('fullscreen-toggle').addEventListener('click', toggleFullscreen);
     document.addEventListener('fullscreenchange', () => {
       const active = document.fullscreenElement === elements.stage;
       $('fullscreen-toggle').setAttribute('aria-pressed', String(active));
-      $('fullscreen-toggle').setAttribute('aria-label', active ? 'Salir de pantalla completa' : 'Pantalla completa');
+      window.HospitalI18n.bindAttr($('fullscreen-toggle'), "aria-label", () => active ? window.HospitalI18n.t("trace_map.salir_de_pantalla_completa") : window.HospitalI18n.t("trace_map.pantalla_completa"));
       map?.invalidateSize();
     });
     $('close-details').addEventListener('click', () => elements.dialog.close());
@@ -592,7 +596,7 @@
   function exitExpandedMap() {
     elements.stage.classList.remove('expanded-map');
     $('fullscreen-toggle').setAttribute('aria-pressed', 'false');
-    $('fullscreen-toggle').setAttribute('aria-label', 'Pantalla completa');
+    window.HospitalI18n.bindAttr($('fullscreen-toggle'), "aria-label", () => window.HospitalI18n.t("trace_map.pantalla_completa"));
     map?.invalidateSize();
   }
 
@@ -600,14 +604,14 @@
     if (document.fullscreenElement === elements.stage) { await document.exitFullscreen(); return; }
     if (elements.stage.classList.contains('expanded-map')) { exitExpandedMap(); return; }
     try {
-      if (!elements.stage.requestFullscreen) throw new Error('Fullscreen API unavailable');
+      if (!elements.stage.requestFullscreen) throw new Error(window.HospitalI18n.t("trace_map.fullscreen_api_unavailable"));
       await elements.stage.requestFullscreen();
     } catch {
       // Safari/iOS and embedded previews can deny native fullscreen. This local
       // layout fallback keeps the same control functional in those environments.
       elements.stage.classList.add('expanded-map');
       $('fullscreen-toggle').setAttribute('aria-pressed', 'true');
-      $('fullscreen-toggle').setAttribute('aria-label', 'Salir de pantalla completa');
+      window.HospitalI18n.bindAttr($('fullscreen-toggle'), "aria-label", () => window.HospitalI18n.t("trace_map.salir_de_pantalla_completa"));
       map?.invalidateSize();
     }
   }
@@ -618,4 +622,6 @@
   });
   renderAll();bindEvents();initializeMap();poll();
   simulationTimer=setInterval(()=>{freshness();if(!document.hidden)poll();},3000);
+  window.addEventListener('hospital:localechange',()=>{renderAll();freshness();});
+
 })();

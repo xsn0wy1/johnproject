@@ -6,12 +6,12 @@ use Hospital\Http\Response;
 $service = new Hospital\Modules\Documents\DocumentService($db, $config);
 Request::method('POST'); Hospital\Security\Csrf::verify(); $user = $auth->requireUser();
 $body = Request::body(['documents'], ['documents']); $items = $body['documents'] ?? null;
-if (!is_array($items) || array_keys($items) !== range(0, count($items) - 1) || count($items) > 100) throw new Hospital\Http\ApiException(422, 'VALIDATION_FAILED', 'Seleccioná entre 1 y 100 documentos.');
+if (!is_array($items) || array_keys($items) !== range(0, count($items) - 1) || count($items) > 100) throw new Hospital\Http\ApiException(422, 'VALIDATION_FAILED', \Hospital\I18n::t("errors.selecciona_entre_1_y_100_documentos"));
 $seen = []; $targets = [];
 foreach ($items as $item) {
-    if (!is_array($item) || array_diff(array_keys($item), ['id', 'version'])) throw new Hospital\Http\ApiException(422, 'VALIDATION_FAILED', 'Selección inválida.');
+    if (!is_array($item) || array_diff(array_keys($item), ['id', 'version'])) throw new Hospital\Http\ApiException(422, 'VALIDATION_FAILED', \Hospital\I18n::t("errors.seleccion_invalida"));
     $id = Request::id($item['id'] ?? null);
-    if (isset($seen[$id])) throw new Hospital\Http\ApiException(422, 'VALIDATION_FAILED', 'Selección duplicada.');
+    if (isset($seen[$id])) throw new Hospital\Http\ApiException(422, 'VALIDATION_FAILED', \Hospital\I18n::t("errors.seleccion_duplicada"));
     $seen[$id] = true; $targets[] = ['id' => $id, 'version' => $item['version'] ?? null];
 }
 $results = [];

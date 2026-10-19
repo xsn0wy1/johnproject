@@ -17,7 +17,7 @@ final class PatientInput
         if (!preg_match('/^[0-9]{6,12}$/', $value)) self::invalid('national_id');
         return $value;
     }
-    public static function invalid(string $field): void { throw new ApiException(422,'VALIDATION_FAILED','Revisá los datos del paciente.',[$field=>'Valor no válido.']); }
+    public static function invalid(string $field): void { throw new ApiException(422,'VALIDATION_FAILED',\Hospital\I18n::t("errors.revisa_los_datos_del_paciente"),[$field=>\Hospital\I18n::t("errors.valor_no_valido")]); }
     public static function date($value, string $field): ?string
     {
         if ($value === null || $value === '') return null;
@@ -33,12 +33,12 @@ final class PatientInput
     }
     public static function version($value): int
     {
-        if ((!is_int($value) && !is_string($value)) || !preg_match('/^[1-9][0-9]{0,9}$/',(string)$value)) throw new ApiException(422,'VERSION_REQUIRED','Se requiere la revisión actual.');
+        if ((!is_int($value) && !is_string($value)) || !preg_match('/^[1-9][0-9]{0,9}$/',(string)$value)) throw new ApiException(422,'VERSION_REQUIRED',\Hospital\I18n::t("errors.se_requiere_la_revision_actual"));
         return (int)$value;
     }
     public static function fields(array $input): array
     {
-        foreach (self::FIELDS as $key) if (!array_key_exists($key,$input)) throw new ApiException(422,'MISSING_FIELDS','Enviá todos los campos del formulario.');
+        foreach (self::FIELDS as $key) if (!array_key_exists($key,$input)) throw new ApiException(422,'MISSING_FIELDS',\Hospital\I18n::t("errors.envia_todos_los_campos_del_formulario"));
         $f = ['full_name'=>self::text($input['full_name'],'full_name',150,false),'national_id'=>self::identity($input['national_id']),
             'date_of_birth'=>self::date($input['date_of_birth'],'date_of_birth')];
         $f['sex'] = $input['sex'] === '' ? null : $input['sex'];

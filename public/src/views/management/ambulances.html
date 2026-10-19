@@ -3,25 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ambulancias | Hospital de Clínicas</title>
+  <title data-i18n="ambulances.ambulancias_hospital_de_clinicas">Ambulancias | Hospital de Clínicas</title>
   <link rel="icon" type="image/x-icon" href="../../../assets/hospital-dark.ico">
   <link rel="stylesheet" href="../../css/main-menu.css?v=20261012-settings">
   <link rel="stylesheet" href="../../css/management/ambulances.css?v=20261004-form-design">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&amp;family=Krub:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&amp;display=swap" rel="stylesheet">
-  <script src="../../js/api-client.js" defer></script>
-  <script src="../../js/auth-session.js?v=20261014-audit" defer></script>
-  <script src="../../js/main-menu.js?v=20260927-global" defer></script>
-  <script src="../../js/universal-search.js?v=20261014-surveys" defer></script>
-  <script src="../../js/management/ambulances.js?v=20261013-database" defer></script>
+  <script src="../../js/i18n.js?v=20261019-i18n" defer></script>
+  <script src="../../js/api-client.js?v=20261019-i18n" defer></script>
+  <script src="../../js/auth-session.js?v=20261019-i18n" defer></script>
+  <script src="../../js/main-menu.js?v=20261019-i18n" defer></script>
+  <script src="../../js/universal-search.js?v=20261019-role-shortcuts" defer></script>
+  <script src="../../js/management/ambulances.js?v=20261019-i18n" defer></script>
 </head>
 <body class="ambulances-page">
   <div class="page-background"></div>
   <div class="page-glow"></div>
   <main class="app-shell">
     <aside class="sidebar">
-      <button type="button" class="sidebar-action" aria-label="Abrir menú">
+      <button type="button" class="sidebar-action" aria-label="Abrir menú" data-i18n-aria-label="main_menu.abrir_menu">
         <span></span>
         <span></span>
         <span></span>
@@ -29,99 +30,97 @@
 
       <nav class="sidebar-nav">
         <div class="nav-indicator"></div>
-        <a href="../main-menu.html" class="nav-item"><img src="../../../assets/Icons/house-icon.svg" alt="Inicio"><span>Inicio</span></a>
-        <a href="../documents/documents.html" class="nav-item"><img src="../../../assets/Icons/folder-icon.svg" alt="Documentos"><span>Documentos</span></a>
-        <a href="../traces/trace.html" class="nav-item"><img src="../../../assets/Icons/location-icon.svg" alt="Ambulancias"><span>Ambulancias</span></a>
-        <a href="../analytics/analytics.html" class="nav-item"><img src="../../../assets/Icons/analytics-icon.svg" alt="Reportes"><span>Reportes</span></a>
-        <a href="../calendar/calendar.html" class="nav-item"><img src="../../../assets/Icons/calendar-icon.svg" alt="Calendario"><span>Calendario</span></a>
-        <a href="../surveys/survey.html" class="nav-item"><img src="../../../assets/Icons/survey-icon.svg" alt="Encuestas"><span>Encuestas</span></a>
-        <a href="management.html" class="nav-item active" aria-current="page"><img src="../../../assets/Icons/database-cog.svg" alt="Gestión"><span>Gestión</span></a>
+        <a href="../main-menu.html" class="nav-item"><img src="../../../assets/Icons/house-icon.svg" alt="Inicio" data-i18n-alt="main_menu.inicio"><span data-i18n="main_menu.inicio">Inicio</span></a>
+        <a href="../documents/documents.html" class="nav-item"><img src="../../../assets/Icons/folder-icon.svg" alt="Documentos" data-i18n-alt="main_menu.documentos"><span data-i18n="main_menu.documentos">Documentos</span></a>
+        <a href="../traces/trace.html" class="nav-item"><img src="../../../assets/Icons/location-icon.svg" alt="Ambulancias" data-i18n-alt="main_menu.ambulancias"><span data-i18n="main_menu.ambulancias">Ambulancias</span></a>
+        <a href="../surveys/survey.html" class="nav-item"><img src="../../../assets/Icons/survey-icon.svg" alt="Encuestas" data-i18n-alt="main_menu.encuestas"><span data-i18n="main_menu.encuestas">Encuestas</span></a>
+        <a href="management.html" class="nav-item active" aria-current="page"><img src="../../../assets/Icons/database-cog.svg" alt="Gestión" data-i18n-alt="trace_map.gestion"><span data-i18n="trace_map.gestion">Gestión</span></a>
         <div class="nav-spacer"></div>
-        <a href="../settings.html" class="nav-item"><img src="../../../assets/Icons/settings-icon.svg" alt="Configuración"><span>Configuración</span></a>
+        <a href="../settings.html" class="nav-item"><img src="../../../assets/Icons/settings-icon.svg" alt="Configuración" data-i18n-alt="main_menu.configuracion"><span data-i18n="main_menu.configuracion">Configuración</span></a>
       </nav>
     </aside>
 
     <header class="topbar quick-search-topbar">
       <div class="brand">
-        <img src="../../../assets/Icons/hospital-logo.png" alt="Hospital de Clínicas">
-        <span>HOSPITAL DE CLINICAS</span>
+        <img src="../../../assets/Icons/hospital-logo.png" alt="Hospital de Clínicas" data-i18n-alt="main_menu.hospital_de_clinicas">
+        <span data-i18n="main_menu.hospital_de_clinicas_2">HOSPITAL DE CLINICAS</span>
       </div>
 
       <div class="search-wrapper" role="search">
-        <input type="text" id="quick-search" class="search-input" placeholder="Buscar una acción o sección..."
-          aria-label="Buscar una acción o sección" role="combobox" aria-autocomplete="list"
+        <input type="text" id="quick-search" class="search-input" placeholder="Buscar una acción o sección..." data-i18n-placeholder="main_menu.buscar_una_accion_o_seccion"
+          aria-label="Buscar una acción o sección" data-i18n-aria-label="main_menu.buscar_una_accion_o_seccion_2" role="combobox" aria-autocomplete="list"
           aria-controls="search-results-list" aria-expanded="false" autocomplete="off" tabindex="-1">
-        <button type="button" class="topbar-action search-action" aria-label="Abrir búsqueda"
+        <button type="button" class="topbar-action search-action" aria-label="Abrir búsqueda" data-i18n-aria-label="main_menu.abrir_busqueda"
           aria-controls="quick-search" aria-expanded="false">
           <img src="../../../assets/Icons/search-icon.svg" alt="" aria-hidden="true">
         </button>
       </div>
 
       <div class="search-results" id="search-results" hidden>
-        <div class="search-results-heading"><span id="search-results-title">Accesos rápidos</span></div>
-        <ul id="search-results-list" class="search-results-list" role="listbox" aria-label="Resultados de búsqueda"></ul>
-        <p class="search-results-footer">Haz clic en una opción disponible para ir a esa sección.</p>
+        <div class="search-results-heading"><span id="search-results-title" data-i18n="main_menu.accesos_rapidos">Accesos rápidos</span></div>
+        <ul id="search-results-list" class="search-results-list" role="listbox" aria-label="Resultados de búsqueda" data-i18n-aria-label="main_menu.resultados_de_busqueda"></ul>
+        <p class="search-results-footer" data-i18n="main_menu.haz_clic_en_una_opcion_disponible_para_ir_a_esa_seccion">Haz clic en una opción disponible para ir a esa sección.</p>
       </div>
       <span id="search-status" class="visually-hidden" role="status" aria-live="polite"></span>
     </header>
 
-    <section class="hero-panel ambulances-hero" aria-label="Gestión de ambulancias">
+    <section class="hero-panel ambulances-hero" aria-label="Gestión de ambulancias" data-i18n-aria-label="ambulances.gestion_de_ambulancias">
       <div class="summary-row">
-        <a class="summary-back" href="management.html" aria-label="Volver a Gestión"><img src="../../../assets/Icons/arrow-left.svg" alt="" aria-hidden="true"></a>
-        <section class="metrics" aria-label="Resumen de ambulancias">
-          <article class="metric-card"><span class="metric-icon"><img src="../../../assets/Icons/ambulance-icon.png" alt="" aria-hidden="true"></span><div><strong id="metric-total">0</strong><span>Total de ambulancias</span><small>Vehículos registrados.</small></div></article>
-          <article class="metric-card"><span class="metric-icon"><img src="../../../assets/Icons/operative-icon.svg" alt="" aria-hidden="true"></span><div><strong id="metric-operational">0</strong><span>Operativas</span><small>En condiciones de servicio.</small></div></article>
-          <article class="metric-card"><span class="metric-icon"><img src="../../../assets/Icons/maintenance-icon.svg" alt="" aria-hidden="true"></span><div><strong id="metric-maintenance">0</strong><span>Mantenimiento</span><small>En revisión o reparación.</small></div></article>
-          <article class="metric-card"><span class="metric-icon"><img src="../../../assets/Icons/alert-icon.svg" alt="" aria-hidden="true"></span><div><strong id="metric-unavailable">0</strong><span>Fuera de servicio</span><small>No disponibles para uso.</small></div></article>
+        <a class="summary-back" href="management.html" aria-label="Volver a Gestión" data-i18n-aria-label="routes.volver_a_gestion"><img src="../../../assets/Icons/arrow-left.svg" alt="" aria-hidden="true"></a>
+        <section class="metrics" aria-label="Resumen de ambulancias" data-i18n-aria-label="ambulances.resumen_de_ambulancias">
+          <article class="metric-card"><span class="metric-icon"><img src="../../../assets/Icons/ambulance-icon.png" alt="" aria-hidden="true"></span><div><strong id="metric-total">0</strong><span data-i18n="ambulances.total_de_ambulancias">Total de ambulancias</span><small data-i18n="ambulances.vehiculos_registrados">Vehículos registrados.</small></div></article>
+          <article class="metric-card"><span class="metric-icon"><img src="../../../assets/Icons/operative-icon.svg" alt="" aria-hidden="true"></span><div><strong id="metric-operational">0</strong><span data-i18n="ambulances.operativas">Operativas</span><small data-i18n="ambulances.en_condiciones_de_servicio">En condiciones de servicio.</small></div></article>
+          <article class="metric-card"><span class="metric-icon"><img src="../../../assets/Icons/maintenance-icon.svg" alt="" aria-hidden="true"></span><div><strong id="metric-maintenance">0</strong><span data-i18n="ambulances.mantenimiento">Mantenimiento</span><small data-i18n="ambulances.en_revision_o_reparacion">En revisión o reparación.</small></div></article>
+          <article class="metric-card"><span class="metric-icon"><img src="../../../assets/Icons/alert-icon.svg" alt="" aria-hidden="true"></span><div><strong id="metric-unavailable">0</strong><span data-i18n="ambulances.fuera_de_servicio">Fuera de servicio</span><small data-i18n="ambulances.no_disponibles_para_uso">No disponibles para uso.</small></div></article>
         </section>
       </div>
       <div class="ambulance-workspace" id="ambulance-workspace">
         <section class="directory-panel" id="directory-panel" aria-labelledby="directory-title">
           <div class="panel-heading">
-            <div><h1 id="directory-title">Listado de ambulancias</h1><p>Busca y selecciona una ambulancia para ver su información detallada.</p></div>
-            <button type="button" class="new-ambulance-button" id="new-ambulance"><span class="plus-circle"><img src="../../../assets/Icons/plus-icon.svg" alt="" aria-hidden="true"></span>Nueva ambulancia</button>
+            <div><h1 id="directory-title" data-i18n="ambulances.listado_de_ambulancias">Listado de ambulancias</h1><p data-i18n="ambulances.busca_y_selecciona_una_ambulancia_para_ver_su_informacion_detallada">Busca y selecciona una ambulancia para ver su información detallada.</p></div>
+            <button type="button" class="new-ambulance-button" id="new-ambulance"><span class="plus-circle"><img src="../../../assets/Icons/plus-icon.svg" alt="" aria-hidden="true"></span><i18n-text data-i18n="ambulances.nueva_ambulancia" style="display:contents">Nueva ambulancia</i18n-text></button>
           </div>
           <div class="directory-controls">
-            <label class="ambulance-search"><img src="../../../assets/Icons/search-icon.svg" alt="" aria-hidden="true"><input id="ambulance-search" type="search" autocomplete="off" placeholder="Buscar por matrícula o modelo..." aria-label="Buscar por matrícula o modelo"></label>
-            <div class="status-filters" role="group" aria-label="Filtrar ambulancias por estado">
-              <button type="button" class="filter-button is-active" data-filter="ALL" aria-pressed="true">Todas</button>
-              <button type="button" class="filter-button" data-filter="OPERATIVA" aria-pressed="false">Operativas</button>
-              <button type="button" class="filter-button" data-filter="MANTENIMIENTO" aria-pressed="false">Mantenimiento</button>
-              <button type="button" class="filter-button" data-filter="FUERA_SERVICIO" aria-pressed="false">Fuera de servicio</button>
+            <label class="ambulance-search"><img src="../../../assets/Icons/search-icon.svg" alt="" aria-hidden="true"><input id="ambulance-search" type="search" autocomplete="off" placeholder="Buscar por matrícula o modelo..." data-i18n-placeholder="ambulances.buscar_por_matricula_o_modelo" aria-label="Buscar por matrícula o modelo" data-i18n-aria-label="ambulances.buscar_por_matricula_o_modelo_2"></label>
+            <div class="status-filters" role="group" aria-label="Filtrar ambulancias por estado" data-i18n-aria-label="ambulances.filtrar_ambulancias_por_estado">
+              <button type="button" class="filter-button is-active" data-filter="ALL" aria-pressed="true" data-i18n="routes.todas">Todas</button>
+              <button type="button" class="filter-button" data-filter="OPERATIVA" aria-pressed="false" data-i18n="ambulances.operativas">Operativas</button>
+              <button type="button" class="filter-button" data-filter="MANTENIMIENTO" aria-pressed="false" data-i18n="ambulances.mantenimiento">Mantenimiento</button>
+              <button type="button" class="filter-button" data-filter="FUERA_SERVICIO" aria-pressed="false" data-i18n="ambulances.fuera_de_servicio">Fuera de servicio</button>
             </div>
           </div>
           <div class="ambulance-list" id="ambulance-list" aria-live="polite"></div>
-          <div class="empty-state" id="ambulance-empty" hidden><p id="empty-description">No se encontraron ambulancias con estos criterios.</p><button type="button" class="cancel-button" id="clear-filters">Limpiar filtros</button></div>
-          <footer class="directory-footer"><span id="results-summary" role="status"></span><nav class="pagination" id="ambulance-pagination" aria-label="Páginas de ambulancias"></nav></footer>
+          <div class="empty-state" id="ambulance-empty" hidden><p id="empty-description" data-i18n="ambulances.no_se_encontraron_ambulancias_con_estos_criterios">No se encontraron ambulancias con estos criterios.</p><button type="button" class="cancel-button" id="clear-filters" data-i18n="routes.limpiar_filtros">Limpiar filtros</button></div>
+          <footer class="directory-footer"><span id="results-summary" role="status"></span><nav class="pagination" id="ambulance-pagination" aria-label="Páginas de ambulancias" data-i18n-aria-label="ambulances.paginas_de_ambulancias"></nav></footer>
         </section>
         <aside class="detail-panel" id="detail-panel" aria-labelledby="detail-title" aria-hidden="true" inert>
-          <div class="detail-heading"><div><h2 id="detail-title">Detalle de la ambulancia</h2><p>Información del vehículo seleccionado.</p></div><button type="button" id="close-detail" class="icon-button" aria-label="Cerrar detalle"><img src="../../../assets/Icons/cross-icon.svg" alt="" aria-hidden="true"></button></div>
+          <div class="detail-heading"><div><h2 id="detail-title" data-i18n="ambulances.detalle_de_la_ambulancia">Detalle de la ambulancia</h2><p data-i18n="ambulances.informacion_del_vehiculo_seleccionado">Información del vehículo seleccionado.</p></div><button type="button" id="close-detail" class="icon-button" aria-label="Cerrar detalle" data-i18n-aria-label="ambulances.cerrar_detalle"><img src="../../../assets/Icons/cross-icon.svg" alt="" aria-hidden="true"></button></div>
           <div id="detail-content"></div>
-          <div class="detail-actions"><button type="button" class="cancel-button" id="delete-from-detail"><img src="../../../assets/Icons/trash-icon.svg" alt="" aria-hidden="true">Eliminar</button><button type="button" class="save-button" id="edit-from-detail"><img src="../../../assets/Icons/pencil-icon.svg" alt="" aria-hidden="true">Editar ambulancia</button></div>
+          <div class="detail-actions"><button type="button" class="cancel-button" id="delete-from-detail"><img src="../../../assets/Icons/trash-icon.svg" alt="" aria-hidden="true"><i18n-text data-i18n="routes.eliminar" style="display:contents">Eliminar</i18n-text></button><button type="button" class="save-button" id="edit-from-detail"><img src="../../../assets/Icons/pencil-icon.svg" alt="" aria-hidden="true"><i18n-text data-i18n="ambulances.editar_ambulancia" style="display:contents">Editar ambulancia</i18n-text></button></div>
         </aside>
       </div>
     </section>
   </main>
   <dialog class="ambulance-dialog" id="ambulance-dialog" aria-labelledby="ambulance-form-title">
     <form id="ambulance-form" novalidate>
-      <div class="dialog-heading"><div><h2 id="ambulance-form-title">Nueva ambulancia</h2><p id="form-subtitle">Completa los datos del vehículo.</p></div><button type="button" class="icon-button" id="close-ambulance-dialog" aria-label="Cerrar formulario"><img src="../../../assets/Icons/cross-icon.svg" alt="" aria-hidden="true"></button></div>
+      <div class="dialog-heading"><div><h2 id="ambulance-form-title" data-i18n="ambulances.nueva_ambulancia">Nueva ambulancia</h2><p id="form-subtitle" data-i18n="ambulances.completa_los_datos_del_vehiculo">Completa los datos del vehículo.</p></div><button type="button" class="icon-button" id="close-ambulance-dialog" aria-label="Cerrar formulario" data-i18n-aria-label="routes.cerrar_formulario"><img src="../../../assets/Icons/cross-icon.svg" alt="" aria-hidden="true"></button></div>
       <div class="dialog-fields">
-        <label for="ambulance-plate">Matrícula <span class="field-control"><img src="../../../assets/Icons/id-badge.svg" alt="" aria-hidden="true"><input id="ambulance-plate" name="matricula" type="text" maxlength="20" pattern="[A-Za-z0-9]+([ \-][A-Za-z0-9]+)*" placeholder="Ej. SAB 001" autocomplete="off" required></span></label>
-        <label for="ambulance-model">Modelo <span class="field-control"><img src="../../../assets/Icons/ambulance-icon.png" alt="" aria-hidden="true"><input id="ambulance-model" name="modelo" type="text" maxlength="100" placeholder="Ej. Mercedes-Benz Sprinter" required></span></label>
-        <label for="ambulance-capacity">Capacidad (plazas) <span class="field-control"><img src="../../../assets/Icons/seats-icon.svg" alt="" aria-hidden="true"><input id="ambulance-capacity" name="capacidad" type="number" min="1" max="99" step="1" placeholder="Ej. 4" required></span></label>
-        <label for="ambulance-status">Estado operativo <span class="field-control"><img src="../../../assets/Icons/operative-icon.svg" alt="" aria-hidden="true"><select id="ambulance-status" name="estado_operativo" required><option value="OPERATIVA">Operativa</option><option value="MANTENIMIENTO">Mantenimiento</option><option value="FUERA_SERVICIO">Fuera de servicio</option></select></span></label>
+        <label for="ambulance-plate"><i18n-text data-i18n="ambulances.matricula" style="display:contents">Matrícula</i18n-text> <span class="field-control"><img src="../../../assets/Icons/id-badge.svg" alt="" aria-hidden="true"><input id="ambulance-plate" name="matricula" type="text" maxlength="20" pattern="[A-Za-z0-9]+([ \-][A-Za-z0-9]+)*" placeholder="Ej. SAB 001" data-i18n-placeholder="ambulances.ej_sab_001" autocomplete="off" required></span></label>
+        <label for="ambulance-model"><i18n-text data-i18n="ambulances.modelo" style="display:contents">Modelo</i18n-text> <span class="field-control"><img src="../../../assets/Icons/ambulance-icon.png" alt="" aria-hidden="true"><input id="ambulance-model" name="modelo" type="text" maxlength="100" placeholder="Ej. Mercedes-Benz Sprinter" data-i18n-placeholder="ambulances.ej_mercedes_benz_sprinter" required></span></label>
+        <label for="ambulance-capacity"><i18n-text data-i18n="ambulances.capacidad_plazas" style="display:contents">Capacidad (plazas)</i18n-text> <span class="field-control"><img src="../../../assets/Icons/seats-icon.svg" alt="" aria-hidden="true"><input id="ambulance-capacity" name="capacidad" type="number" min="1" max="99" step="1" placeholder="Ej. 4" data-i18n-placeholder="ambulances.ej_4" required></span></label>
+        <label for="ambulance-status"><i18n-text data-i18n="ambulances.estado_operativo" style="display:contents">Estado operativo</i18n-text> <span class="field-control"><img src="../../../assets/Icons/operative-icon.svg" alt="" aria-hidden="true"><select id="ambulance-status" name="estado_operativo" required><option value="OPERATIVA" data-i18n="ambulances.operativa">Operativa</option><option value="MANTENIMIENTO" data-i18n="ambulances.mantenimiento">Mantenimiento</option><option value="FUERA_SERVICIO" data-i18n="ambulances.fuera_de_servicio">Fuera de servicio</option></select></span></label>
       </div>
       <p class="form-error" id="form-error" role="alert" hidden></p>
-      <div class="dialog-actions"><button type="button" class="cancel-button" id="cancel-ambulance">Cancelar</button><button type="submit" class="save-button"><img src="../../../assets/Icons/save-floppy.svg" alt="" aria-hidden="true"><span id="save-label">Guardar ambulancia</span></button></div>
+      <div class="dialog-actions"><button type="button" class="cancel-button" id="cancel-ambulance" data-i18n="settings.cancelar">Cancelar</button><button type="submit" class="save-button"><img src="../../../assets/Icons/save-floppy.svg" alt="" aria-hidden="true"><span id="save-label" data-i18n="ambulances.guardar_ambulancia">Guardar ambulancia</span></button></div>
     </form>
   </dialog>
   <dialog class="ambulance-dialog delete-dialog" id="delete-dialog" aria-labelledby="delete-title" aria-describedby="delete-description">
     <div class="delete-dialog-content">
-      <div class="dialog-heading"><div><h2 id="delete-title">¿Eliminar esta ambulancia?</h2><p id="delete-description"></p></div><button type="button" class="icon-button" data-close-delete aria-label="Cerrar confirmación"><img src="../../../assets/Icons/cross-icon.svg" alt="" aria-hidden="true"></button></div>
-      <div class="dialog-actions"><button type="button" class="cancel-button" data-close-delete autofocus>Cancelar</button><button type="button" class="delete-button" id="confirm-delete">Eliminar ambulancia</button></div>
+      <div class="dialog-heading"><div><h2 id="delete-title" data-i18n="ambulances.eliminar_esta_ambulancia">¿Eliminar esta ambulancia?</h2><p id="delete-description"></p></div><button type="button" class="icon-button" data-close-delete aria-label="Cerrar confirmación" data-i18n-aria-label="ambulances.cerrar_confirmacion"><img src="../../../assets/Icons/cross-icon.svg" alt="" aria-hidden="true"></button></div>
+      <div class="dialog-actions"><button type="button" class="cancel-button" data-close-delete autofocus data-i18n="settings.cancelar">Cancelar</button><button type="button" class="delete-button" id="confirm-delete" data-i18n="ambulances.eliminar_ambulancia">Eliminar ambulancia</button></div>
     </div>
   </dialog>
   <div class="ambulance-toast" id="ambulance-toast" role="status" aria-live="polite" hidden></div>
-  <noscript><p class="empty-state">Activa JavaScript para utilizar la gestión de ambulancias.</p></noscript>
+  <noscript><p class="empty-state" data-i18n="ambulances.activa_javascript_para_utilizar_la_gestion_de_ambulancias">Activa JavaScript para utilizar la gestión de ambulancias.</p></noscript>
 </body>
 </html>

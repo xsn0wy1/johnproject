@@ -1,5 +1,8 @@
-document.addEventListener("DOMContentLoaded", () => {
-  "use strict";
+document.addEventListener("DOMContentLoaded", async () => {
+    "use strict";
+    await window.HospitalI18n.ready;
+    await window.HospitalAuth.ready;
+
   const $ = id => document.getElementById(id);
   const api = window.DocumentApi;
   const report = error => window.HospitalApi.report(error, "document-viewer");
@@ -20,47 +23,47 @@ document.addEventListener("DOMContentLoaded", () => {
     return url.href;
   }
   function toast(text) {
-    $("toast").textContent = text; $("toast").hidden = false; clearTimeout(toastTimer);
+    window.HospitalI18n.bindText($("toast"), () => window.HospitalI18n.resolve(text)); $("toast").hidden = false; clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { $("toast").hidden = true; }, 2600);
   }
   async function bytes(download = false) {
-    const response = await fetch(contentUrl(download), { credentials: "same-origin", cache: "no-store" });
+    const response = await fetch(contentUrl(download), { headers:{'X-Hospital-Locale':window.HospitalI18n.locale}, credentials: "same-origin", cache: "no-store" });
     if (!response.ok || response.headers.get("Content-Type")?.includes("application/json")) {
       let payload; try { payload = await response.json(); } catch (_) { /* Structured errors are optional here. */ }
-      const error = new window.HospitalApi.ApiError(payload?.error?.message || "No se pudo abrir el archivo.", response.status, payload?.error?.code || "DOCUMENT_READ_FAILED");
+      const error = new window.HospitalApi.ApiError(payload?.error?.message || window.HospitalI18n.t("documents_viewer.no_se_pudo_abrir_el_archivo"), response.status, payload?.error?.code || "DOCUMENT_READ_FAILED");
       if (response.status === 401) window.dispatchEvent(new CustomEvent("hospital:unauthorized", { detail: error }));
       throw error;
     }
     return new Uint8Array(await response.arrayBuffer());
   }
   function metadata() {
-    $("document-title").textContent = data.title;
-    $("patient-name").textContent = data.patient ? data.patient.full_name : "Sin paciente asociado";
-    $("document-id").textContent = data.id;
-    $("document-kind").textContent = data.category.name;
-    $("document-format").textContent = file.extension.toUpperCase();
-    $("document-size").textContent = api.size(file.byte_size);
-    $("document-author").textContent = data.uploader.name;
-    $("document-uploaded").textContent = api.date(data.created_at);
-    $("document-updated").textContent = `${api.date(data.updated_at)} · ${api.time(data.updated_at)}`;
-    $("document-description").textContent = data.description;
+    window.HospitalI18n.bindText($("document-title"), () => data.title);
+    window.HospitalI18n.bindText($("patient-name"), () => data.patient ? data.patient.full_name : window.HospitalI18n.t("documents_viewer.sin_paciente_asociado"));
+    window.HospitalI18n.bindText($("document-id"), () => data.id);
+    window.HospitalI18n.bindText($("document-kind"), () => window.HospitalI18n.category(data.category));
+    window.HospitalI18n.bindText($("document-format"), () => file.extension.toUpperCase());
+    window.HospitalI18n.bindText($("document-size"), () => api.size(file.byte_size));
+    window.HospitalI18n.bindText($("document-author"), () => data.uploader.name);
+    window.HospitalI18n.bindText($("document-uploaded"), () => api.date(data.created_at));
+    window.HospitalI18n.bindText($("document-updated"), () => `${api.date(data.updated_at)} · ${api.time(data.updated_at)}`);
+    window.HospitalI18n.bindText($("document-description"), () => data.description);
     $("document-description").hidden = !data.description;
-    $("document-date").textContent = api.date(data.document_date);
-    $("qr-document-id").textContent = data.id;
-    $("delete-button").querySelector("span").textContent = data.archived_at ? "Restaurar documento" : "Eliminar documento";
+    window.HospitalI18n.bindText($("document-date"), () => api.date(data.document_date));
+    window.HospitalI18n.bindText($("qr-document-id"), () => data.id);
+    window.HospitalI18n.bindText($("delete-button").querySelector("span"), () => data.archived_at ? window.HospitalI18n.t("documents_viewer.restaurar_documento") : window.HospitalI18n.t("documents_viewer.eliminar_documento"));
     $("edit-document-menu").disabled = Boolean(data.archived_at);
-    document.documentElement.dataset.documentTitle = `${data.title} · Visor de documentos`;
-    document.title = document.documentElement.dataset.documentTitle;
+    document.documentElement.dataset.documentTitle = window.HospitalI18n.t("documents_viewer.value_visor_de_documentos", {value0: data.title});
+    window.HospitalI18n.bindTitle(() => document.documentElement.dataset.documentTitle);
     $("share-url").value = shareUrl();
   }
   function pageState() {
     $("page-input").max = Math.max(1, state.pages); $("page-input").value = state.pages ? state.page : '';
-    $("total-pages").textContent = state.pages || '—';
-    $("zoom-reset").textContent = `${state.zoom}%`;
+    window.HospitalI18n.bindText($("total-pages"), () => state.pages || '—');
+    window.HospitalI18n.bindText($("zoom-reset"), () => `${state.zoom}%`);
     $("zoom-out").disabled = !state.pages || state.zoom <= 50; $("zoom-in").disabled = !state.pages || state.zoom >= 200;
-    const status = state.pages ? `Página ${state.page} de ${state.pages}. Zoom ${state.zoom}%.` : data?.archived_at ? 'Documento archivado.' : file?.extension === 'docx' ? 'Archivo DOCX. Descargá el archivo para abrirlo en tu dispositivo.' : '';
-    $("document-sheet").setAttribute("aria-label", status || 'Vista previa del documento');
-    $("viewer-status").textContent = status;
+    const status = state.pages ? window.HospitalI18n.t("documents_viewer.pagina_value_de_value_zoom_value", {value0: state.page, value1: state.pages, value2: state.zoom}) : data?.archived_at ? window.HospitalI18n.t("documents_viewer.documento_archivado") : file?.extension === 'docx' ? window.HospitalI18n.t("documents_viewer.archivo_docx_descarga_el_archivo_para_abrirlo_en_tu_dispositivo") : '';
+    window.HospitalI18n.bindAttr($("document-sheet"), "aria-label", () => (state.pages ? window.HospitalI18n.t("documents_viewer.pagina_value_de_value_zoom_value", {value0: state.page, value1: state.pages, value2: state.zoom}) : data?.archived_at ? window.HospitalI18n.t("documents_viewer.documento_archivado") : file?.extension === 'docx' ? window.HospitalI18n.t("documents_viewer.archivo_docx_descarga_el_archivo_para_abrirlo_en_tu_dispositivo") : '') || window.HospitalI18n.t("documents_viewer.vista_previa_del_documento"));
+    window.HospitalI18n.bindText($("viewer-status"), () => (state.pages ? window.HospitalI18n.t("documents_viewer.pagina_value_de_value_zoom_value", {value0: state.page, value1: state.pages, value2: state.zoom}) : data?.archived_at ? window.HospitalI18n.t("documents_viewer.documento_archivado") : file?.extension === 'docx' ? window.HospitalI18n.t("documents_viewer.archivo_docx_descarga_el_archivo_para_abrirlo_en_tu_dispositivo") : ''));
     $("thumbnail-list").querySelectorAll("button").forEach(button => {
       if (Number(button.dataset.page) === state.page) button.setAttribute("aria-current", "page");
       else button.removeAttribute("aria-current");
@@ -91,14 +94,14 @@ document.addEventListener("DOMContentLoaded", () => {
         canvas.width = Math.ceil(view.width * pixelRatio); canvas.height = Math.ceil(view.height * pixelRatio);
         $("page-frame").style.width = `${view.width}px`; $("page-frame").style.height = `${view.height}px`;
         $("document-sheet").style.width = `${view.width}px`; $("document-sheet").style.height = `${view.height}px`;
-        $("document-sheet").style.transform = "translate(-50%, -50%)";
+        $("document-sheet").style.transform = `translate(-50%, -50%)`;
         canvas.hidden = false; canvas.style.width = `${view.width}px`; canvas.style.height = `${view.height}px`;
         renderTask = page.render({ canvasContext: canvas.getContext("2d"), viewport: view, transform: [pixelRatio, 0, 0, pixelRatio, 0, 0] });
         await renderTask.promise;
         if (revision !== renderRevision) return;
         const text = await page.getTextContent();
         if (revision !== renderRevision) return;
-        $("document-sheet").setAttribute("aria-label", `Página ${state.page}. ${text.items.map(item => item.str || "").join(" ").slice(0, 6000)}`);
+        window.HospitalI18n.bindAttr($("document-sheet"), "aria-label", () => window.HospitalI18n.t("documents_viewer.pagina_value_value", {value0: state.page, value1: text.items.map(item => item.str || "").join(" ").slice(0, 6000)}));
       } else {
         const rotated = state.rotation % 180 !== 0;
         const w = rotated ? image.naturalHeight : image.naturalWidth, h = rotated ? image.naturalWidth : image.naturalHeight;
@@ -144,9 +147,9 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let number = start; number <= end; number++) {
       if ($("thumbnail-list").querySelector(`[data-page="${number}"]`)) continue;
       const button = document.createElement("button"); button.type = "button"; button.className = "thumbnail-button";
-      button.dataset.page = number; button.setAttribute("aria-label", `Ir a la página ${number}`);
+      button.dataset.page = number; window.HospitalI18n.bindAttr(button, "aria-label", () => window.HospitalI18n.t("trace.ir_a_la_pagina_value", {value0: number}));
       const canvas = document.createElement("canvas"); canvas.className = "thumbnail-page"; canvas.setAttribute("aria-hidden", "true");
-      const label = document.createElement("span"); label.className = "thumbnail-number"; label.textContent = number;
+      const label = document.createElement("span"); label.className = "thumbnail-number"; window.HospitalI18n.bindText(label, () => number);
       button.append(canvas, label); button.addEventListener("click", () => setPage(number)); $("thumbnail-list").append(button);
       thumbnailObserver.observe(button);
     }
@@ -176,7 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (file.extension === "docx") {
       $("unavailable-preview").hidden = false;
       $("document-sheet").style.width = "100%"; $("document-sheet").style.height = "100%";
-      $("document-sheet").style.transform = "translate(-50%, -50%)";
+      $("document-sheet").style.transform = `translate(-50%, -50%)`;
       $("thumbnail-rail").hidden = true; $("viewer-body").classList.add("thumbnails-hidden");
       $("print-button").disabled = true; pageState(); renderPage(); return;
     }
@@ -190,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
           standardFontDataUrl: window.HospitalApi.page("assets/vendor/pdfjs/standard_fonts/"),
           wasmUrl: window.HospitalApi.page("assets/vendor/pdfjs/wasm/") });
         loadingTask.onPassword = (update, reason) => {
-          if (reason === pdfjs.PasswordResponses.INCORRECT_PASSWORD) report(new Error("Contraseña de PDF incorrecta."));
+          if (reason === pdfjs.PasswordResponses.INCORRECT_PASSWORD) report(new Error(window.HospitalI18n.t("documents_viewer.contrasena_de_pdf_incorrecta")));
           passwordUpdate = update; $("pdf-password").value = ""; if (!$("pdf-password-dialog").open) $("pdf-password-dialog").showModal();
         };
         pdf = await loadingTask.promise; state.pages = pdf.numPages;
@@ -217,10 +220,10 @@ document.addEventListener("DOMContentLoaded", () => {
     $("print-button").disabled = true; $("file-version").disabled = true; let frame;
     try {
       await bytes(); // Recheck current authentication/access before printing loaded pages.
-      frame = document.createElement("iframe"); frame.className = "document-print-frame"; frame.title = "Imprimir documento";
+      frame = document.createElement("iframe"); frame.className = "document-print-frame"; window.HospitalI18n.bindAttr(frame, "title", () => window.HospitalI18n.t("documents_viewer.imprimir_documento"));
       document.body.append(frame);
       const doc = frame.contentDocument, style = doc.createElement("style");
-      style.textContent = "@page{margin:0}body{margin:0}img{display:block;width:100%;height:auto;break-after:page;page-break-after:always}img:last-child{break-after:auto;page-break-after:auto}";
+      window.HospitalI18n.bindText(style, () => "@page{margin:0}body{margin:0}img{display:block;width:100%;height:auto;break-after:page;page-break-after:always}img:last-child{break-after:auto;page-break-after:auto}");
       doc.head.append(style); doc.title = data.title;
       for (let number = 1; number <= state.pages; number++) {
         const printImage = doc.createElement("img");
@@ -239,7 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
     finally { $("print-button").disabled = false; $("file-version").disabled = false; }
   }
   async function copyLink() {
-    try { await navigator.clipboard.writeText(shareUrl()); toast("Enlace copiado."); }
+    try { await navigator.clipboard.writeText(shareUrl()); toast(() => window.HospitalI18n.t("documents_viewer.enlace_copiado")); }
     catch (error) { report(error); $("share-url").value = shareUrl(); if (!$("share-dialog").open) $("share-dialog").showModal(); $("share-url").select(); }
   }
   function closeMenu() { $("more-menu").hidden = true; $("more-button").setAttribute("aria-expanded", "false"); }
@@ -283,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   $("delete-button").addEventListener("click", async () => {
     const restore = Boolean(data.archived_at);
-    if (!restore && !confirm(`¿Archivar «${data.title}»? Se conservarán el archivo y su historial.`)) return;
+    if (!restore && !confirm(window.HospitalI18n.t("documents_viewer.archivar_value_se_conservaran_el_archivo_y_su_historial", {value0: data.title}))) return;
     $("delete-button").disabled = true;
     try { await (restore ? api.restore(id, data.version) : api.archive(id, data.version)); location.assign("documents.html"); }
     catch (error) { report(error); $("delete-button").disabled = false; }
@@ -312,18 +315,20 @@ document.addEventListener("DOMContentLoaded", () => {
   async function init() {
     try {
       if (!await window.HospitalAuth.ready) return;
-      if (!/^[1-9][0-9]*$/.test(id || "")) throw new Error("Seleccioná un documento desde la lista.");
+      if (!/^[1-9][0-9]*$/.test(id || "")) throw new Error(window.HospitalI18n.t("documents_viewer.selecciona_un_documento_desde_la_lista"));
       data = await api.get(id);
       const requested = params.get("file_version");
       file = requested ? data.file_versions.find(item => String(item.version) === requested) : data.file;
-      if (!file) throw new Error("No se encontró esa versión del archivo.");
-      $("file-version").replaceChildren(...data.file_versions.map(item => new Option(`Versión ${item.version} · ${api.date(item.created_at)}`, item.version)));
+      if (!file) throw new Error(window.HospitalI18n.t("documents_viewer.no_se_encontro_esa_version_del_archivo"));
+      $("file-version").replaceChildren(...data.file_versions.map(item => window.HospitalI18n.option(() => window.HospitalI18n.t("documents_viewer.version_value_value", {value0: item.version, value1: api.date(item.created_at)}), item.version)));
       $("file-version").value = file.version; $("file-version").disabled = true;
       actions.forEach(name => { $(name).disabled = false; });
       if (data.archived_at) ["download-button", "print-button"].forEach(name => { $(name).disabled = true; });
       await openFile();
       $("file-version").disabled = Boolean(data.archived_at);
-    } catch (error) { report(error); if (!file) $("document-title").textContent = ''; }
+    } catch (error) { report(error); if (!file) window.HospitalI18n.bindText($("document-title"), () => ''); }
   }
   init();
+  window.addEventListener('hospital:localechange',()=>{if(data){metadata();pageState();}});
+
 });

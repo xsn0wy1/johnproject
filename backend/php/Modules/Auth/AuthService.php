@@ -24,25 +24,25 @@ final class AuthService
     {
         $fields = []; $errors = [];
         foreach (['username', 'email', 'password', 'national_id'] as $name) {
-            if (!isset($input[$name]) || !is_string($input[$name])) $errors[$name] = 'Completá este campo.';
+            if (!isset($input[$name]) || !is_string($input[$name])) $errors[$name] = \Hospital\I18n::t("validation.required");
         }
-        if ($errors) throw new ApiException(422, 'VALIDATION_FAILED', 'Revisá los campos indicados.', $errors);
+        if ($errors) throw new ApiException(422, 'VALIDATION_FAILED', \Hospital\I18n::t("errors.revisa_los_campos_indicados"), $errors);
         $fields['username'] = strtolower(trim($input['username']));
         $fields['email'] = strtolower(trim($input['email']));
         $fields['national_id'] = preg_replace('/[.\s-]/', '', trim($input['national_id']));
         $fields['password'] = $input['password'];
-        if (!preg_match('/^[a-z0-9][a-z0-9_.-]{2,49}$/', $fields['username'])) $errors['username'] = 'Usá entre 3 y 50 letras sin tildes, números, puntos, guiones o guiones bajos.';
-        if (strlen($fields['email']) > 254 || !filter_var($fields['email'], FILTER_VALIDATE_EMAIL)) $errors['email'] = 'Ingresá un email válido.';
-        if (!preg_match('/^[0-9]{6,12}$/', $fields['national_id'])) $errors['national_id'] = 'Ingresá una CI de 6 a 12 dígitos, con o sin puntos y guion.';
+        if (!preg_match('/^[a-z0-9][a-z0-9_.-]{2,49}$/', $fields['username'])) $errors['username'] = \Hospital\I18n::t("errors.usa_entre_3_y_50_letras_sin_tildes_numeros_puntos_guiones_o_guiones_bajos");
+        if (strlen($fields['email']) > 254 || !filter_var($fields['email'], FILTER_VALIDATE_EMAIL)) $errors['email'] = \Hospital\I18n::t("errors.ingresa_un_email_valido");
+        if (!preg_match('/^[0-9]{6,12}$/', $fields['national_id'])) $errors['national_id'] = \Hospital\I18n::t("errors.ingresa_una_ci_de_6_a_12_digitos_con_o_sin_puntos_y_guion");
         $length = function_exists('mb_strlen') ? mb_strlen($fields['password'], 'UTF-8') : preg_match_all('/./us', $fields['password']);
-        if ($length < 12 || strlen($fields['password']) > 72 || str_contains($fields['password'], "\0")) $errors['password'] = 'Usá al menos 12 caracteres y un máximo de 72 bytes. Se permiten espacios.';
-        if ($errors) throw new ApiException(422, 'VALIDATION_FAILED', 'Revisá los campos indicados.', $errors);
+        if ($length < 12 || strlen($fields['password']) > 72 || str_contains($fields['password'], "\0")) $errors['password'] = \Hospital\I18n::t("errors.usa_al_menos_12_caracteres_y_un_maximo_de_72_bytes_se_permiten_espacios");
+        if ($errors) throw new ApiException(422, 'VALIDATION_FAILED', \Hospital\I18n::t("errors.revisa_los_campos_indicados"), $errors);
         return $fields;
     }
 
     public function register(array $input): array
     {
-        if (isset($_SESSION['user_id'])) throw new ApiException(409, 'ALREADY_AUTHENTICATED', 'Cerrá tu sesión antes de registrar otra cuenta.');
+        if (isset($_SESSION['user_id'])) throw new ApiException(409, 'ALREADY_AUTHENTICATED', \Hospital\I18n::t("errors.cerra_tu_sesion_antes_de_registrar_otra_cuenta"));
         $this->limiter->consume('register:' . ($_SERVER['REMOTE_ADDR'] ?? 'local'), 10, 3600);
         $fields = self::registrationFields($input);
         $hash = password_hash($fields['password'], PASSWORD_BCRYPT, ['cost' => $this->config['bcrypt_cost']]);
@@ -53,10 +53,10 @@ final class AuthService
             $this->db->commit();
         } catch (\PDOException $e) {
             $this->db->rollBack();
-            if (($e->errorInfo[1] ?? 0) === 1062) throw new ApiException(409, 'ACCOUNT_CONFLICT', 'Ya existe una solicitud o cuenta con esos datos.');
+            if (($e->errorInfo[1] ?? 0) === 1062) throw new ApiException(409, 'ACCOUNT_CONFLICT', \Hospital\I18n::t("errors.ya_existe_una_solicitud_o_cuenta_con_esos_datos"));
             throw $e;
         } catch (\Throwable $e) { $this->db->rollBack(); throw $e; }
-        return ['user_id' => $id, 'status' => 'pending', 'message' => 'Solicitud registrada. Un administrador debe aprobar tu cuenta antes de que puedas ingresar.'];
+        return ['user_id' => $id, 'status' => 'pending', 'message' => \Hospital\I18n::t("errors.solicitud_registrada_un_administrador_debe_aprobar_tu_cuenta_antes_de_que_puedas_ingresar")];
     }
 
     public function login(array $input): array
@@ -70,14 +70,16 @@ final class AuthService
         $dummy = '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi';
         $row = strlen($username) <= 50 ? $this->users->byUsername($username) : null;
         $valid = strlen($password) <= 72 && !str_contains($password, "\0") && password_verify($password, $row['password_hash'] ?? $dummy);
-        if (!$row || !$valid) throw new ApiException(401, 'INVALID_CREDENTIALS', 'Usuario o contraseña incorrectos.');
-        if ($row['status'] === 'pending') throw new ApiException(403, 'ACCOUNT_PENDING', 'Tu cuenta está pendiente de aprobación por un administrador.');
-        if ($row['status'] !== 'active' || !$row['staff_id']) throw new ApiException(403, 'ACCOUNT_DISABLED', 'Tu cuenta no tiene acceso al sistema.');
-        // Lock with disable/approval operations; a disabled account cannot race login.
+        if (!$row || !$valid) throw new ApiException(401, 'INVALID_CREDENTIALS', \Hospital\I18n::t("errors.usuario_o_contrasena_incorrectos"));
+        if ($row['status'] === 'pending') throw new ApiException(403, 'ACCOUNT_PENDING', \Hospital\I18n::t("errors.tu_cuenta_esta_pendiente_de_aprobacion_por_un_administrador"));
+        if ($row['status'] !== 'active' || !$row['staff_id']) throw new ApiException(403, 'ACCOUNT_DISABLED', \Hospital\I18n::t("errors.tu_cuenta_no_tiene_acceso_al_sistema"));
+        $verified = $row;
+        // Serialize with account changes without adopting credentials verified before a reset.
         $this->db->beginTransaction();
         try {
             $row = $this->users->byId((string) $row['id'], true);
-            if ($row['status'] !== 'active' || $row['staff_status'] !== 'active') throw new ApiException(403, 'ACCOUNT_DISABLED', 'Tu cuenta no tiene acceso al sistema.');
+            if (!$row || $row['password_hash'] !== $verified['password_hash'] || (int) $row['auth_version'] !== (int) $verified['auth_version']) throw new ApiException(401, 'INVALID_CREDENTIALS', \Hospital\I18n::t("errors.usuario_o_contrasena_incorrectos"));
+            if ($row['status'] !== 'active' || $row['staff_status'] !== 'active') throw new ApiException(403, 'ACCOUNT_DISABLED', \Hospital\I18n::t("errors.tu_cuenta_no_tiene_acceso_al_sistema"));
             $rehash = password_needs_rehash($row['password_hash'], PASSWORD_BCRYPT, ['cost' => $this->config['bcrypt_cost']]) ? password_hash($password, PASSWORD_BCRYPT, ['cost' => $this->config['bcrypt_cost']]) : null;
             $this->users->loginRecorded((string) $row['id'], $rehash);
             $this->users->audit((string) $row['id'], 'session.login', (string) $row['id'], $GLOBALS['request_id']);
@@ -94,7 +96,7 @@ final class AuthService
     public function requireUser(bool $touch = true): array
     {
         $id = $_SESSION['user_id'] ?? null;
-        if (!is_string($id)) throw new ApiException(401, 'UNAUTHENTICATED', 'Iniciá sesión para continuar.');
+        if (!is_string($id)) throw new ApiException(401, 'UNAUTHENTICATED', \Hospital\I18n::t("errors.inicia_sesion_para_continuar"));
         $row = $this->users->byId($id);
         $idle = $this->idleSeconds($id);
         $_SESSION['_idle_seconds'] = $idle;
@@ -104,7 +106,7 @@ final class AuthService
             (int) $row['auth_version'] !== (int) ($_SESSION['auth_version'] ?? 0) || $expired ||
             !$this->sessions->isLive(hash('sha256', session_id()), $id)) {
             $this->clearSession();
-            throw new ApiException(401, 'SESSION_EXPIRED', 'Tu sesión venció o fue cerrada. Iniciá sesión nuevamente.');
+            throw new ApiException(401, 'SESSION_EXPIRED', \Hospital\I18n::t("errors.tu_sesion_vencio_o_fue_cerrada_inicia_sesion_nuevamente"));
         }
         if ($touch) $_SESSION['_last_activity'] = time();
         return $row;
@@ -113,7 +115,7 @@ final class AuthService
     public function requireAdmin(): array
     {
         $user = $this->requireUser();
-        if (!in_array('admin', $this->users->roles((string) $user['id']), true)) throw new ApiException(403, 'FORBIDDEN', 'No tenés permiso para esta acción.');
+        if (!in_array('admin', $this->users->roles((string) $user['id']), true)) throw new ApiException(403, 'FORBIDDEN', \Hospital\I18n::t("errors.no_tenes_permiso_para_esta_accion"));
         return $user;
     }
 
@@ -163,7 +165,7 @@ final class AuthService
         $this->db->beginTransaction();
         try {
             $hash = $this->sessions->revokeOwn($id, (string) $user['id']);
-            if ($hash === null) throw new ApiException(404, 'SESSION_NOT_FOUND', 'No se encontró esa sesión.');
+            if ($hash === null) throw new ApiException(404, 'SESSION_NOT_FOUND', \Hospital\I18n::t("errors.no_se_encontro_esa_sesion"));
             $this->users->audit((string) $user['id'], 'session.revoked', (string) $user['id'], $GLOBALS['request_id']);
             $this->db->commit();
         } catch (\Throwable $e) { $this->db->rollBack(); throw $e; }

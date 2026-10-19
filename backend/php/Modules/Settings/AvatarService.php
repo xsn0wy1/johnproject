@@ -23,15 +23,15 @@ final class AvatarService
     private function normalize(array $file): string
     {
         $error = $file['error'] ?? UPLOAD_ERR_NO_FILE;
-        if (!is_int($error) || $error !== UPLOAD_ERR_OK) throw new ApiException(in_array($error, [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? 413 : 422, 'INVALID_UPLOAD', 'No se recibió una imagen válida.');
-        if (!is_string($file['tmp_name'] ?? null) || !is_uploaded_file($file['tmp_name'])) throw new ApiException(422, 'INVALID_UPLOAD', 'No se recibió una imagen válida.');
-        if (filesize($file['tmp_name']) > 5 * 1024 * 1024) throw new ApiException(413, 'FILE_TOO_LARGE', 'La imagen supera 5 MiB.');
+        if (!is_int($error) || $error !== UPLOAD_ERR_OK) throw new ApiException(in_array($error, [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? 413 : 422, 'INVALID_UPLOAD', \Hospital\I18n::t("errors.no_se_recibio_una_imagen_valida"));
+        if (!is_string($file['tmp_name'] ?? null) || !is_uploaded_file($file['tmp_name'])) throw new ApiException(422, 'INVALID_UPLOAD', \Hospital\I18n::t("errors.no_se_recibio_una_imagen_valida"));
+        if (filesize($file['tmp_name']) > 5 * 1024 * 1024) throw new ApiException(413, 'FILE_TOO_LARGE', \Hospital\I18n::t("errors.la_imagen_supera_5_mib"));
         $bytes = file_get_contents($file['tmp_name']);
         $info = @getimagesizefromstring($bytes);
-        if (!$info || !in_array($info['mime'], ['image/png', 'image/jpeg', 'image/webp'], true) || $info[0] > 4096 || $info[1] > 4096 || $info[0] * $info[1] > 8000000) throw new ApiException(415, 'INVALID_IMAGE', 'Usá una imagen PNG, JPEG o WebP de dimensiones permitidas.');
+        if (!$info || !in_array($info['mime'], ['image/png', 'image/jpeg', 'image/webp'], true) || $info[0] > 4096 || $info[1] > 4096 || $info[0] * $info[1] > 8000000) throw new ApiException(415, 'INVALID_IMAGE', \Hospital\I18n::t("errors.usa_una_imagen_png_jpeg_o_webp_de_dimensiones_permitidas"));
         if (!function_exists('imagecreatefromstring')) throw new \RuntimeException('GD extension required.');
         $source = @imagecreatefromstring($bytes);
-        if (!$source) throw new ApiException(415, 'INVALID_IMAGE', 'No se pudo decodificar la imagen.');
+        if (!$source) throw new ApiException(415, 'INVALID_IMAGE', \Hospital\I18n::t("errors.no_se_pudo_decodificar_la_imagen"));
         $scale = min(1, 512 / max($info[0], $info[1]));
         $width = max(1, (int) round($info[0] * $scale)); $height = max(1, (int) round($info[1] * $scale));
         $image = imagecreatetruecolor($width, $height); imagealphablending($image, false); imagesavealpha($image, true);
@@ -83,9 +83,9 @@ final class AvatarService
     public function content(string $viewer, string $target): array
     {
         $stmt = $this->db->prepare("SELECT f.storage_key, f.byte_size, s.photo_visible_to_staff FROM user_settings s JOIN users u ON u.id = s.user_id JOIN staff st ON st.id = u.staff_id JOIN stored_files f ON f.id = s.avatar_file_id AND f.owner_user_id = u.id AND f.state = 'ready' WHERE u.id = ? AND u.status = 'active' AND st.status = 'active'"); $stmt->execute([$target]); $file = $stmt->fetch();
-        if (!$file || ($viewer !== $target && !$file['photo_visible_to_staff'])) throw new ApiException(404, 'PHOTO_NOT_FOUND', 'No se encontró la imagen.');
+        if (!$file || ($viewer !== $target && !$file['photo_visible_to_staff'])) throw new ApiException(404, 'PHOTO_NOT_FOUND', \Hospital\I18n::t("errors.no_se_encontro_la_imagen"));
         $path = $this->path($file['storage_key']);
-        if (!is_file($path)) throw new ApiException(404, 'PHOTO_NOT_FOUND', 'No se encontró la imagen.');
+        if (!is_file($path)) throw new ApiException(404, 'PHOTO_NOT_FOUND', \Hospital\I18n::t("errors.no_se_encontro_la_imagen"));
         return ['path' => $path, 'size' => $file['byte_size']];
     }
 }

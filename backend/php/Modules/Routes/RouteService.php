@@ -31,23 +31,23 @@ final class RouteService
         $f['direction']=TransferInput::choice($input['direction']??null,['one_way','round_trip']);
         $f['availability']=TransferInput::choice($input['availability']??null,['active','inactive']);
         $f['notes']=TransferInput::notes($input['notes']??'');
-        if (mb_strlen($f['notes'])>500) throw new ApiException(422,'VALIDATION_FAILED','Las indicaciones admiten hasta 500 caracteres.');
+        if (mb_strlen($f['notes'])>500) throw new ApiException(422,'VALIDATION_FAILED',\Hospital\I18n::t("errors.las_indicaciones_admiten_hasta_500_caracteres"));
         foreach (['distance_meters'=>[100,2000000],'duration_seconds'=>[60,172800]] as $key=>[$min,$max]) {
             $value=$input[$key]??null;
-            if ((!is_int($value)&&!is_string($value)) || !preg_match('/^[0-9]+$/',(string)$value) || (int)$value<$min || (int)$value>$max) throw new ApiException(422,'VALIDATION_FAILED','Revisá las estimaciones del recorrido.');
+            if ((!is_int($value)&&!is_string($value)) || !preg_match('/^[0-9]+$/',(string)$value) || (int)$value<$min || (int)$value>$max) throw new ApiException(422,'VALIDATION_FAILED',\Hospital\I18n::t("errors.revisa_las_estimaciones_del_recorrido"));
             $f[$key]=(int)$value;
         }
         $stops=$input['stops']??[];
-        if (!is_array($stops) || count($stops)>6 || ($stops && array_keys($stops)!==range(0,count($stops)-1))) throw new ApiException(422,'VALIDATION_FAILED','Se admiten hasta seis paradas ordenadas.');
+        if (!is_array($stops) || count($stops)>6 || ($stops && array_keys($stops)!==range(0,count($stops)-1))) throw new ApiException(422,'VALIDATION_FAILED',\Hospital\I18n::t("errors.se_admiten_hasta_seis_paradas_ordenadas"));
         $f['stops']=[];
         foreach ($stops as $stop) {
-            if (!is_array($stop) || array_diff(array_keys($stop),['name','address'])) throw new ApiException(422,'VALIDATION_FAILED','Parada no válida.');
+            if (!is_array($stop) || array_diff(array_keys($stop),['name','address'])) throw new ApiException(422,'VALIDATION_FAILED',\Hospital\I18n::t("errors.parada_no_valida"));
             $f['stops'][]=['name'=>SettingsService::text($stop['name']??null,'name',100,false),'address'=>SettingsService::text($stop['address']??null,'address',160,false)];
         }
         $points=self::places($f);
         $same=static fn(array $a,array $b):bool=>mb_strtolower($a['name'])===mb_strtolower($b['name']) && mb_strtolower($a['address'])===mb_strtolower($b['address']);
-        if ($same($points[0],$points[count($points)-1])) throw new ApiException(422,'VALIDATION_FAILED','El origen y destino deben ser diferentes.');
-        for ($i=1;$i<count($points);$i++) if ($same($points[$i-1],$points[$i])) throw new ApiException(422,'VALIDATION_FAILED','Dos paradas consecutivas deben ser diferentes.');
+        if ($same($points[0],$points[count($points)-1])) throw new ApiException(422,'VALIDATION_FAILED',\Hospital\I18n::t("errors.el_origen_y_destino_deben_ser_diferentes"));
+        for ($i=1;$i<count($points);$i++) if ($same($points[$i-1],$points[$i])) throw new ApiException(422,'VALIDATION_FAILED',\Hospital\I18n::t("errors.dos_paradas_consecutivas_deben_ser_diferentes"));
         return $f;
     }
     public static function places(array $f): array
@@ -71,28 +71,28 @@ final class RouteService
     public function get(string $actor,string $id): array
     {
         $this->access($actor); $s=$this->db->prepare('SELECT * FROM route_templates WHERE id=?'); $s->execute([$id]); $row=$s->fetch();
-        if (!$row) throw new ApiException(404,'ROUTE_NOT_FOUND','No se encontró la ruta.');
+        if (!$row) throw new ApiException(404,'ROUTE_NOT_FOUND',\Hospital\I18n::t("errors.no_se_encontro_la_ruta"));
         return $this->payload($row);
     }
     private function lock(string $id,int $version): array
     {
         $s=$this->db->prepare('SELECT * FROM route_templates WHERE id=? FOR UPDATE'); $s->execute([$id]); $row=$s->fetch();
-        if (!$row) throw new ApiException(404,'ROUTE_NOT_FOUND','No se encontró la ruta.');
-        if ((int)$row['version']!==$version) throw new ApiException(409,'VERSION_CONFLICT','La ruta cambió. Volvé a abrirla antes de guardar.');
+        if (!$row) throw new ApiException(404,'ROUTE_NOT_FOUND',\Hospital\I18n::t("errors.no_se_encontro_la_ruta"));
+        if ((int)$row['version']!==$version) throw new ApiException(409,'VERSION_CONFLICT',\Hospital\I18n::t("errors.la_ruta_cambio_volve_a_abrirla_antes_de_guardar"));
         return $row;
     }
     public function save(string $actor,array $input,?string $id=null): array
     {
         $this->access($actor); $f=$this->fields($input); $version=$id===null?null:TransferInput::version($input['version']??null);
         $previous=$id===null?null:$this->get($actor,$id);
-        if ($previous && $previous['version']!==$version) throw new ApiException(409,'VERSION_CONFLICT','La ruta cambió. Volvé a abrirla antes de guardar.');
+        if ($previous && $previous['version']!==$version) throw new ApiException(409,'VERSION_CONFLICT',\Hospital\I18n::t("errors.la_ruta_cambio_volve_a_abrirla_antes_de_guardar"));
         $same=$previous && self::places($f)===self::places($previous);
         $geometry=$same?json_encode($previous['geometry'],JSON_THROW_ON_ERROR):'[]';
         if (!$same || !$previous['geometry']) { $mapped=(new RouteMapper($this->db,$this->config))->path(self::places($f)); if ($mapped) $geometry=$mapped['geometry']; }
         $id=$this->transaction($actor,function() use($actor,$f,$id,$version,$geometry) {
-            if ($id!==null && $this->lock($id,$version)['status']!=='active') throw new ApiException(409,'ROUTE_ARCHIVED','Restaurá la ruta antes de editarla.');
+            if ($id!==null && $this->lock($id,$version)['status']!=='active') throw new ApiException(409,'ROUTE_ARCHIVED',\Hospital\I18n::t("errors.restaura_la_ruta_antes_de_editarla"));
             $s=$this->db->prepare('SELECT id FROM route_templates WHERE name=? AND id<>? LIMIT 1'); $s->execute([$f['name'],$id??0]);
-            if ($s->fetchColumn()) throw new ApiException(409,'ROUTE_CONFLICT','Ya existe una ruta con ese nombre. Revisá también las inactivas.');
+            if ($s->fetchColumn()) throw new ApiException(409,'ROUTE_CONFLICT',\Hospital\I18n::t("errors.ya_existe_una_ruta_con_ese_nombre_revisa_tambien_las_inactivas"));
             $row=$f; unset($row['stops']); $row['geometry']=$geometry;
             // Optional catalog associations never create hospital centers implicitly.
             foreach (['origin','destination'] as $prefix) {
@@ -118,7 +118,7 @@ final class RouteService
     {
         $this->transaction($actor,function() use($actor,$id,$version,$restore) {
             $old=$this->lock($id,$version); $state=$restore?'active':'archived';
-            if ($old['status']===$state) throw new ApiException(409,'VERSION_CONFLICT','El estado de la ruta cambió.');
+            if ($old['status']===$state) throw new ApiException(409,'VERSION_CONFLICT',\Hospital\I18n::t("errors.el_estado_de_la_ruta_cambio"));
             $s=$this->db->prepare('UPDATE route_templates SET status=?,archived_at=?,version=version+1 WHERE id=?'); $s->execute([$state,$restore?null:gmdate('Y-m-d H:i:s'),$id]);
             $this->access->audit($actor,$restore?'route.restored':'route.archived',$id,'route');
         });

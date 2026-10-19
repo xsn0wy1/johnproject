@@ -15,12 +15,12 @@ final class TransferService
     {
         $args=[$id];$scope=$this->access->scope($actor,$args);
         $s=$this->db->prepare('SELECT t.* FROM transfers t WHERE t.id=? AND '.$scope.($lock?' FOR UPDATE':''));$s->execute($args);$row=$s->fetch();
-        if(!$row)throw new ApiException(404,'TRANSFER_NOT_FOUND','No se encontró el traslado.');
+        if(!$row)throw new ApiException(404,'TRANSFER_NOT_FOUND',\Hospital\I18n::t("errors.no_se_encontro_el_traslado"));
         return $row;
     }
     private function revision(array $row,$version):void
     {
-        if((int)$row['version']!==TransferInput::version($version))throw new ApiException(409,'VERSION_CONFLICT','El traslado cambió. Volvé a abrirlo antes de guardar.');
+        if((int)$row['version']!==TransferInput::version($version))throw new ApiException(409,'VERSION_CONFLICT',\Hospital\I18n::t("errors.el_traslado_cambio_volve_a_abrirlo_antes_de_guardar"));
     }
     private function transaction(string $actor,callable $work)
     {
@@ -35,7 +35,7 @@ final class TransferService
         // Lock canonical resources in stable ID order. All transfer writes also
         // use a database-wide domain lock, including the simulation worker.
         $s=$this->db->prepare("SELECT * FROM ambulances WHERE id=? FOR UPDATE");$s->execute([$f['ambulance_id']]);$vehicle=$s->fetch();
-        if(!$vehicle||$vehicle['status']!=='active'||$vehicle['operational_status']!=='available')throw new ApiException(422,'VEHICLE_UNAVAILABLE','Seleccioná una ambulancia operativa.');
+        if(!$vehicle||$vehicle['status']!=='active'||$vehicle['operational_status']!=='available')throw new ApiException(422,'VEHICLE_UNAVAILABLE',\Hospital\I18n::t("errors.selecciona_una_ambulancia_operativa"));
         $ids=array_values(array_filter([$f['driver_id'],$f['companion_id']]));sort($ids,SORT_NUMERIC);
         $s=$this->db->prepare('SELECT * FROM staff WHERE id IN ('.implode(',',array_fill(0,count($ids),'?')).') ORDER BY id FOR UPDATE');$s->execute($ids);$staff=[];
         foreach($s->fetchAll() as $member)$staff[(string)$member['id']]=$member;
@@ -46,17 +46,17 @@ final class TransferService
             if($doctor && ($doctor['status']!=='active'||$doctor['availability']==='inactive'))$responsibilities=array_values(array_diff($responsibilities,['doctor']));
             $s=$this->db->prepare('SELECT status,availability,responsibility FROM personnel_profiles WHERE staff_id=?');$s->execute([$f[$key]]);$personnel=$s->fetch();
             if($personnel)foreach(['driver','copilot'] as $role)if($personnel['status']!=='active'||$personnel['availability']!=='active'||$personnel['responsibility']!==$role)$responsibilities=array_values(array_diff($responsibilities,[$role]));
-            if(!$member||$member['status']!=='active'||!array_intersect($roles,$responsibilities))throw new ApiException(422,'CREW_UNAVAILABLE','Seleccioná personal activo con la función requerida.');
+            if(!$member||$member['status']!=='active'||!array_intersect($roles,$responsibilities))throw new ApiException(422,'CREW_UNAVAILABLE',\Hospital\I18n::t("errors.selecciona_personal_activo_con_la_funcion_requerida"));
             $staff[$f[$key]]['responsibility']=$key==='driver_id'?'driver':(in_array('doctor',$responsibilities,true)?'doctor':'copilot');
         }
         if($f['patient_id']!==null){
             $keep=$existing&&$existing['patient_id']!==null&&(string)$existing['patient_id']===$f['patient_id'];
             $s=$this->db->prepare('SELECT id FROM patients WHERE id=?'.($keep?'':" AND status='active'").' FOR UPDATE');$s->execute([$f['patient_id']]);
-            if(!$s->fetchColumn())throw new ApiException(422,'PATIENT_UNAVAILABLE','Seleccioná un paciente activo del hospital.');
+            if(!$s->fetchColumn())throw new ApiException(422,'PATIENT_UNAVAILABLE',\Hospital\I18n::t("errors.selecciona_un_paciente_activo_del_hospital"));
         }
         $resolved=(new TransferLocations($this->db,$this->config))->resolve($f,$existing,true,$refresh);
         if ($prepared!==null) {
-            if (!hash_equals($prepared['fingerprint'],TransferLocations::fingerprint($resolved))) throw new ApiException(409,'VERSION_CONFLICT','La ubicación o la ruta cambió durante la consulta. Reintentá.');
+            if (!hash_equals($prepared['fingerprint'],TransferLocations::fingerprint($resolved))) throw new ApiException(409,'VERSION_CONFLICT',\Hospital\I18n::t("errors.la_ubicacion_o_la_ruta_cambio_durante_la_consulta_reintenta"));
             $resolved['route']=$prepared['route'];
         }
         extract($resolved);
@@ -72,7 +72,7 @@ final class TransferService
             if ($mapped) {
                 $route['geometry']=$mapped['geometry'];
                 if ($route['id']===null) { $route['distance_meters']=$mapped['distance_meters'];$route['duration_seconds']=$mapped['duration_seconds']; }
-            } elseif ($refresh) throw new ApiException(503,'MAP_UNAVAILABLE','No se pudo resolver el mapa. Se conservó el traslado.');
+            } elseif ($refresh) throw new ApiException(503,'MAP_UNAVAILABLE',\Hospital\I18n::t("errors.no_se_pudo_resolver_el_mapa_se_conservo_el_traslado"));
         }
         return ['fingerprint'=>$fingerprint,'route'=>$route];
     }
@@ -84,7 +84,7 @@ final class TransferService
         foreach($resources as [$kind,$resource]){
             $s=$this->db->prepare("SELECT r.transfer_id FROM resource_reservations r JOIN transfers t ON t.id=r.transfer_id WHERE r.resource_type=? AND r.resource_id=? AND r.transfer_id<>? AND ((r.starts_at<? AND r.ends_at>?) OR (t.status IN ('in_progress','arrived') AND r.ends_at<=UTC_TIMESTAMP())".($starting?" OR t.status IN ('in_progress','arrived')":'').') LIMIT 1 FOR UPDATE');
             $s->execute([$kind,$resource,$id,$end,$start]);
-            if($s->fetchColumn())throw new ApiException(409,'ASSIGNMENT_CONFLICT','La ambulancia o el personal ya tienen otro traslado en ese intervalo.');
+            if($s->fetchColumn())throw new ApiException(409,'ASSIGNMENT_CONFLICT',\Hospital\I18n::t("errors.la_ambulancia_o_el_personal_ya_tienen_otro_traslado_en_ese_intervalo"));
         }
         $s=$this->db->prepare('DELETE FROM resource_reservations WHERE transfer_id=?');$s->execute([$id]);
         foreach($resources as [$kind,$resource]){$s=$this->db->prepare('INSERT INTO resource_reservations (transfer_id,resource_type,resource_id,starts_at,ends_at) VALUES (?,?,?,?,?)');$s->execute([$id,$kind,$resource,$start,$end]);}
@@ -102,16 +102,16 @@ final class TransferService
     public function create(string $actor,array $input):array
     {
         $this->access->requireDispatch($actor);$f=TransferInput::fields($input);$token=$input['create_token']??null;
-        if(!is_string($token)||!preg_match('/^[a-f0-9]{64}$/',$token))throw new ApiException(422,'CREATE_TOKEN_REQUIRED','Se requiere la referencia de creación.');
+        if(!is_string($token)||!preg_match('/^[a-f0-9]{64}$/',$token))throw new ApiException(422,'CREATE_TOKEN_REQUIRED',\Hospital\I18n::t("errors.se_requiere_la_referencia_de_creacion"));
         $fingerprint=hash('sha256',json_encode($f,JSON_THROW_ON_ERROR));
         $s=$this->db->prepare('SELECT id,create_fingerprint FROM transfers WHERE created_by=? AND create_key=?');$s->execute([$actor,hash('sha256',$token)]);$retry=$s->fetch();
-        if($retry){if(!hash_equals($retry['create_fingerprint'],$fingerprint))throw new ApiException(409,'CREATE_TOKEN_REUSED','La referencia ya fue utilizada.');return $this->get($actor,(string)$retry['id']);}
+        if($retry){if(!hash_equals($retry['create_fingerprint'],$fingerprint))throw new ApiException(409,'CREATE_TOKEN_REUSED',\Hospital\I18n::t("errors.la_referencia_ya_fue_utilizada"));return $this->get($actor,(string)$retry['id']);}
         $prepared=$this->prepareLocations($f);
         $id=$this->transaction($actor,function()use($actor,$input,$f,$token,$fingerprint,$prepared){
             $s=$this->db->prepare('SELECT id,create_fingerprint FROM transfers WHERE created_by=? AND create_key=?');$s->execute([$actor,hash('sha256',$token)]);$existing=$s->fetch();
-            if($existing){if(!hash_equals($existing['create_fingerprint'],$fingerprint))throw new ApiException(409,'CREATE_TOKEN_REUSED','La referencia ya fue utilizada con otros datos.');return(string)$existing['id'];}
+            if($existing){if(!hash_equals($existing['create_fingerprint'],$fingerprint))throw new ApiException(409,'CREATE_TOKEN_REUSED',\Hospital\I18n::t("errors.la_referencia_ya_fue_utilizada_con_otros_datos"));return(string)$existing['id'];}
             $when=strtotime($f['scheduled_at'].' UTC');
-            if($when<time()-86400||$when>time()+366*86400)throw new ApiException(422,'INVALID_SCHEDULE','La fecha debe estar entre ayer y el próximo año.');
+            if($when<time()-86400||$when>time()+366*86400)throw new ApiException(422,'INVALID_SCHEDULE',\Hospital\I18n::t("errors.la_fecha_debe_estar_entre_ayer_y_el_proximo_ano"));
             $c=$this->catalog($f,null,$prepared);$route=$c['route'];$v=$c['vehicle'];
             $row=['created_by'=>$actor,'ambulance_id'=>$f['ambulance_id'],'patient_id'=>$f['patient_id'],'route_template_id'=>$route['id'],'origin_facility_id'=>$c['origin']['id'],'destination_facility_id'=>$c['destination']['id'],'ambulance_code'=>$v['code'],'ambulance_plate'=>$v['plate'],'origin_name'=>$c['origin']['name'],'destination_name'=>$c['destination']['name'],'origin_address'=>$c['origin']['address'],'destination_address'=>$c['destination']['address'],'geometry'=>$route['geometry'],'route_snapshot'=>$route['route_snapshot']??null,'distance_meters'=>$route['distance_meters'],'duration_seconds'=>$route['duration_seconds'],'reserved_until'=>$f['scheduled_at'],'create_key'=>hash('sha256',$token),'create_fingerprint'=>$fingerprint];
             foreach($f as $key=>$value)if(!in_array($key,['driver_id','companion_id','route_template_id','route_version','origin_facility_id','destination_facility_id','origin_name','origin_address','destination_name','destination_address'],true))$row[$key]=$value;
@@ -127,14 +127,14 @@ final class TransferService
     {
         $this->access->requireDispatch($actor);$f=TransferInput::fields($input);
         $before=$this->row($actor,$id);$this->revision($before,$input['version']??null);
-        if($before['status']!=='scheduled')throw new ApiException(409,'TRANSFER_LOCKED','Solo los traslados programados permiten cambiar sus datos.');
-        $refresh=$input['refresh_route']??false;if(!is_bool($refresh))throw new ApiException(422,'VALIDATION_FAILED','Opción no válida.');
+        if($before['status']!=='scheduled')throw new ApiException(409,'TRANSFER_LOCKED',\Hospital\I18n::t("errors.solo_los_traslados_programados_permiten_cambiar_sus_datos"));
+        $refresh=$input['refresh_route']??false;if(!is_bool($refresh))throw new ApiException(422,'VALIDATION_FAILED',\Hospital\I18n::t("errors.opcion_no_valida"));
         $prepared=$this->prepareLocations($f,$before,$refresh);
         $this->transaction($actor,function()use($actor,$id,$input,$f,$prepared,$refresh){
             $row=$this->row($actor,$id,true);$this->revision($row,$input['version']??null);
-            if($row['status']!=='scheduled')throw new ApiException(409,'TRANSFER_LOCKED','Solo los traslados programados permiten cambiar sus datos.');
+            if($row['status']!=='scheduled')throw new ApiException(409,'TRANSFER_LOCKED',\Hospital\I18n::t("errors.solo_los_traslados_programados_permiten_cambiar_sus_datos"));
             $when=strtotime($f['scheduled_at'].' UTC');
-            if($f['scheduled_at']!==$row['scheduled_at']&&($when<time()-86400||$when>time()+366*86400))throw new ApiException(422,'INVALID_SCHEDULE','La fecha debe estar entre ayer y el próximo año.');
+            if($f['scheduled_at']!==$row['scheduled_at']&&($when<time()-86400||$when>time()+366*86400))throw new ApiException(422,'INVALID_SCHEDULE',\Hospital\I18n::t("errors.la_fecha_debe_estar_entre_ayer_y_el_proximo_ano"));
             $c=$this->catalog($f,$row,$prepared,$refresh);$end=$this->reserve($f,$c,$id,$f['scheduled_at']);
             $changes=$f;unset($changes['driver_id'],$changes['companion_id'],$changes['origin_name'],$changes['origin_address'],$changes['destination_name'],$changes['destination_address'],$changes['route_template_id'],$changes['route_version']);$changes['origin_facility_id']=$c['origin']['id'];$changes['destination_facility_id']=$c['destination']['id'];$changes['reserved_until']=$end;
             $changes['ambulance_code']=$c['vehicle']['code'];$changes['ambulance_plate']=$c['vehicle']['plate'];
@@ -151,7 +151,7 @@ final class TransferService
         $this->transaction($actor,function()use($actor,$id,$version,$status){
             $row=$this->row($actor,$id,true);$this->revision($row,$version);
             $allowed=['scheduled'=>['in_progress','cancelled'],'in_progress'=>['arrived','cancelled'],'arrived'=>['completed','cancelled'],'completed'=>[],'cancelled'=>[]];
-            if(!in_array($status,$allowed[$row['status']],true))throw new ApiException(409,'INVALID_TRANSITION','El estado no permite esa transición.');
+            if(!in_array($status,$allowed[$row['status']],true))throw new ApiException(409,'INVALID_TRANSITION',\Hospital\I18n::t("errors.el_estado_no_permite_esa_transicion"));
             $column=['in_progress'=>'started_at','arrived'=>'arrived_at','completed'=>'finished_at','cancelled'=>'finished_at'][$status];
             if($status==='in_progress'){
                 $s=$this->db->prepare('SELECT staff_id,duty FROM transfer_crew WHERE transfer_id=?');$s->execute([$id]);$crew=[];foreach($s->fetchAll() as $member)$crew[$member['duty']]=(string)$member['staff_id'];
@@ -192,9 +192,9 @@ final class TransferService
     }
     public function listing(string $actor,array $query):array
     {
-        if(array_diff(array_keys($query),['page','page_size','state','type','sort','q']))throw new ApiException(422,'UNEXPECTED_FIELDS','Filtro no permitido.');
+        if(array_diff(array_keys($query),['page','page_size','state','type','sort','q']))throw new ApiException(422,'UNEXPECTED_FIELDS',\Hospital\I18n::t("errors.filtro_no_permitido"));
         $page=$query['page']??'1';$size=$query['page_size']??'20';
-        if(!is_scalar($page)||!preg_match('/^[1-9][0-9]{0,5}$/',(string)$page)||!is_scalar($size)||!preg_match('/^[1-9][0-9]{0,2}$/',(string)$size)||(int)$size>100)throw new ApiException(422,'VALIDATION_FAILED','Paginación no válida.');
+        if(!is_scalar($page)||!preg_match('/^[1-9][0-9]{0,5}$/',(string)$page)||!is_scalar($size)||!preg_match('/^[1-9][0-9]{0,2}$/',(string)$size)||(int)$size>100)throw new ApiException(422,'VALIDATION_FAILED',\Hospital\I18n::t("errors.paginacion_no_valida"));
         $args=[];$scope=$this->access->scope($actor,$args);
         $s=$this->db->prepare("SELECT COUNT(*) AS all_count,COALESCE(SUM(t.status IN ('scheduled','in_progress','arrived')),0) AS active_count,COALESCE(SUM(t.status='completed'),0) AS completed_count FROM transfers t WHERE ".$scope);$s->execute($args);$counts=$s->fetch();$counts=array_map('intval',$counts);
         $where=[$scope];$state=TransferInput::choice($query['state']??'active',['active','completed','all']);

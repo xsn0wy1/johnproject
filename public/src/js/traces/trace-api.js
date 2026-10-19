@@ -1,12 +1,12 @@
 (() => {
   'use strict';
   const api=window.HospitalApi, path=name=>`transfers/${name}.php`;
-  const labels={scheduled:'Programado',in_progress:'En curso',arrived:'En destino',completed:'Finalizado',cancelled:'Cancelado'};
-  const cargo={patient:'Paciente',biological:'Biológico',equipment:'Equipo'};
-  const priority={low:'Baja',normal:'Normal',high:'Alta',critical:'Crítica'};
-  const reason={consulta:'Consulta médica',estudio:'Estudio o tratamiento',alta:'Alta médica',emergencia:'Emergencia',insumos:'Traslado de insumos'};
-  const dateTime=value=>value?new Intl.DateTimeFormat('es-UY',{timeZone:'America/Montevideo',dateStyle:'short',timeStyle:'short',hour12:false}).format(new Date(value)):'—';
-  const time=value=>value?new Intl.DateTimeFormat('es-UY',{timeZone:'America/Montevideo',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date(value)):'—';
+  const labels={get scheduled() { return window.HospitalI18n.t("trace_map.programado_2"); },get in_progress() { return window.HospitalI18n.t("trace_map.en_curso_2"); },get arrived() { return window.HospitalI18n.t("trace_view.en_destino"); },get completed() { return window.HospitalI18n.t("trace_view.finalizado"); },get cancelled() { return window.HospitalI18n.t("trace_api.cancelado"); }};
+  const cargo={get patient() { return window.HospitalI18n.t("trace_view.paciente"); },get biological() { return window.HospitalI18n.t("trace_new.biologico"); },get equipment() { return window.HospitalI18n.t("trace.equipo"); }};
+  const priority={get low() { return window.HospitalI18n.t("trace_view.baja"); },get normal() { return window.HospitalI18n.t("trace_view.normal"); },get high() { return window.HospitalI18n.t("trace_view.alta"); },get critical() { return window.HospitalI18n.t("trace_view.critica"); }};
+  const reason={get consulta() { return window.HospitalI18n.t("trace_new.consulta_medica"); },get estudio() { return window.HospitalI18n.t("trace_new.estudio_o_tratamiento"); },get alta() { return window.HospitalI18n.t("trace_new.alta_medica"); },get emergencia() { return window.HospitalI18n.t("trace_new.emergencia"); },get insumos() { return window.HospitalI18n.t("trace_new.traslado_de_insumos"); }};
+  const dateTime=value=>value?new Intl.DateTimeFormat(window.HospitalI18n.locale,{timeZone:'America/Montevideo',dateStyle:'short',timeStyle:'short',hour12:false}).format(new Date(value)):'—';
+  const time=value=>value?new Intl.DateTimeFormat(window.HospitalI18n.locale,{timeZone:'America/Montevideo',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date(value)):'—';
   function localParts(value){
     const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Montevideo',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(value));
     const p=Object.fromEntries(parts.map(part=>[part.type,part.value]));return {date:`${p.year}-${p.month}-${p.day}`,time:`${p.hour}:${p.minute}`};

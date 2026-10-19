@@ -6,25 +6,25 @@
     const surveyApi=window.HospitalSurveys, api=window.HospitalApi;
     let pendingDeleteSurvey=null, mutating=false, loadRevision=0;
     async function load(){const revision=++loadRevision;const rows=await surveyApi.directory($('survey-status').value==='archived');if(revision!==loadRevision)return;surveys=rows;render();}
-    const rating=value=>value===null||value===undefined?'—':`${Number(value).toLocaleString('es-UY',{maximumFractionDigits:1})}/5`;
+    const rating=value=>value===null||value===undefined?'—':`${Number(value).toLocaleString(window.HospitalI18n.locale,{maximumFractionDigits:1})}/5`;
     const categories = {
-        patient_care: { label: 'Atención al paciente', icon: 'hrate-icon.svg', color: 'violet' },
-        transfers: { label: 'Traslados', icon: 'ambulance-icon.png', color: 'cyan' },
-        emergency: { label: 'Emergencias', icon: 'medkit-icon.png', color: 'rose' },
-        staff: { label: 'Personal', icon: 'people-svgrepo-com.svg', color: 'amber' },
-        other: { label: 'Otras', icon: 'survey-icon.svg', color: 'violet' }
+        get patient_care() { return { get label() { return window.HospitalI18n.t("survey.atencion_al_paciente"); }, icon: 'hrate-icon.svg', color: 'violet' }; },
+        get transfers() { return { get label() { return window.HospitalI18n.t("survey.traslados"); }, icon: 'ambulance-icon.png', color: 'cyan' }; },
+        get emergency() { return { get label() { return window.HospitalI18n.t("survey.emergencias"); }, icon: 'medkit-icon.png', color: 'rose' }; },
+        get staff() { return { get label() { return window.HospitalI18n.t("trace_view.personal"); }, icon: 'people-svgrepo-com.svg', color: 'amber' }; },
+        get other() { return { get label() { return window.HospitalI18n.t("survey.otras"); }, icon: 'survey-icon.svg', color: 'violet' }; }
     };
-    const audiences = { patients: 'Pacientes', staff: 'Personal', everyone: 'Pacientes y personal' };
-    const statuses = { draft: 'BORRADOR', published: 'ACTIVA', closed: 'FINALIZADA', archived: 'ARCHIVADA' };
-    const templates = window.HospitalSurveyTemplates;
+    const audiences = { get patients() { return window.HospitalI18n.t("management.pacientes"); }, get staff() { return window.HospitalI18n.t("trace_view.personal"); }, get everyone() { return window.HospitalI18n.t("survey_new.pacientes_y_personal"); } };
+    const statuses = { get draft() { return window.HospitalI18n.t("shared.borrador"); }, get published() { return window.HospitalI18n.t("shared.activa"); }, get closed() { return window.HospitalI18n.t("shared.finalizada"); }, get archived() { return window.HospitalI18n.t("shared.archivada"); } };
+    let templates = [];
     const $ = id => document.getElementById(id);
     const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
     const normalize = value => String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
     const icon = name => `<img src="../../../assets/Icons/${name}" alt="">`;
     const tile = category => `<span class="survey-icon ${categories[category].color}">${icon(categories[category].icon)}</span>`;
-    const collator = new Intl.Collator('es-UY', { sensitivity: 'base', numeric: true });
-    const dateFormat = new Intl.DateTimeFormat('es-UY', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Montevideo' });
-    const timeFormat = new Intl.DateTimeFormat('es-UY', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Montevideo' });
+    const collator = { compare: (...args) => new Intl.Collator(window.HospitalI18n.locale, { sensitivity: 'base', numeric: true }).compare(...args) };
+    const dateFormat = { format: (...args) => new Intl.DateTimeFormat(window.HospitalI18n.locale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Montevideo' }).format(...args) };
+    const timeFormat = { format: (...args) => new Intl.DateTimeFormat(window.HospitalI18n.locale, { hour: '2-digit', minute: '2-digit', timeZone: 'America/Montevideo' }).format(...args) };
     let selectedId = null;
     let pendingDeleteId = null;
     let page = 1;
@@ -33,7 +33,7 @@
 
     function activity(date) {
         const today = dateFormat.format(new Date());
-        return dateFormat.format(new Date(date)) === today ? `Hoy, ${timeFormat.format(new Date(date))}` : dateFormat.format(new Date(date));
+        return dateFormat.format(new Date(date)) === today ? window.HospitalI18n.t("survey.hoy_value", {value0: timeFormat.format(new Date(date))}) : dateFormat.format(new Date(date));
     }
     function selected() { return surveys.find(survey => survey.id === selectedId); }
     function questionOptions(question) { return Array.isArray(question.options)?question.options:String(question.options||'').split('\n').filter(Boolean); }
@@ -67,44 +67,44 @@
         page = 1;
     }
     function renderStats() {
-        $('stat-total').textContent = surveys.length;
+        window.HospitalI18n.bindText($('stat-total'), () => surveys.length);
         const drafts = surveys.filter(survey => survey.status === 'draft').length;
-        $('stat-drafts').textContent = `${drafts} ${drafts === 1 ? 'borrador' : 'borradores'}`;
-        $('stat-active').textContent = surveys.filter(survey => survey.accepting_responses).length;
-        $('stat-responses').textContent = surveys.reduce((total, survey) => total + survey.response_count, 0).toLocaleString('es-UY');
+        window.HospitalI18n.bindText($('stat-drafts'), () => `${drafts} ${drafts === 1 ? window.HospitalI18n.t("shared.borrador_2") : window.HospitalI18n.t("shared.borradores")}`);
+        window.HospitalI18n.bindText($('stat-active'), () => surveys.filter(survey => survey.accepting_responses).length);
+        window.HospitalI18n.bindText($('stat-responses'), () => surveys.reduce((total, survey) => total + survey.response_count, 0).toLocaleString(window.HospitalI18n.locale));
         const rated=surveys.filter(s=>s.average_rating!==null&&s.rating_count>0), n=rated.reduce((sum,s)=>sum+s.rating_count,0);
-        $('stat-satisfaction').textContent=n?rating(rated.reduce((sum,s)=>sum+s.average_rating*s.rating_count,0)/n):'—';
-        $('stat-satisfaction').nextElementSibling.textContent=n?'Valoraciones normalizadas sobre 5':'Sin valoraciones todavía';
+        window.HospitalI18n.bindText($('stat-satisfaction'), () => n?rating(rated.reduce((sum,s)=>sum+s.average_rating*s.rating_count,0)/n):'—');
+        window.HospitalI18n.bindText($('stat-satisfaction').nextElementSibling, () => n?window.HospitalI18n.t("survey.valoraciones_normalizadas_sobre_5"):window.HospitalI18n.t("survey.sin_valoraciones_todavia"));
     }
     function renderPagination(total) {
         const pages = Math.ceil(total / pageSize());
-        if (pages <= 1) { $('survey-pagination').innerHTML = ''; return; }
+        if (pages <= 1) { window.HospitalI18n.setHTML($('survey-pagination'), ''); return; }
         const numbers = [...new Set([1, page - 1, page, page + 1, pages])].filter(number => number > 0 && number <= pages).sort((a, b) => a - b);
         let previous = 0;
         const buttons = numbers.map(number => {
             const gap = previous && number - previous > 1 ? '<span aria-hidden="true">…</span>' : '';
             previous = number;
-            return `${gap}<button type="button" data-page="${number}" aria-label="Página ${number}" ${number === page ? 'aria-current="page"' : ''}>${number}</button>`;
+            return `${gap}<button type="button" data-page="${number}" aria-label="${window.HospitalI18n.html("ambulances.pagina_value", {value0: number})}" data-i18n-aria-label="ambulances.pagina_value" data-i18n-aria-label-params="${window.HospitalI18n.escape(JSON.stringify({value0: number}))}" ${number === page ? 'aria-current="page"' : ''}>${number}</button>`;
         }).join('');
-        $('survey-pagination').innerHTML = `<button type="button" data-page="${page - 1}" aria-label="Página anterior" ${page === 1 ? 'disabled' : ''}>‹</button>${buttons}<button type="button" data-page="${page + 1}" aria-label="Página siguiente" ${page === pages ? 'disabled' : ''}>›</button>`;
+        window.HospitalI18n.setHTML($('survey-pagination'), `<button type="button" data-page="${page - 1}" aria-label="${window.HospitalI18n.html("trace.pagina_anterior")}" data-i18n-aria-label="trace.pagina_anterior" ${page === 1 ? 'disabled' : ''}>‹</button>${buttons}<button type="button" data-page="${page + 1}" aria-label="${window.HospitalI18n.html("trace.pagina_siguiente")}" data-i18n-aria-label="trace.pagina_siguiente" ${page === pages ? 'disabled' : ''}>›</button>`);
     }
     function renderDetail() {
         const survey = selected();
         $('detail-actions').hidden = !survey;
         document.querySelector('.survey-detail').classList.toggle('has-selection', Boolean(survey));
         $('edit-survey').hidden=Boolean(survey?.archived_at);
-        $('delete-survey').setAttribute('aria-label',survey?.archived_at?'Restaurar encuesta':'Archivar encuesta');
+        window.HospitalI18n.bindAttr($('delete-survey'), "aria-label", () => survey?.archived_at?window.HospitalI18n.t("survey.restaurar_encuesta"):window.HospitalI18n.t("survey.archivar_encuesta"));
         if (survey) $('edit-survey').href = `survey-new.html?id=${encodeURIComponent(survey.id)}`;
         $('survey-detail-content').scrollTop = 0;
         if (!survey) {
-            $('survey-detail-content').innerHTML = `<div class="detail-placeholder"><span class="survey-icon violet">${icon('survey-icon.svg')}</span><h3>Seleccioná una encuesta</h3><p>Acá encontrarás sus preguntas, información y opciones de acceso.</p></div>`;
+            window.HospitalI18n.setHTML($('survey-detail-content'), `<div class="detail-placeholder"><span class="survey-icon violet">${icon('survey-icon.svg')}</span><h3>${window.HospitalI18n.mark("survey_view.selecciona_una_encuesta")}</h3><p>${window.HospitalI18n.mark("survey.aca_encontraras_sus_preguntas_informacion_y_opciones_de_acceso")}</p></div>`);
             return;
         }
-        $('survey-detail-content').innerHTML = `
+        window.HospitalI18n.setHTML($('survey-detail-content'), `
             <div class="detail-identity">${tile(survey.category)}<div><h3 title="${escape(survey.title)}">${escape(survey.title)}</h3><span class="survey-status ${survey.status}">${statuses[survey.status]}</span></div></div>
-            <dl class="detail-meta"><div>${icon('calendar-icon.svg')}<dt>Creada</dt><dd>${escape(dateFormat.format(new Date(survey.created_at)))}</dd></div><div>${icon('layers-icon.svg')}<dt>Categoría</dt><dd>${categories[survey.category].label}</dd></div><div>${icon('person-icon.svg')}<dt>Dirigida a</dt><dd>${audiences[survey.audience]}</dd></div></dl>
-            <div class="detail-numbers"><div><strong>${survey.response_count}</strong><small>respuestas</small></div><div><strong>${survey.questions.filter(q=>!['section','divider'].includes(q.type)).length}</strong><small>${survey.questions.filter(q=>!['section','divider'].includes(q.type)).length === 1 ? 'pregunta' : 'preguntas'}</small></div><div><strong>${rating(survey.average_rating)}</strong><small>valoración</small></div></div>
-            <section class="patient-access"><h4>Acceso y resultados</h4><div class="share-controls"><button type="button" class="survey-button secondary" id="read-survey">${icon('eye.svg')}Ver formulario</button><button type="button" class="survey-button secondary" data-share-survey ${!survey.published_at||survey.archived_at?'disabled':''}>${icon('share-icon.svg')}Copiar enlace</button><button type="button" class="survey-button secondary" data-share-survey ${!survey.published_at||survey.archived_at?'disabled':''}>${icon('qr-icon.svg')}Código QR</button><a class="survey-button secondary" href="survey-view.html?id=${encodeURIComponent(survey.id)}">${icon('analytics-icon.svg')}Ver resultados</a>${survey.archived_at?'':`<button type="button" class="survey-button secondary" data-transition="${survey.lifecycle==='draft'?'publish':survey.lifecycle==='closed'?'reopen':'close'}">${survey.lifecycle==='draft'?'Publicar':survey.lifecycle==='closed'?'Reabrir':'Cerrar encuesta'}</button>`}</div></section>`;
+            <dl class="detail-meta"><div>${icon('calendar-icon.svg')}<dt>${window.HospitalI18n.mark("survey.creada")}</dt><dd>${escape(dateFormat.format(new Date(survey.created_at)))}</dd></div><div>${icon('layers-icon.svg')}<dt>${window.HospitalI18n.mark("survey.categoria")}</dt><dd>${categories[survey.category].label}</dd></div><div>${icon('person-icon.svg')}<dt>${window.HospitalI18n.mark("survey_new.dirigida_a")}</dt><dd>${audiences[survey.audience]}</dd></div></dl>
+            <div class="detail-numbers"><div><strong>${survey.response_count}</strong><small>${window.HospitalI18n.mark("survey.respuestas")}</small></div><div><strong>${survey.questions.filter(q=>!['section','divider'].includes(q.type)).length}</strong><small>${survey.questions.filter(q=>!['section','divider'].includes(q.type)).length === 1 ? window.HospitalI18n.t("survey.pregunta") : window.HospitalI18n.t("survey_new.preguntas")}</small></div><div><strong>${rating(survey.average_rating)}</strong><small>${window.HospitalI18n.mark("survey.valoracion_2")}</small></div></div>
+            <section class="patient-access"><h4>${window.HospitalI18n.mark("survey.acceso_y_resultados")}</h4><div class="share-controls"><button type="button" class="survey-button secondary" id="read-survey">${icon('eye.svg')}${window.HospitalI18n.mark("survey_view.ver_formulario")}</button><button type="button" class="survey-button secondary" data-share-survey ${!survey.published_at||survey.archived_at?'disabled':''}>${icon('share-icon.svg')}${window.HospitalI18n.mark("survey_view.copiar_enlace")}</button><button type="button" class="survey-button secondary" data-share-survey ${!survey.published_at||survey.archived_at?'disabled':''}>${icon('qr-icon.svg')}${window.HospitalI18n.mark("survey_view.codigo_qr")}</button><a class="survey-button secondary" href="survey-view.html?id=${encodeURIComponent(survey.id)}">${icon('analytics-icon.svg')}${window.HospitalI18n.mark("survey.ver_resultados")}</a>${survey.archived_at?'':`<button type="button" class="survey-button secondary" data-transition="${survey.lifecycle==='draft'?'publish':survey.lifecycle==='closed'?'reopen':'close'}">${survey.lifecycle==='draft'?window.HospitalI18n.t("survey_view.publicar"):survey.lifecycle==='closed'?window.HospitalI18n.t("survey_view.reabrir"):window.HospitalI18n.t("survey_view.cerrar_encuesta")}</button>`}</div></section>`);
         $('survey-detail-content').scrollTop = 0;
     }
     function render() {
@@ -114,24 +114,24 @@
         const start = (page - 1) * renderedPageSize;
         const visible = filtered.slice(start, start + renderedPageSize);
         if (!visible.some(survey => survey.id === selectedId)) selectedId = visible[0]?.id ?? null;
-        $('survey-count').textContent = filtered.length;
+        window.HospitalI18n.bindText($('survey-count'), () => filtered.length);
         $('survey-list').classList.toggle('is-grid', view === 'grid');
         $('survey-list').style.setProperty('--survey-page-rows', String(renderedPageSize));
         $('survey-list').style.setProperty('--survey-grid-rows', renderedPageSize === 2 ? '1' : '2');
         $('survey-list').hidden = !visible.length;
         $('survey-list-head').hidden = view === 'grid';
-        $('survey-list').innerHTML = visible.map(survey => `<article class="survey-row ${survey.id === selectedId ? 'is-selected' : ''}" data-id="${survey.id}">
-            <div class="survey-identity">${tile(survey.category)}<div><button type="button" class="survey-title-button" data-select="${survey.id}" aria-pressed="${survey.id === selectedId}" title="${escape(survey.title)}">${escape(survey.title)}</button><span class="survey-subtitle">${categories[survey.category].label} · ${survey.questions.filter(q=>!['section','divider'].includes(q.type)).length} ${survey.questions.filter(q=>!['section','divider'].includes(q.type)).length === 1 ? 'pregunta' : 'preguntas'}</span></div></div>
-            <span class="survey-status ${survey.status}" aria-label="Estado: ${statuses[survey.status].toLowerCase()}">${statuses[survey.status]}</span>
-            <span class="row-responses"><span class="visually-hidden">Respuestas: </span>${survey.response_count}<small>respuestas</small></span><span class="row-satisfaction"><span class="visually-hidden">Valoración: </span>${rating(survey.average_rating)}</span><time class="row-updated" datetime="${survey.updated_at}">${escape(activity(survey.updated_at))}</time>
-            <details class="row-menu"><summary aria-label="Acciones de ${escape(survey.title)}">⋮</summary><div class="row-menu-content"><button type="button" data-edit="${survey.id}">Editar encuesta</button><button type="button" data-duplicate="${survey.id}">Duplicar borrador</button><button type="button" data-delete="${survey.id}">${survey.archived_at?'Restaurar encuesta':'Archivar encuesta'}</button></div></details></article>`).join('');
+        window.HospitalI18n.setHTML($('survey-list'), visible.map(survey => `<article class="survey-row ${survey.id === selectedId ? 'is-selected' : ''}" data-id="${survey.id}">
+            <div class="survey-identity">${tile(survey.category)}<div><button type="button" class="survey-title-button" data-select="${survey.id}" aria-pressed="${survey.id === selectedId}" title="${escape(survey.title)}">${escape(survey.title)}</button><span class="survey-subtitle">${categories[survey.category].label} · ${survey.questions.filter(q=>!['section','divider'].includes(q.type)).length} ${survey.questions.filter(q=>!['section','divider'].includes(q.type)).length === 1 ? window.HospitalI18n.t("survey.pregunta") : window.HospitalI18n.t("survey_new.preguntas")}</span></div></div>
+            <span class="survey-status ${survey.status}" aria-label="${window.HospitalI18n.html("survey.estado_value", {value0: statuses[survey.status].toLowerCase()})}" data-i18n-aria-label="survey.estado_value" data-i18n-aria-label-params="${window.HospitalI18n.escape(JSON.stringify({value0: statuses[survey.status].toLowerCase()}))}">${statuses[survey.status]}</span>
+            <span class="row-responses"><span class="visually-hidden">${window.HospitalI18n.mark("survey.respuestas_2")} </span>${survey.response_count}<small>${window.HospitalI18n.mark("survey.respuestas")}</small></span><span class="row-satisfaction" data-i18n-caption="survey.satisfaction_caption"><span class="visually-hidden">${window.HospitalI18n.mark("survey.valoracion_3")} </span>${rating(survey.average_rating)}</span><time class="row-updated" datetime="${survey.updated_at}">${escape(activity(survey.updated_at))}</time>
+            <details class="row-menu"><summary aria-label="${window.HospitalI18n.html("survey.acciones_de_value", {value0: survey.title})}" data-i18n-aria-label="survey.acciones_de_value" data-i18n-aria-label-params="${window.HospitalI18n.escape(JSON.stringify({value0: survey.title}))}">⋮</summary><div class="row-menu-content"><button type="button" data-edit="${survey.id}">${window.HospitalI18n.mark("survey_view.editar_encuesta")}</button><button type="button" data-duplicate="${survey.id}">${window.HospitalI18n.mark("survey.duplicar_borrador")}</button><button type="button" data-delete="${survey.id}">${survey.archived_at?window.HospitalI18n.t("survey.restaurar_encuesta"):window.HospitalI18n.t("survey.archivar_encuesta")}</button></div></details></article>`).join(''));
         $('survey-empty').hidden = !!visible.length;
         const hasFilter = $('survey-search').value.trim() || $('survey-status').value !== 'all' || $('survey-category').value !== 'all';
-        $('empty-title').textContent = hasFilter ? 'No encontramos encuestas' : 'Creá tu primera encuesta';
-        $('empty-description').textContent = hasFilter ? 'Probá con otra búsqueda o cambiá los filtros para encontrar tu encuesta.' : 'Conocé cómo viven la atención tus pacientes y cómo se siente tu equipo. Empezá desde cero o elegí una plantilla.';
+        window.HospitalI18n.bindText($('empty-title'), () => hasFilter ? window.HospitalI18n.t("survey.no_encontramos_encuestas") : window.HospitalI18n.t("survey.crea_tu_primera_encuesta"));
+        window.HospitalI18n.bindText($('empty-description'), () => hasFilter ? window.HospitalI18n.t("survey.proba_con_otra_busqueda_o_cambia_los_filtros_para_encontrar_tu_encuesta") : window.HospitalI18n.t("survey.conoce_como_viven_la_atencion_tus_pacientes_y_como_se_siente_tu_equipo_empeza_desde_cero_o"));
         $('empty-actions').hidden = !!hasFilter;
         $('clear-filters').hidden = !hasFilter;
-        $('results-summary').textContent = visible.length ? `Mostrando ${start + 1}–${start + visible.length} de ${filtered.length} ${filtered.length === 1 ? 'encuesta' : 'encuestas'}` : '0 encuestas';
+        window.HospitalI18n.bindText($('results-summary'), () => visible.length ? window.HospitalI18n.t("survey.mostrando_value_value_de_value_value", {value0: start + 1, value1: start + visible.length, value2: filtered.length, value3: filtered.length === 1 ? window.HospitalI18n.t("survey.encuesta_2") : window.HospitalI18n.t("survey.encuestas")}) : window.HospitalI18n.t("survey.0_encuestas"));
         renderPagination(filtered.length);
         renderStats();
         renderDetail();
@@ -140,15 +140,21 @@
         const survey = surveys.find(item => item.id === id);
         if (!survey) return;
         pendingDeleteId = id;pendingDeleteSurvey={...survey};
-        $('delete-title').textContent=survey.archived_at?'¿Restaurar esta encuesta?':'¿Archivar esta encuesta?';
-        $('confirm-delete').textContent=survey.archived_at?'Restaurar':'Archivar';
-        $('delete-description').textContent = survey.title;
+        window.HospitalI18n.bindText($('delete-title'), () => survey.archived_at?window.HospitalI18n.t("survey.restaurar_esta_encuesta"):window.HospitalI18n.t("survey.archivar_esta_encuesta"));
+        window.HospitalI18n.bindText($('confirm-delete'), () => survey.archived_at?window.HospitalI18n.t("personnel.restaurar"):window.HospitalI18n.t("patients.archivar"));
+        window.HospitalI18n.bindText($('delete-description'), () => survey.title);
         $('delete-dialog').showModal();
     }
     function readSurvey() {if(selected())location.assign(`survey-view.html?id=${selected().id}&tab=form`);}
 
+    function renderTemplates(){window.HospitalI18n.setHTML($('template-grid'), templates.map(template => `<a class="template-card" href="survey-new.html?template=${encodeURIComponent(template.category)}">${tile(template.category)}<strong>${escape(template.title)}</strong><p>${escape(template.description)}</p><small>${window.HospitalI18n.mark("survey.value_preguntas_value", {value0: template.questions.length, value1: audiences[template.audience]})} <span aria-hidden="true">↗</span></small></a>`).join(''));}
+
     document.addEventListener('DOMContentLoaded', async () => {
-        $('template-grid').innerHTML = templates.map(template => `<a class="template-card" href="survey-new.html?template=${encodeURIComponent(template.category)}">${tile(template.category)}<strong>${escape(template.title)}</strong><p>${escape(template.description)}</p><small>${template.questions.length} preguntas · ${audiences[template.audience]} <span aria-hidden="true">↗</span></small></a>`).join('');
+    await window.HospitalI18n.ready;
+    await window.HospitalAuth.ready;
+    window.addEventListener('hospital:localechange',()=>{templates=window.HospitalSurveyTemplates;renderTemplates();render();});
+
+        templates=window.HospitalSurveyTemplates;renderTemplates();
         document.querySelectorAll('[data-open-templates]').forEach(button => button.addEventListener('click', () => $('templates-dialog').showModal()));
         document.querySelectorAll('[data-close-dialog]').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
         $('survey-list').addEventListener('click', event => {

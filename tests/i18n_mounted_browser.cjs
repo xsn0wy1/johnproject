@@ -1,0 +1,54 @@
+/* Focused mounted-browser checks; use a disposable *_test environment and prepared fictional records. */
+const fs=require('fs'),assert=require('assert'),{chromium}=require('playwright');
+(async()=>{
+ assert((process.env.HOSPITAL_DB_NAME||'').endsWith('_test'),'Use disposable data only.');
+ const r=JSON.parse(fs.readFileSync(process.env.HOSPITAL_I18N_TEST_RECORDS||'tests/.runtime/i18n-records.json')),base=process.env.HOSPITAL_AUTH_TEST_URL;
+ const browser=await chromium.launch({channel:'chrome',headless:true});
+ try{
+ const p=await browser.newPage();let requests=0,errors=[];p.on('request',request=>{if(request.url().includes('/assets/i18n/'))requests++;});p.on('pageerror',e=>errors.push(e.message));
+ await p.goto(base+'/index.html?lang=en');await p.evaluate(()=>HospitalI18n.ready);
+ assert.equal(await p.locator('h1').innerText(),'Sign in');assert.equal(requests,2);
+ await p.evaluate(()=>{const a=document.createElement('a');a.id='new-public-link';a.href='src/views/register-restore/register.html';document.body.append(a);});
+ assert((await p.locator('#new-public-link').getAttribute('href')).includes('lang=en'));
+ console.log('PASS mount-relative JSON and newly inserted English public links');
+ await p.evaluate(async password=>HospitalApi.post('auth/login.php',{username:'system_admin',password}),process.env.HOSPITAL_ADMIN_PASSWORD);
+ await p.goto(base+'/src/views/surveys/survey-view.html?id='+r.survey.id);await p.evaluate(async()=>{await HospitalI18n.ready;await HospitalAuth.ready;HospitalI18n.apply('en');});await p.waitForTimeout(250);
+ await p.locator('[data-share-survey]').first().click();await p.locator('#survey-public-url').waitFor();
+ const before=await p.locator('#survey-public-url').inputValue();assert(new URL(before).searchParams.get('lang')==='en' && new URL(before).pathname.includes('/hospital/src/views'));
+ await p.evaluate(()=>HospitalI18n.apply('es-UY'));assert.equal(new URL(await p.locator('#survey-public-url').inputValue()).hash,new URL(before).hash);assert.equal(new URL(await p.locator('#survey-public-url').inputValue()).searchParams.get('lang'),null);
+ await p.evaluate(()=>HospitalI18n.apply('en'));assert.equal(await p.locator('#survey-public-url').inputValue(),before);
+ assert(await p.locator('#survey-public-qr svg').count());
+ console.log('PASS open share dialog updates language, URL and QR without changing credentials');
+ await p.locator('[data-close-links]').click();
+ await p.goto(base+'/src/views/management/patients.html');await p.evaluate(()=>HospitalAuth.ready);await p.waitForTimeout(100);
+ const input=p.locator('input[type=search],input[placeholder]').first();await input.fill('Inicio');await input.focus();
+ await p.evaluate(()=>{const el=document.activeElement;el.setSelectionRange(1,4);HospitalI18n.apply('es-UY');});
+ assert.equal(await input.inputValue(),'Inicio');assert.equal(await input.evaluate(el=>document.activeElement===el&&el.selectionStart===1&&el.selectionEnd===4),true);
+ console.log('PASS active unsaved search value, focus and selection survive language switching');
+ await p.locator('[data-select-id="'+r.patient.id+'"]').click();await p.locator('#edit-from-detail').click();
+ await p.locator('#patient-dialog').waitFor({state:'visible'});
+ assert.equal(await p.locator('#patient-form [name=status]').inputValue(),r.patient.encounter.care_status);
+ await p.evaluate(()=>HospitalI18n.apply('en'));
+ const patientSave=p.waitForResponse(res=>res.url().includes('/patients/update.php')&&res.request().method()==='POST');
+ await p.locator('#patient-form button[type=submit]').click();assert.equal((await patientSave).status(),200);
+ console.log('PASS patient editor hydrates and saves canonical care status in English');
+ await p.goto(base+'/src/views/management/ambulances.html');await p.evaluate(async()=>{await HospitalAuth.ready;HospitalI18n.apply('en');});await p.waitForTimeout(150);
+ await p.locator('[data-select-id]').first().click();await p.locator('#edit-from-detail').click();await p.locator('#ambulance-dialog').waitFor({state:'visible'});
+ const model=p.locator('#ambulance-form [name=modelo]'),modelValue=await model.inputValue();await model.fill('');await p.locator('#ambulance-form button[type=submit]').click();
+ await model.fill(modelValue);await p.evaluate(()=>{HospitalI18n.apply('es-UY');HospitalI18n.apply('en');});assert.equal(await model.evaluate(el=>el.validity.customError),false);
+ const ambulanceSave=p.waitForResponse(res=>res.url().includes('/ambulances/update.php')&&res.request().method()==='POST');await p.locator('#ambulance-form button[type=submit]').click();assert.equal((await ambulanceSave).status(),200);
+ console.log('PASS ambulance validation clears before switching and English edit saves');
+ await p.goto(base+'/src/views/management/routes.html');await p.evaluate(async()=>{await HospitalAuth.ready;HospitalI18n.apply('en');});await p.waitForTimeout(150);
+ await p.locator('[data-route-id="'+r.route.id+'"]').click();await p.locator('#edit-route').click();
+ assert.equal(await p.locator('#route-category').inputValue(),'discharge');
+ const routeSave=p.waitForResponse(res=>res.url().includes('/routes/update.php')&&res.request().method()==='POST');await p.locator('#route-form button[type=submit]').click();assert.equal((await routeSave).status(),200);
+ console.log('PASS route editor saves stable discharge code in English');
+ await p.goto(base+'/src/views/documents/documents.html');await p.evaluate(async()=>{await HospitalAuth.ready;HospitalI18n.apply('en');});await p.waitForTimeout(150);
+ assert(!/Página|documentos encontrados/.test(await p.locator('#documentResultsStatus').innerText()));
+ console.log('PASS document grid pagination status is translated');
+ await p.goto(base+'/src/views/main-menu.html');await p.evaluate(()=>HospitalAuth.ready);
+ await p.evaluate(()=>HospitalAuth.logout());await p.waitForURL('**/hospital/index.html');await p.evaluate(()=>HospitalI18n.ready);assert.equal(await p.locator('h1').innerText(),'Inicio de Sesion');assert.equal(new URL(p.url()).searchParams.get('lang'),null);
+ assert.deepEqual(errors,[]);
+ console.log('PASS mounted login/logout returns to Spanish default without script errors');
+ }finally{await browser.close();}
+})().catch(e=>{console.error(e.stack);process.exit(1);});

@@ -7,6 +7,6 @@ use Hospital\Modules\Destinations\DestinationService;
 use Hospital\Modules\Transfers\TransferInput;
 $service = new DestinationService($db, $config);
 Request::method('POST'); Hospital\Security\Csrf::verify(); $user=$auth->requireUser(true); $actor=(string)$user['id']; $service->access($actor);
-if (array_diff(array_keys($_GET), [])) throw new Hospital\Http\ApiException(422,'UNEXPECTED_FIELDS','Filtro no permitido.');
+if (array_diff(array_keys($_GET), [])) throw new Hospital\Http\ApiException(422,'UNEXPECTED_FIELDS',\Hospital\I18n::t("errors.filtro_no_permitido"));
 $body=Request::body(DestinationService::FIELDS);
 Response::json($service->save($actor,$body),201);

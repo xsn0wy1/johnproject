@@ -1,5 +1,8 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     'use strict';
+    await window.HospitalI18n.ready;
+    await window.HospitalAuth.ready;
+
     const api = window.HospitalApi;
     const auth = window.HospitalAuth;
     const byId = id => document.getElementById(id);
@@ -31,14 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function render(payload) {
         state = payload;
         const {user, settings} = payload;
-        const values = {full_name:user.full_name, email:user.email, default_facility_id:settings.default_facility_id || '', locale:settings.locale};
+        const values = {full_name:user.full_name, email:user.email, default_facility_id:settings.default_facility_id || '', locale:window.HospitalI18n.locale};
         const controls = {full_name:'settings-name', email:'settings-email', default_facility_id:'settings-center', locale:'settings-language'};
         const select = byId('settings-center');
         const previous = select.value;
-        select.replaceChildren(new Option('', ''));
-        facilities.forEach(facility => select.add(new Option(facility.name, facility.id)));
+        select.replaceChildren(window.HospitalI18n.option(() => '', ''));
+        facilities.forEach(facility => select.add(window.HospitalI18n.option(() => facility.name, facility.id)));
         if (settings.default_facility_id && !facilities.some(item => item.id === settings.default_facility_id)) {
-            const old = new Option(settings.default_facility_name, settings.default_facility_id); old.disabled = true; select.add(old);
+            const old = window.HospitalI18n.option(() => settings.default_facility_name, settings.default_facility_id); old.disabled = true; select.add(old);
         }
         select.value = dirty.has('default_facility_id') ? previous : values.default_facility_id;
         Object.entries(controls).forEach(([field, id]) => { if (!dirty.has(field)) byId(id).value = values[field]; });
@@ -55,8 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const add = document.querySelector('.specialty-add');
         settings.specialties.forEach(specialty => {
             const chip = document.createElement('button'); chip.type = 'button'; chip.className = 'specialty-chip';
-            chip.dataset.specialtyId = specialty.id; chip.textContent = `${specialty.name} ×`;
-            chip.title = settings.locale === 'en' ? 'Remove specialty' : 'Quitar especialización'; chip.disabled = specialtiesBusy;
+            chip.dataset.specialtyId = specialty.id; window.HospitalI18n.bindText(chip, () => window.HospitalI18n.t("settings.value", {value0: specialty.name}));
+            window.HospitalI18n.bindAttr(chip, "title", () => window.HospitalI18n.t("settings.quitar_especializacion")); chip.disabled = specialtiesBusy;
             chip.addEventListener('click', () => changeSpecialties(settings.specialties.filter(item => item.id !== specialty.id).map(item => item.name)));
             add.before(chip);
         });
@@ -102,8 +105,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!await save('settings/profile-update.php', {default_facility_id:value})) { dirty.delete('default_facility_id'); render(state); }
     });
     byId('settings-language').addEventListener('change', async event => {
-        const locale = event.target.value; dirty.set('locale', locale);
+        const locale = event.target.value; const choice=window.HospitalI18n.preview(locale); dirty.set('locale', locale);
         if (!await save('settings/preferences-update.php', {locale})) { dirty.delete('locale'); render(state); }
+        window.HospitalI18n.settle(choice);
     });
     document.querySelectorAll('[data-preference]').forEach(button => button.addEventListener('click', async () => {
         if (!state || button.disabled) return;
@@ -116,17 +120,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
     document.querySelector('[data-theme-option="light"]').disabled = true;
 
-    const passwordDialog=byId('password-dialog'),passwordForm=byId('password-form');
-    document.querySelector('.reset-password').addEventListener('click',()=>{passwordForm.reset();passwordDialog.showModal();});
-    passwordForm.addEventListener('submit',async event=>{
-        event.preventDefault();if(passwordForm.dataset.busy)return;
-        if(!passwordForm.checkValidity()){api.report(new api.ApiError('Completá la contraseña actual y una nueva de al menos 12 caracteres.',422,'VALIDATION_FAILED'),'password');return;}
-        passwordForm.dataset.busy='true';[...passwordForm.elements].forEach(el=>el.disabled=true);
-        try{const values=Object.fromEntries([...passwordForm.querySelectorAll('input')].map(el=>[el.name,el.value]));await api.post('auth/change-password.php',values);passwordForm.reset();location.assign(api.page('index.html'));}
-        catch(error){api.report(error,'password');}
-        finally{delete passwordForm.dataset.busy;[...passwordForm.elements].forEach(el=>el.disabled=false);}
+    document.querySelector('.reset-password').addEventListener('click', () => {
+        const url = new URL(api.page('src/views/register-restore/restore-password.html'));
+        if (window.HospitalI18n.locale === 'en') url.searchParams.set('lang', 'en');
+        location.assign(url.href);
     });
-    passwordDialog.addEventListener('cancel',event=>{if(passwordForm.dataset.busy)event.preventDefault();});
     const specialtyDialog = byId('specialty-dialog');
     document.querySelector('.specialty-add').addEventListener('click', () => { specialtyDialog.showModal(); byId('specialty-name').focus(); });
     async function changeSpecialties(names) {
@@ -148,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     upload.addEventListener('click', () => photoInput.click());
     photoInput.addEventListener('change', async () => {
         const photo = photoInput.files?.[0]; if (!photo || !state) return;
-        if (photo.size > 5 * 1024 * 1024) { api.report(new Error('La foto supera 5 MiB.'), 'settings'); return; }
+        if (photo.size > 5 * 1024 * 1024) { api.report(new Error(window.HospitalI18n.t("settings.la_foto_supera_5_mib")), 'settings'); return; }
         upload.disabled = true;
         const data = new FormData(); data.set('photo', photo);
         if (await save('settings/photo.php', {}, data)) photoInput.value = '';
@@ -168,8 +166,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const notifications = await api.get('settings/notifications.php');
             notifications.forEach(notification => {
                 const item = document.createElement('li');
-                const date = new Intl.DateTimeFormat(state.settings.locale, {dateStyle:'short',timeStyle:'short',timeZone:'America/Montevideo'}).format(new Date(notification.created_at));
-                item.textContent = `${state.settings.locale === 'en' ? 'New sign-in' : 'Nuevo inicio de sesión'} · ${date}`; list.append(item);
+                const date = () => new Intl.DateTimeFormat(window.HospitalI18n.locale, {dateStyle:'short',timeStyle:'short',timeZone:'America/Montevideo'}).format(new Date(notification.created_at));
+                window.HospitalI18n.bindText(item, () => `${window.HospitalI18n.t("settings.nuevo_inicio_de_sesion")} · ${date()}`); list.append(item);
             });
             if (notifications.length) await api.post('settings/notifications-read.php', {through_id:notifications[0].id});
         } catch (error) { api.report(error, 'notifications'); }
@@ -184,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const results = await Promise.allSettled([api.get('catalogs/facilities.php'), api.get('catalogs/specialties.php')]);
         if (results[0].status === 'fulfilled') { facilities = results[0].value; render(state); }
         else api.report(results[0].reason, 'catalogs');
-        if (results[1].status === 'fulfilled') results[1].value.forEach(item => byId('specialty-options').append(new Option(item.name, item.name)));
+        if (results[1].status === 'fulfilled') results[1].value.forEach(item => byId('specialty-options').append(window.HospitalI18n.option(() => item.name, item.name)));
         else api.report(results[1].reason, 'catalogs');
     }).catch(error => api.report(error, 'settings'));
 });

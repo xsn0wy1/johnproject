@@ -1,5 +1,9 @@
-(() => {
+(async () => {
   'use strict';
+    const i18nSourceUrl = document.currentScript.src;
+    await window.HospitalI18n.ready;
+    await window.HospitalAuth.ready;
+
   const api = window.HospitalApi;
   const workspace = document.getElementById('patient-workspace');
   const list = document.getElementById('patient-list');
@@ -19,11 +23,11 @@
   const editButton = document.getElementById('edit-from-detail');
   if (!api || !form || !workspace) return;
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-  const labels = {inpatient:'Internado',outpatient:'Ambulatorio',emergency:'Urgencias',discharged:'Alta'};
-  const codes = Object.fromEntries(Object.entries(labels).map(([code,label]) => [label,code]));
-  const statusStyle = {Internado:'internado',Ambulatorio:'ambulatorio',Urgencias:'urgencias'};
+  const labels = {get inpatient() { return window.HospitalI18n.t("patients.internado"); },get outpatient() { return window.HospitalI18n.t("patients.ambulatorio"); },get emergency() { return window.HospitalI18n.t("patients.urgencias"); },get discharged() { return window.HospitalI18n.t("patients.status_discharged"); }};
+  const codes = Object.fromEntries(Object.keys(labels).map(code => [code,code]));
+  const statusStyle = {inpatient:'internado',outpatient:'ambulatorio',emergency:'urgencias'};
   let patients = [], selected = null, editing = null, deleting = null;
-  let currentPage = 1, total = 0, activeFilter = 'Todos', state = 'active';
+  let currentPage = 1, total = 0, activeFilter = 'all', state = 'active';
   let requestId = 0, selectionId = 0, busy = false, token = null, searchTimer, toastTimer;
   let refreshPending = false, channel;
   try {
@@ -31,14 +35,14 @@
     localStorage.removeItem('hospital.patientDirectory.v2');
     channel = new BroadcastChannel(`hospital-patients:${api.page('')}`);
   } catch (_) { /* Server persistence does not depend on browser storage. */ }
-  const dateLabel = value => value ? new Intl.DateTimeFormat('es-UY',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(value+'T12:00:00Z')) : '';
+  const dateLabel = value => value ? new Intl.DateTimeFormat(window.HospitalI18n.locale,{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(value+'T12:00:00Z')) : '';
   function viewModel(p) {
     const e = p.encounter || {}, c = p.emergency_contact;
-    const ageLabel = p.age === null ? 'Edad no indicada' : `${p.age} años${p.age_is_estimate ? ' (estimada)' : ''}`;
-    return {...p,name:p.full_name,dni:p.national_id,ageLabel,ageDetail:ageLabel+(p.age_is_estimate && p.age_recorded_on ? ` · registrada el ${dateLabel(p.age_recorded_on)}` : ''),
-      dateOfBirthLabel:dateLabel(p.date_of_birth),sexLabel:({female:'Femenino',male:'Masculino',other:'Otro',unspecified:'Desconocido'})[p.sex] || '',
-      status:p.status==='archived'?'Archivado':labels[e.care_status] || 'Sin registro',room:e.room || 'Sin área asignada',department:e.department || '',
-      doctor:e.doctor_name || 'Sin médico asignado',doctorSpecialty:e.doctor_specialty || '',bloodType:p.blood_group || '',
+    const ageLabel = p.age === null ? window.HospitalI18n.t("patients.edad_no_indicada") : window.HospitalI18n.t("patients.value_anosvalue", {value0: p.age, value1: p.age_is_estimate ? window.HospitalI18n.t("shared.estimada") : ''});
+    return {...p,name:p.full_name,dni:p.national_id,ageLabel,ageDetail:ageLabel+(p.age_is_estimate && p.age_recorded_on ? window.HospitalI18n.t("patients.registrada_el_value", {value0: dateLabel(p.age_recorded_on)}) : ''),
+      dateOfBirthLabel:dateLabel(p.date_of_birth),sexLabel:({female:window.HospitalI18n.t("trace_new.femenino"),male:window.HospitalI18n.t("trace_new.masculino"),other:window.HospitalI18n.t("trace_new.otro"),unspecified:window.HospitalI18n.t("patients.desconocido")})[p.sex] || '',
+      status:p.status==='archived'?'archived':e.care_status || 'none',room:e.room || window.HospitalI18n.t("patients.sin_area_asignada"),department:e.department || '',
+      doctor:e.doctor_name || window.HospitalI18n.t("patients.sin_medico_asignado"),doctorSpecialty:e.doctor_specialty || '',bloodType:p.blood_group || '',
       admissionDate:dateLabel(e.admission_date),clinicalState:e.clinical_state || '',diagnosis:e.diagnosis || '',
       emergencyContact:{name:c.full_name,phone:c.phone,relationship:c.relationship}};
   }
@@ -53,11 +57,11 @@
   }
   function toast(message) {
     const node=document.getElementById('patient-toast');
-    clearTimeout(toastTimer); node.textContent=message; node.hidden=false;
+    clearTimeout(toastTimer); window.HospitalI18n.bindText(node, () => window.HospitalI18n.resolve(message)); node.hidden=false;
     toastTimer=setTimeout(()=>{node.hidden=true;},4000);
   }
   function changed() { channel?.postMessage('changed'); }
-  function pill(patient) { return `<span class="status-pill${statusStyle[patient.status] ? ' status-pill--'+statusStyle[patient.status] : ''}">${escapeHtml(patient.status)}</span>`; }
+  function pill(patient) { return `<span class="status-pill${statusStyle[patient.status] ? ' status-pill--'+statusStyle[patient.status] : ''}">${escapeHtml(patient.status==='archived'?window.HospitalI18n.t("personnel.archivado"):labels[patient.status] || window.HospitalI18n.t("patients.sin_registro"))}</span>`; }
   const iconFiles = {
     search: "search-icon.svg",
     users: "people-svgrepo-com.svg",
@@ -77,13 +81,13 @@
   };
   const icon = (name) => `<img src="${iconFiles[name] ? `../../../assets/Icons/${iconFiles[name]}` : "#"}" alt="" aria-hidden="true"${name === "chevron" ? ' class="chevron-icon"' : ""}>`;
   function row(patient) {
-    const locationIcon = patient.status === "Internado" ? "bed" : patient.status === "Urgencias" ? "ambulance" : "ambulatory";
+    const locationIcon = patient.status === "inpatient" ? "bed" : patient.status === "emergency" ? "ambulance" : "ambulatory";
     return `<article class="patient-row${selected?.id === patient.id ? " is-selected" : ""}" data-patient-id="${escapeHtml(patient.id)}">
-      <div class="patient-identity"><span class="patient-avatar">${icon("user")}</span><span><strong>${escapeHtml(patient.name)}</strong><small>${escapeHtml(patient.ageLabel)} <span aria-hidden="true">|</span> CI ${escapeHtml(patient.dni)}</small></span></div>
+      <div class="patient-identity"><span class="patient-avatar">${icon("user")}</span><span><strong>${escapeHtml(patient.name)}</strong><small>${escapeHtml(patient.ageLabel)} <span aria-hidden="true">|</span> ${window.HospitalI18n.mark("patients.ci_value", {value0: patient.dni})}</small></span></div>
       <div class="patient-info location-info">${icon(locationIcon)}<span><b>${escapeHtml(patient.room)}</b><small>${escapeHtml(patient.department)}</small></span></div>
       <div class="patient-info doctor-info">${icon("doctor")}<span><b>${escapeHtml(patient.doctor)}</b><small>${escapeHtml(patient.doctorSpecialty)}</small></span></div>
       ${pill(patient)}
-      <button type="button" class="row-action" data-select-id="${escapeHtml(patient.id)}" aria-label="Ver detalle de ${escapeHtml(patient.name)}" aria-controls="detail-panel" aria-expanded="${selected?.id === patient.id}">${icon("chevron")}</button>
+      <button type="button" class="row-action" data-select-id="${escapeHtml(patient.id)}" aria-label="${window.HospitalI18n.html("ambulances.ver_detalle_de_value", {value0: patient.name})}" data-i18n-aria-label="ambulances.ver_detalle_de_value" data-i18n-aria-label-params="${window.HospitalI18n.escape(JSON.stringify({value0: patient.name}))}" aria-controls="detail-panel" aria-expanded="${selected?.id === patient.id}">${icon("chevron")}</button>
     </article>`;
   }
 
@@ -94,67 +98,67 @@
     let previous = 0;
     for (const page of pages) {
       if (previous && page - previous > 1) numbers += `<span aria-hidden="true">…</span>`;
-      numbers += `<button type="button" data-page="${page}" class="${page === currentPage ? "is-active" : ""}" ${page === currentPage ? 'aria-current="page"' : ""} aria-label="Página ${page}">${page}</button>`;
+      numbers += `<button type="button" data-page="${page}" class="${page === currentPage ? "is-active" : ""}" ${page === currentPage ? 'aria-current="page"' : ""} aria-label="${window.HospitalI18n.html("ambulances.pagina_value", {value0: page})}" data-i18n-aria-label="ambulances.pagina_value" data-i18n-aria-label-params="${window.HospitalI18n.escape(JSON.stringify({value0: page}))}">${page}</button>`;
       previous = page;
     }
-    pagination.innerHTML = `<button type="button" data-page="${currentPage - 1}" aria-label="Página anterior" ${currentPage === 1 ? "disabled" : ""}>‹</button>${numbers}<button type="button" data-page="${currentPage + 1}" aria-label="Página siguiente" ${currentPage === pageCount ? "disabled" : ""}>›</button>`;
+    window.HospitalI18n.setHTML(pagination, `<button type="button" data-page="${currentPage - 1}" aria-label="${window.HospitalI18n.html("trace.pagina_anterior")}" data-i18n-aria-label="trace.pagina_anterior" ${currentPage === 1 ? "disabled" : ""}>‹</button>${numbers}<button type="button" data-page="${currentPage + 1}" aria-label="${window.HospitalI18n.html("trace.pagina_siguiente")}" data-i18n-aria-label="trace.pagina_siguiente" ${currentPage === pageCount ? "disabled" : ""}>›</button>`);
   }
 
   function detailItem(iconName, label, value, className = "") {
-    return `<dt>${icon(iconName)}${label}</dt><dd class="${className}">${escapeHtml(value || "No indicado")}</dd>`;
+    return `<dt>${icon(iconName)}${label}</dt><dd class="${className}">${escapeHtml(value || window.HospitalI18n.t("doctors.no_indicado"))}</dd>`;
   }
 
   function renderDetail(patient) {
     const emergency = patient.emergencyContact || {};
-    detailContent.innerHTML = `<div class="detail-hero">
+    window.HospitalI18n.setHTML(detailContent, `<div class="detail-hero">
       <span class="patient-avatar">${icon("user")}</span>
-      <div class="detail-hero-text"><strong>${escapeHtml(patient.name)}</strong><p>${escapeHtml(patient.ageLabel)} &nbsp; | &nbsp; CI ${escapeHtml(patient.dni)}</p><p>${escapeHtml(patient.room)} · ${escapeHtml(patient.department)}</p></div>
+      <div class="detail-hero-text"><strong>${escapeHtml(patient.name)}</strong><p>${window.HospitalI18n.mark("patients.value_ci_value", {value0: patient.ageLabel, value1: patient.dni})}</p><p>${escapeHtml(patient.room)} · ${escapeHtml(patient.department)}</p></div>
       ${pill(patient)}
     </div>
     <div class="detail-grid">
-      <section class="detail-card"><h3>Información general</h3><dl>
-        ${detailItem("calendar", "Edad", patient.ageDetail)}
-        ${detailItem("calendar", "Fecha de nacimiento", patient.dateOfBirthLabel)}
-        ${detailItem("user", "Sexo", patient.sexLabel)}
-        ${detailItem("file", "Documento", `CI ${patient.dni}`)}
-        ${detailItem("phone", "Teléfono", patient.phone)}
-        ${detailItem("drop", "Grupo sanguíneo", patient.bloodType)}
-        ${detailItem("alert", "Alergias", patient.allergies)}
-        ${detailItem("doctor", "Doctor asignado", patient.doctor)}
-        ${detailItem(patient.status === "Ambulatorio" ? "ambulatory" : "bed", "Habitación / Área", `${patient.room} · ${patient.department}`)}
+      <section class="detail-card"><h3>${window.HospitalI18n.mark("routes.informacion_general")}</h3><dl>
+        ${detailItem("calendar", window.HospitalI18n.t("trace_view.edad"), patient.ageDetail)}
+        ${detailItem("calendar", window.HospitalI18n.t("patients.fecha_de_nacimiento"), patient.dateOfBirthLabel)}
+        ${detailItem("user", window.HospitalI18n.t("trace_view.sexo"), patient.sexLabel)}
+        ${detailItem("file", window.HospitalI18n.t("documents_viewer.documento"), window.HospitalI18n.t("patients.ci_value", {value0: patient.dni}))}
+        ${detailItem("phone", window.HospitalI18n.t("destinations.telefono"), patient.phone)}
+        ${detailItem("drop", window.HospitalI18n.t("patients.grupo_sanguineo"), patient.bloodType)}
+        ${detailItem("alert", window.HospitalI18n.t("patients.alergias"), patient.allergies)}
+        ${detailItem("doctor", window.HospitalI18n.t("patients.doctor_asignado"), patient.doctor)}
+        ${detailItem(patient.status === "outpatient" ? "ambulatory" : "bed", window.HospitalI18n.t("patients.habitacion_area"), `${patient.room} · ${patient.department}`)}
       </dl></section>
-      <section class="detail-card"><h3>Contacto de emergencia</h3><dl>
-        ${detailItem("user", "Nombre", emergency.name)}
-        ${detailItem("phone", "Teléfono", emergency.phone)}
-        ${detailItem("users", "Parentesco", emergency.relationship)}
+      <section class="detail-card"><h3>${window.HospitalI18n.mark("patients.contacto_de_emergencia")}</h3><dl>
+        ${detailItem("user", window.HospitalI18n.t("settings.nombre"), emergency.name)}
+        ${detailItem("phone", window.HospitalI18n.t("destinations.telefono"), emergency.phone)}
+        ${detailItem("users", window.HospitalI18n.t("patients.parentesco"), emergency.relationship)}
       </dl></section>
-      <section class="detail-card"><h3>Estado clínico</h3><dl>
-        ${detailItem("heart", "Estado actual", patient.clinicalState || "Sin datos", patient.clinicalState === "Estable" ? "stable" : "")}
-        ${detailItem("file", "Diagnóstico", patient.diagnosis)}
-        ${detailItem("calendar", "Fecha de ingreso", patient.admissionDate)}
+      <section class="detail-card"><h3>${window.HospitalI18n.mark("patients.estado_clinico")}</h3><dl>
+        ${detailItem("heart", window.HospitalI18n.t("patients.estado_actual"), patient.clinicalState || window.HospitalI18n.t("patients.sin_datos"), patient.clinicalState === "Estable" ? "stable" : "")}
+        ${detailItem("file", window.HospitalI18n.t("patients.diagnostico"), patient.diagnosis)}
+        ${detailItem("calendar", window.HospitalI18n.t("patients.fecha_de_ingreso"), patient.admissionDate)}
       </dl></section>
-    </div>`;
+    </div>`);
   }
 
 
   function renderList() {
-    list.innerHTML=patients.map(p=>row(viewModel(p))).join('');
+    window.HospitalI18n.setHTML(list, patients.map(p=>row(viewModel(p))).join(''));
     emptyState.hidden=total!==0;
     const start=(currentPage-1)*5;
-    summary.textContent=total ? `Mostrando ${start+1} a ${start+patients.length} de ${total} pacientes` : 'Mostrando 0 pacientes';
+    window.HospitalI18n.bindText(summary, () => total ? window.HospitalI18n.t("patients.mostrando_value_a_value_de_value_pacientes", {value0: start+1, value1: start+patients.length, value2: total}) : window.HospitalI18n.t("patients.mostrando_0_pacientes"));
     renderPagination(Math.max(1,Math.ceil(total/5)));
   }
   async function loadList() {
     const sequence=++requestId;
-    summary.textContent='Cargando pacientes...';
+    window.HospitalI18n.bindText(summary, () => window.HospitalI18n.t("patients.cargando_pacientes"));
     emptyState.hidden=true;
     try {
       const result=await api.request('patients/list.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:search.value,care_status:codes[activeFilter] || '',state,page:currentPage,page_size:5})},true,true);
       if (sequence!==requestId) return;
       patients=result.data; total=result.meta.total; currentPage=result.meta.page;
-      document.querySelectorAll('[data-patient-stat]').forEach(node=>{node.textContent=String(result.meta.stats[node.dataset.patientStat]);});
+      document.querySelectorAll('[data-patient-stat]').forEach(node=>{window.HospitalI18n.bindText(node, () => String(result.meta.stats[node.dataset.patientStat]));});
       renderList();
-    } catch(error) { if (sequence===requestId) summary.textContent=''; report(error); }
+    } catch(error) { if (sequence===requestId) window.HospitalI18n.bindText(summary, () => ''); report(error); }
   }
   function closeDetail(restoreFocus=false) {
     const old=selected?.id;
@@ -170,7 +174,7 @@
       const patient=await get(id);
       if (sequence!==selectionId) return;
       selected=patient; renderDetail(viewModel(patient));
-      archiveButton.lastChild.textContent=patient.status==='archived'?'Restaurar':'Archivar';
+      window.HospitalI18n.bindText(archiveButton.lastChild, () => patient.status==='archived'?window.HospitalI18n.t("personnel.restaurar"):window.HospitalI18n.t("patients.archivar"));
       editButton.disabled=patient.status!=='active';
       detailPanel.inert=false; detailPanel.setAttribute('aria-hidden','false'); workspace.classList.add('has-selection');
       renderList();
@@ -185,7 +189,7 @@
   }));
   archiveToggle.addEventListener('click',()=>{
     state=state==='active'?'archived':'active'; currentPage=1; closeDetail();
-    archiveToggle.textContent=state==='active'?'Ver archivados':'Ver activos'; archiveToggle.setAttribute('aria-pressed',String(state==='archived'));
+    window.HospitalI18n.bindText(archiveToggle, () => state==='active'?window.HospitalI18n.t("personnel.ver_archivados"):window.HospitalI18n.t("personnel.ver_activos")); archiveToggle.setAttribute('aria-pressed',String(state==='archived'));
     loadList();
   });
   list.addEventListener('click',event=>{const button=event.target.closest('[data-select-id]');if(button) selectPatient(button.dataset.selectId);});
@@ -216,17 +220,17 @@
       const [catalog,patient]=await Promise.all([api.get('patients/catalogs.php'),id?get(id):Promise.resolve(null)]);
       editing=patient; token=catalog.create_token;
       form.reset();
-      document.getElementById('new-patient-title').textContent=patient?'Editar datos del paciente':'Nuevo paciente';
-      document.getElementById('form-subtitle').textContent=patient?`Actualiza los datos de ${patient.full_name}.`:'Completa los datos para registrar un paciente del hospital.';
-      document.getElementById('save-label').textContent=patient?'Guardar cambios':'Guardar paciente';
-      form.elements.doctor.innerHTML='<option value="">Sin médico asignado</option>'+catalog.doctors.map(d=>`<option value="${escapeHtml(d.id)}">${escapeHtml(d.full_name)}</option>`).join('');
-      document.getElementById('patient-departments').innerHTML=catalog.departments.map(d=>`<option value="${escapeHtml(d.name)}"></option>`).join('');
+      window.HospitalI18n.bindText(document.getElementById('new-patient-title'), () => patient?window.HospitalI18n.t("patients.editar_datos_del_paciente"):window.HospitalI18n.t("patients.nuevo_paciente"));
+      window.HospitalI18n.bindText(document.getElementById('form-subtitle'), () => patient?window.HospitalI18n.t("patients.actualiza_los_datos_de_value", {value0: patient.full_name}):window.HospitalI18n.t("patients.completa_los_datos_para_registrar_un_paciente_del_hospital"));
+      window.HospitalI18n.bindText(document.getElementById('save-label'), () => patient?window.HospitalI18n.t("trace_view.guardar_cambios"):window.HospitalI18n.t("patients.guardar_paciente"));
+      window.HospitalI18n.setHTML(form.elements.doctor, `<option value="" data-i18n="patients.sin_medico_asignado">${window.HospitalI18n.html("patients.sin_medico_asignado")}</option>`+catalog.doctors.map(d=>`<option value="${escapeHtml(d.id)}">${escapeHtml(d.full_name)}</option>`).join(''));
+      window.HospitalI18n.setHTML(document.getElementById('patient-departments'), catalog.departments.map(d=>`<option value="${escapeHtml(d.name)}"></option>`).join(''));
       const e=patient?.encounter || {}, c=patient?.emergency_contact || {};
-      if(e.doctor_staff_id && !catalog.doctors.some(d=>d.id===e.doctor_staff_id)) form.elements.doctor.add(new Option((e.doctor_name || 'Médico')+' (inactivo)',e.doctor_staff_id));
+      if(e.doctor_staff_id && !catalog.doctors.some(d=>d.id===e.doctor_staff_id)) form.elements.doctor.add(window.HospitalI18n.option(() => (e.doctor_name || window.HospitalI18n.t("patients.medico"))+window.HospitalI18n.t("shared.inactivo"), e.doctor_staff_id));
       const values={name:patient?.full_name,dni:patient?.national_id,age:patient?.age,dateOfBirth:patient?.date_of_birth,sex:patient?.sex,phone:patient?.phone,bloodType:patient?.blood_group,allergies:patient?.allergies,
-        emergencyName:c.full_name,emergencyPhone:c.phone,emergencyRelationship:c.relationship,status:patient?(labels[e.care_status] || ''):'Ambulatorio',room:e.room,department:e.department,doctor:e.doctor_staff_id,doctorSpecialty:e.doctor_specialty,admissionDate:e.admission_date,diagnosis:e.diagnosis,clinicalState:e.clinical_state};
+        emergencyName:c.full_name,emergencyPhone:c.phone,emergencyRelationship:c.relationship,status:patient?(e.care_status || ''):'outpatient',room:e.room,department:e.department,doctor:e.doctor_staff_id,doctorSpecialty:e.doctor_specialty,admissionDate:e.admission_date,diagnosis:e.diagnosis,clinicalState:e.clinical_state};
       Object.entries(values).forEach(([key,value])=>{form.elements[key].value=value ?? '';});
-      form.elements.status.querySelector('[value="Alta"]').disabled=!patient?.encounter;
+      form.elements.status.querySelector('[value="discharged"]').disabled=!patient?.encounter;
       clinicalControls();birthControls(); closeDetail();
       dialog.querySelector('.dialog-fields').scrollTop=0; dialog.showModal();
     } catch(error) {report(error);} finally {setBusy(false);if(dialog.open)form.elements.name.focus();}
@@ -249,19 +253,19 @@
     setBusy(true);
     try {
       const patient=await api.post('patients/'+(wasEditing?'update':'create')+'.php',body);
-      setBusy(false);dialog.close();search.value='';state='active';activeFilter='Todos';currentPage=1;
-      archiveToggle.textContent='Ver archivados';archiveToggle.setAttribute('aria-pressed','false');
-      filters.forEach(node=>{const active=node.dataset.filter==='Todos';node.classList.toggle('is-active',active);node.setAttribute('aria-pressed',String(active));});
+      setBusy(false);dialog.close();search.value='';state='active';activeFilter='all';currentPage=1;
+      window.HospitalI18n.bindText(archiveToggle, () => window.HospitalI18n.t("personnel.ver_archivados"));archiveToggle.setAttribute('aria-pressed','false');
+      filters.forEach(node=>{const active=node.dataset.filter==='all';node.classList.toggle('is-active',active);node.setAttribute('aria-pressed',String(active));});
       changed();await loadList();await selectPatient(patient.id);
-      toast(wasEditing?'Datos del paciente actualizados.':'Paciente registrado.');
+      toast(() => wasEditing?window.HospitalI18n.t("patients.datos_del_paciente_actualizados"):window.HospitalI18n.t("patients.paciente_registrado"));
     } catch(error){report(error);}finally{setBusy(false);}
   });
   archiveButton.addEventListener('click',()=>{
     if(!selected || busy)return; deleting={...selected};
     const restore=deleting.status==='archived';
-    document.getElementById('delete-title').textContent=restore?'¿Restaurar este paciente?':'¿Archivar este paciente?';
-    document.getElementById('delete-description').textContent=restore?`El registro de ${deleting.full_name} volverá a estar disponible en los selectores del hospital.`:`El registro de ${deleting.full_name} saldrá del listado activo. Sus documentos y antecedentes se conservarán.`;
-    document.getElementById('confirm-delete').textContent=restore?'Restaurar paciente':'Archivar paciente';deleteDialog.showModal();
+    window.HospitalI18n.bindText(document.getElementById('delete-title'), () => restore?window.HospitalI18n.t("patients.restaurar_este_paciente"):window.HospitalI18n.t("patients.archivar_este_paciente"));
+    window.HospitalI18n.bindText(document.getElementById('delete-description'), () => restore?window.HospitalI18n.t("patients.el_registro_de_value_volvera_a_estar_disponible_en_los_selectores_del_hospital", {value0: deleting.full_name}):window.HospitalI18n.t("patients.el_registro_de_value_saldra_del_listado_activo_sus_documentos_y_antecedentes_se_conservara", {value0: deleting.full_name}));
+    window.HospitalI18n.bindText(document.getElementById('confirm-delete'), () => restore?window.HospitalI18n.t("patients.restaurar_paciente"):window.HospitalI18n.t("patients.archivar_paciente"));deleteDialog.showModal();
   });
   document.querySelectorAll('[data-close-delete]').forEach(node=>node.addEventListener('click',()=>{if(!busy)deleteDialog.close();}));
   deleteDialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
@@ -271,7 +275,7 @@
     const restore=deleting.status==='archived';setBusy(true);
     try {
       await api.post('patients/'+(restore?'restore':'archive')+'.php',{id:deleting.id,version:deleting.version});
-      deleteDialog.close();closeDetail();changed();await loadList();toast(restore?'Paciente restaurado.':'Paciente archivado.');
+      deleteDialog.close();closeDetail();changed();await loadList();toast(() => restore?window.HospitalI18n.t("patients.paciente_restaurado"):window.HospitalI18n.t("patients.paciente_archivado"));
     }catch(error){report(error);}finally{setBusy(false);}
   });
   function refresh() {if(dialog.open || deleteDialog.open || busy){refreshPending=true;return;}loadList();if(selected)selectPatient(selected.id,false);}
@@ -280,7 +284,9 @@
   newButton.disabled=true;
   window.HospitalAuth.ready.then(payload=>{
     if(!payload)return;
-    if(!payload.user.roles.includes('records_manager')){report(new api.ApiError('Se requiere permiso de gestión de registros.',403,'FORBIDDEN'));return;}
+    if(!payload.user.roles.includes('records_manager')){report(new api.ApiError(window.HospitalI18n.t("patients.se_requiere_permiso_de_gestion_de_registros"),403,'FORBIDDEN'));return;}
     newButton.disabled=false;loadList();
   });
+  window.addEventListener('hospital:localechange',()=>{renderList();if(selected)renderDetail(viewModel(selected));});
+
 })();

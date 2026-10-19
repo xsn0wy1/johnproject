@@ -7,7 +7,7 @@ use Hospital\Modules\Patients\PatientInput;
 final class DoctorInput
 {
     public const FIELDS = ['title','full_name','national_id','license','specialty','department','office','phone','email','availability','shift','days','start_time','end_time','notes'];
-    private static function invalid(string $field): void { throw new ApiException(422,'VALIDATION_FAILED','Revisá los datos del médico.',[$field=>'Valor no válido.']); }
+    private static function invalid(string $field): void { throw new ApiException(422,'VALIDATION_FAILED',\Hospital\I18n::t("errors.revisa_los_datos_del_medico"),[$field=>\Hospital\I18n::t("errors.valor_no_valido")]); }
     public static function fields(array $input): array
     {
         foreach (self::FIELDS as $key) if (!array_key_exists($key,$input)) self::invalid($key);

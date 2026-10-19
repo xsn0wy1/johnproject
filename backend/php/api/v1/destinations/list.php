@@ -7,5 +7,5 @@ use Hospital\Modules\Destinations\DestinationService;
 use Hospital\Modules\Transfers\TransferInput;
 $service = new DestinationService($db, $config);
 Request::method('GET'); $user=$auth->requireUser(false); $actor=(string)$user['id']; $service->access($actor);
-if (array_diff(array_keys($_GET), [])) throw new Hospital\Http\ApiException(422,'UNEXPECTED_FIELDS','Filtro no permitido.');
+if (array_diff(array_keys($_GET), [])) throw new Hospital\Http\ApiException(422,'UNEXPECTED_FIELDS',\Hospital\I18n::t("errors.filtro_no_permitido"));
 Response::json($service->listing($actor));

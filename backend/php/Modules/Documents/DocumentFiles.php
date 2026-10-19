@@ -14,14 +14,14 @@ final class DocumentFiles
     public function stage(array $file): array
     {
         $error = $file['error'] ?? UPLOAD_ERR_NO_FILE;
-        if (!is_int($error) || $error !== UPLOAD_ERR_OK) throw new ApiException(in_array($error, [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? 413 : 422, 'INVALID_UPLOAD', 'No se recibió un archivo válido.');
-        if (!is_string($file['tmp_name'] ?? null) || !is_uploaded_file($file['tmp_name']) || !is_string($file['name'] ?? null)) throw new ApiException(422, 'INVALID_UPLOAD', 'Se requiere un archivo.');
+        if (!is_int($error) || $error !== UPLOAD_ERR_OK) throw new ApiException(in_array($error, [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? 413 : 422, 'INVALID_UPLOAD', \Hospital\I18n::t("errors.no_se_recibio_un_archivo_valido"));
+        if (!is_string($file['tmp_name'] ?? null) || !is_uploaded_file($file['tmp_name']) || !is_string($file['name'] ?? null)) throw new ApiException(422, 'INVALID_UPLOAD', \Hospital\I18n::t("errors.se_requiere_un_archivo"));
         $size = filesize($file['tmp_name']);
-        if (!$size || $size > self::MAX_BYTES) throw new ApiException($size ? 413 : 422, 'FILE_SIZE_INVALID', 'El archivo debe tener contenido y no superar 10 MiB.');
+        if (!$size || $size > self::MAX_BYTES) throw new ApiException($size ? 413 : 422, 'FILE_SIZE_INVALID', \Hospital\I18n::t("errors.el_archivo_debe_tener_contenido_y_no_superar_10_mib"));
         $name = basename(str_replace('\\', '/', $file['name']));
-        if (!mb_check_encoding($name, 'UTF-8') || mb_strlen($name) > 255 || preg_match('/[\x00-\x1f\x7f:]/', $name)) throw new ApiException(422, 'INVALID_FILENAME', 'El nombre de archivo no es válido.');
+        if (!mb_check_encoding($name, 'UTF-8') || mb_strlen($name) > 255 || preg_match('/[\x00-\x1f\x7f:]/', $name)) throw new ApiException(422, 'INVALID_FILENAME', \Hospital\I18n::t("errors.el_nombre_de_archivo_no_es_valido"));
         $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-        if (!in_array($extension, ['pdf', 'docx', 'jpg', 'jpeg', 'png'], true)) throw new ApiException(415, 'UNSUPPORTED_FILE', 'Usá PDF, DOCX, JPG o PNG.');
+        if (!in_array($extension, ['pdf', 'docx', 'jpg', 'jpeg', 'png'], true)) throw new ApiException(415, 'UNSUPPORTED_FILE', \Hospital\I18n::t("errors.usa_pdf_docx_jpg_o_png"));
         $key = bin2hex(random_bytes(32));
         $path = $this->storage->directory('quarantine', true) . '/' . $key . '.bin';
         if (!move_uploaded_file($file['tmp_name'], $path)) throw new \RuntimeException('Private upload staging failed.');
@@ -54,7 +54,7 @@ final class DocumentFiles
         } catch (\Throwable $error) { @unlink($path); throw $error; }
     }
 
-    private function invalid(): void { throw new ApiException(415, 'INVALID_FILE_CONTENT', 'El contenido no corresponde a un archivo permitido.'); }
+    private function invalid(): void { throw new ApiException(415, 'INVALID_FILE_CONTENT', \Hospital\I18n::t("errors.el_contenido_no_corresponde_a_un_archivo_permitido")); }
 
     private function xml(string $bytes): \DOMDocument
     {
@@ -122,7 +122,7 @@ final class DocumentFiles
                 usleep(50000);
             } while (true);
         } finally { proc_close($process); }
-        if ($exit === 1) throw new ApiException(415, 'FILE_REJECTED', 'El análisis local rechazó el archivo.');
+        if ($exit === 1) throw new ApiException(415, 'FILE_REJECTED', \Hospital\I18n::t("errors.el_analisis_local_rechazo_el_archivo"));
         if ($exit !== 0) throw new \RuntimeException('Document scanner failed.');
         return 'antivirus_clean';
     }

@@ -38,34 +38,34 @@ final class TransferCatalog
     /** Trusted local administration; future management APIs must call equivalent validation. */
     public function import(array $input): array
     {
-        if (array_diff(array_keys($input),['facilities','ambulances','crew','routes'])) throw new ApiException(422,'VALIDATION_FAILED','Catálogo no válido.');
+        if (array_diff(array_keys($input),['facilities','ambulances','crew','routes'])) throw new ApiException(422,'VALIDATION_FAILED',\Hospital\I18n::t("errors.catalogo_no_valido"));
         $this->db->beginTransaction();
         try {
             foreach ($input['facilities']??[] as $item) {
                 $name=SettingsService::text($item['name']??null,'name',150,false); $address=SettingsService::text($item['address']??'','address',255);
-                foreach(['latitude'=>90,'longitude'=>180] as $key=>$limit) if (!is_numeric($item[$key]??null)||abs((float)$item[$key])>$limit) throw new ApiException(422,'INVALID_ROUTE','Coordenadas no válidas.');
+                foreach(['latitude'=>90,'longitude'=>180] as $key=>$limit) if (!is_numeric($item[$key]??null)||abs((float)$item[$key])>$limit) throw new ApiException(422,'INVALID_ROUTE',\Hospital\I18n::t("errors.coordenadas_no_validas"));
                 $s=$this->db->prepare('SELECT id FROM facilities WHERE name=? ORDER BY id LIMIT 1 FOR UPDATE'); $s->execute([$name]); $id=$s->fetchColumn();
                 if ($id) { $s=$this->db->prepare('UPDATE facilities SET address=?,latitude=?,longitude=?,version=version+1 WHERE id=?'); $s->execute([$address,$item['latitude'],$item['longitude'],$id]); }
                 else { $s=$this->db->prepare('INSERT INTO facilities (name,address,latitude,longitude) VALUES (?,?,?,?)'); $s->execute([$name,$address,$item['latitude'],$item['longitude']]); }
             }
             foreach($input['ambulances']??[] as $item) {
                 $code=strtoupper(SettingsService::text($item['code']??null,'code',20,false)); $plate=strtoupper(preg_replace('/[\s-]/','',SettingsService::text($item['plate']??null,'plate',20,false)));
-                if (!preg_match('/^[A-Z0-9-]{1,20}$/',$code)||!preg_match('/^[A-Z0-9]{1,20}$/',$plate)) throw new ApiException(422,'VALIDATION_FAILED','Identidad de vehículo no válida.');
+                if (!preg_match('/^[A-Z0-9-]{1,20}$/',$code)||!preg_match('/^[A-Z0-9]{1,20}$/',$plate)) throw new ApiException(422,'VALIDATION_FAILED',\Hospital\I18n::t("errors.identidad_de_vehiculo_no_valida"));
                 $s=$this->db->prepare('INSERT INTO ambulances (code,plate,model) VALUES (?,?,?) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)'); $s->execute([$code,$plate,SettingsService::text($item['model']??'','model',100)]);
                 $s=$this->db->prepare('SELECT code,plate FROM ambulances WHERE code=? OR plate=?');$s->execute([$code,$plate]);$rows=$s->fetchAll();
-                if(count($rows)!==1||$rows[0]['code']!==$code||$rows[0]['plate']!==$plate) throw new ApiException(409,'CATALOG_CONFLICT','Código o matrícula ya utilizados.');
+                if(count($rows)!==1||$rows[0]['code']!==$code||$rows[0]['plate']!==$plate) throw new ApiException(409,'CATALOG_CONFLICT',\Hospital\I18n::t("errors.codigo_o_matricula_ya_utilizados"));
             }
             foreach($input['crew']??[] as $item) {
-                $ci=preg_replace('/[.\s-]/','',$item['national_id']??''); if(!preg_match('/^[0-9]{6,12}$/',$ci)) throw new ApiException(422,'VALIDATION_FAILED','Identidad de personal no válida.');
+                $ci=preg_replace('/[.\s-]/','',$item['national_id']??''); if(!preg_match('/^[0-9]{6,12}$/',$ci)) throw new ApiException(422,'VALIDATION_FAILED',\Hospital\I18n::t("errors.identidad_de_personal_no_valida"));
                 $name=SettingsService::text($item['full_name']??null,'full_name',150,false);
                 $s=$this->db->prepare('INSERT INTO staff (national_id,full_name) VALUES (?,?) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)');$s->execute([$ci,$name]); $staff=$this->db->lastInsertId();
                 foreach($item['responsibilities']??[] as $role) { TransferInput::choice($role,['driver','copilot','doctor']);$s=$this->db->prepare('INSERT IGNORE INTO staff_roles (staff_id,role_code) VALUES (?,?)');$s->execute([$staff,$role]); }
             }
             foreach($input['routes']??[] as $item) {
                 $points=TransferInput::geometry($item['geometry']??null); $ends=[];
-                foreach(['origin','destination'] as $key) { $s=$this->db->prepare("SELECT id,name,address,latitude,longitude FROM facilities WHERE name=? AND status='active' ORDER BY id LIMIT 1 FOR UPDATE");$s->execute([$item[$key]??null]);$row=$s->fetch();if(!$row||$row['latitude']===null||$row['longitude']===null) throw new ApiException(422,'INVALID_ROUTE','Centro no válido.');$ends[]=$row; }
-                if ($ends[0]['id']===$ends[1]['id']||TransferInput::distance($ends[0],$points['points'][0])>100||TransferInput::distance($ends[1],$points['points'][count($points['points'])-1])>100) throw new ApiException(422,'INVALID_ROUTE','La geometría debe unir los centros seleccionados.');
-                $seconds=$item['duration_seconds']??null; if(!is_int($seconds)||$seconds<30||$seconds>86400) throw new ApiException(422,'INVALID_ROUTE','Duración no válida.');
+                foreach(['origin','destination'] as $key) { $s=$this->db->prepare("SELECT id,name,address,latitude,longitude FROM facilities WHERE name=? AND status='active' ORDER BY id LIMIT 1 FOR UPDATE");$s->execute([$item[$key]??null]);$row=$s->fetch();if(!$row||$row['latitude']===null||$row['longitude']===null) throw new ApiException(422,'INVALID_ROUTE',\Hospital\I18n::t("errors.centro_no_valido"));$ends[]=$row; }
+                if ($ends[0]['id']===$ends[1]['id']||TransferInput::distance($ends[0],$points['points'][0])>100||TransferInput::distance($ends[1],$points['points'][count($points['points'])-1])>100) throw new ApiException(422,'INVALID_ROUTE',\Hospital\I18n::t("errors.la_geometria_debe_unir_los_centros_seleccionados"));
+                $seconds=$item['duration_seconds']??null; if(!is_int($seconds)||$seconds<30||$seconds>86400) throw new ApiException(422,'INVALID_ROUTE',\Hospital\I18n::t("errors.duracion_no_valida"));
                 $code=SettingsService::text($item['code']??null,'code',40,false); $name=SettingsService::text($item['name']??null,'name',150,false);
                 $s=$this->db->prepare('INSERT INTO route_templates (code,name,origin_facility_id,destination_facility_id,geometry,distance_meters,duration_seconds) VALUES (?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE name=VALUES(name),origin_facility_id=VALUES(origin_facility_id),destination_facility_id=VALUES(destination_facility_id),geometry=VALUES(geometry),distance_meters=VALUES(distance_meters),duration_seconds=VALUES(duration_seconds),version=version+1');
                 $s->execute([$code,$name,$ends[0]['id'],$ends[1]['id'],json_encode($points['points'],JSON_THROW_ON_ERROR),$points['distance'],$seconds]);

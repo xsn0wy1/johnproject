@@ -1,20 +1,24 @@
-(() => {
+(async () => {
   "use strict";
+    const i18nSourceUrl = document.currentScript.src;
+    await window.HospitalI18n.ready;
+    await window.HospitalAuth.ready;
+
 
   const api = window.HospitalApi;
-  const statusLabels = {available:"Disponible", consulting:"En consulta", on_call:"De guardia", inactive:"Inactivo"};
-  const shiftLabels = {morning:"Mañana", afternoon:"Tarde", night:"Noche", rotating:"Rotativo"};
-  const dayLabels = {weekdays:"Lunes a viernes", mon_wed_fri:"Lunes, miércoles y viernes", tue_thu:"Martes y jueves", weekends:"Fines de semana", rotating:"Rotativo"};
-  const code = (labels, value) => Object.keys(labels).find(key => labels[key] === value);
+  const statusLabels = {get available() { return window.HospitalI18n.t("doctors.disponible"); }, get consulting() { return window.HospitalI18n.t("doctors.en_consulta"); }, get on_call() { return window.HospitalI18n.t("doctors.de_guardia"); }, get inactive() { return window.HospitalI18n.t("destinations.inactivo"); }};
+  const shiftLabels = {get morning() { return window.HospitalI18n.t("doctors.manana"); }, get afternoon() { return window.HospitalI18n.t("doctors.tarde"); }, get night() { return window.HospitalI18n.t("doctors.noche"); }, get rotating() { return window.HospitalI18n.t("doctors.rotativo"); }};
+  const dayLabels = {get weekdays() { return window.HospitalI18n.t("doctors.lunes_a_viernes"); }, get mon_wed_fri() { return window.HospitalI18n.t("doctors.lunes_miercoles_y_viernes"); }, get tue_thu() { return window.HospitalI18n.t("doctors.martes_y_jueves"); }, get weekends() { return window.HospitalI18n.t("doctors.fines_de_semana"); }, get rotating() { return window.HospitalI18n.t("doctors.rotativo"); }};
+  const code = (labels, value) => value;
   const fromApi = d => ({...d, name:d.full_name, document:d.national_id, service:d.department,
-    archived:d.status === "archived", status:d.status === "archived" || d.staff_status !== "active" ? "Inactivo" : statusLabels[d.availability],
-    shift:shiftLabels[d.shift], days:dayLabels[d.days], startTime:d.start_time || "", endTime:d.end_time || ""});
+    archived:d.status === "archived", status:d.status === "archived" || d.staff_status !== "active" ? "inactive" : d.availability,
+    shift:d.shift, days:d.days, startTime:d.start_time || "", endTime:d.end_time || ""});
   const toApi = d => ({title:d.title, full_name:d.name, national_id:d.document, license:d.license,
     specialty:d.specialty, department:d.service, office:d.office, phone:d.phone, email:d.email,
     availability:code(statusLabels,d.status), shift:code(shiftLabels,d.shift), days:code(dayLabels,d.days),
     start_time:d.startTime || null, end_time:d.endTime || null, notes:d.notes});
   const pageSize = 5;
-  const statusStyles = { Disponible: "available", "En consulta": "consulting", "De guardia": "on-call", Inactivo: "inactive" };
+  const statusStyles = {available:"available",consulting:"consulting",on_call:"on-call",inactive:"inactive"};
   const fields = ["title", "name", "document", "license", "specialty", "service", "office", "phone", "email", "status", "shift", "days", "startTime", "endTime", "notes"];
   const rows = document.getElementById("doctor-rows");
   const directory = document.querySelector(".doctor-directory");
@@ -36,12 +40,12 @@
   const identifier = value => normalize(value).replace(/[^a-z0-9]/g, "");
   const fullName = doctor => `${doctor.title} ${doctor.name}`;
   const icon = file => `<img src="../../../assets/Icons/${file}" alt="" aria-hidden="true">`;
-  const pill = doctor => `<span class="status-pill status-pill--${statusStyles[doctor.status]}">${escapeHtml(doctor.archived ? "Archivado" : doctor.status)}</span>`;
-  const hours = doctor => doctor.startTime && doctor.endTime ? `${doctor.startTime} – ${doctor.endTime}` : "Horario no indicado";
+  const pill = doctor => `<span class="status-pill status-pill--${statusStyles[doctor.status]}">${escapeHtml(doctor.archived ? window.HospitalI18n.t("personnel.archivado") : statusLabels[doctor.status])}</span>`;
+  const hours = doctor => doctor.startTime && doctor.endTime ? `${doctor.startTime} – ${doctor.endTime}` : window.HospitalI18n.t("doctors.horario_no_indicado");
   let doctors = [];
   let catalogs = {specialties:[], departments:[]};
   let busy = false, editingVersion = null, deletingVersion = null;
-  let activeStatus = "Todos";
+  let activeStatus = "all";
   let currentPage = 1;
   let selectedId = null;
   let editingId = null;
@@ -72,7 +76,7 @@
   function toast(message) {
     const notification = document.getElementById("doctor-toast");
     clearTimeout(toastTimer);
-    notification.textContent = message;
+    window.HospitalI18n.bindText(notification, () => window.HospitalI18n.resolve(message));
     notification.hidden = false;
     toastTimer = setTimeout(() => { notification.hidden = true; }, 5000);
   }
@@ -80,23 +84,23 @@
   function updateCatalogs() {
     const current = specialtyFilter.value;
     // Group spelling and accent variants as the same specialty.
-    const unique = key => [...new Map(doctors.filter(d => !d.archived).map(doctor => [normalize(doctor[key]), doctor[key]])).values()].sort((a, b) => a.localeCompare(b, "es"));
-    const specialties = [...new Map(doctors.map(d => [normalize(d.specialty),d.specialty])).values()].sort((a,b)=>a.localeCompare(b,"es"));
-    specialtyFilter.innerHTML = '<option value="">Todas las especialidades</option>' + specialties.map(value => `<option value="${escapeHtml(normalize(value))}">${escapeHtml(value)}</option>`).join("");
+    const unique = key => [...new Map(doctors.filter(d => !d.archived).map(doctor => [normalize(doctor[key]), doctor[key]])).values()].sort((a, b) => a.localeCompare(b, window.HospitalI18n.locale));
+    const specialties = [...new Map(doctors.map(d => [normalize(d.specialty),d.specialty])).values()].sort((a,b)=>a.localeCompare(b,window.HospitalI18n.locale));
+    window.HospitalI18n.setHTML(specialtyFilter, `<option value="" data-i18n="doctors.todas_las_especialidades">${window.HospitalI18n.html("doctors.todas_las_especialidades")}</option>` + specialties.map(value => `<option value="${escapeHtml(normalize(value))}">${escapeHtml(value)}</option>`).join(""));
     specialtyFilter.value = specialties.some(value => normalize(value) === current) ? current : "";
-    document.getElementById("specialty-options").innerHTML = [...new Set([...catalogs.specialties,...specialties])].map(value => `<option value="${escapeHtml(value)}"></option>`).join("");
-    document.getElementById("service-options").innerHTML = [...new Set([...catalogs.departments,...unique("service")])].map(value => `<option value="${escapeHtml(value)}"></option>`).join("");
-    document.getElementById("metric-total").textContent = doctors.filter(d => !d.archived).length;
-    document.getElementById("metric-available").textContent = doctors.filter(doctor => doctor.status === "Disponible").length;
-    document.getElementById("metric-on-call").textContent = doctors.filter(doctor => doctor.status === "De guardia").length;
-    document.getElementById("metric-specialties").textContent = unique("specialty").length;
+    window.HospitalI18n.setHTML(document.getElementById("specialty-options"), [...new Set([...catalogs.specialties,...specialties])].map(value => `<option value="${escapeHtml(value)}"></option>`).join(""));
+    window.HospitalI18n.setHTML(document.getElementById("service-options"), [...new Set([...catalogs.departments,...unique("service")])].map(value => `<option value="${escapeHtml(value)}"></option>`).join(""));
+    window.HospitalI18n.bindText(document.getElementById("metric-total"), () => doctors.filter(d => !d.archived).length);
+    window.HospitalI18n.bindText(document.getElementById("metric-available"), () => doctors.filter(doctor => doctor.status === "available").length);
+    window.HospitalI18n.bindText(document.getElementById("metric-on-call"), () => doctors.filter(doctor => doctor.status === "on_call").length);
+    window.HospitalI18n.bindText(document.getElementById("metric-specialties"), () => unique("specialty").length);
   }
 
   function matchingDoctors() {
     const query = normalize(search.value);
     const compactQuery = identifier(query);
     return doctors.filter(doctor => {
-      const matchesStatus = (activeStatus === "Todos" ? !doctor.archived : doctor.status === activeStatus);
+      const matchesStatus = (activeStatus === "all" ? !doctor.archived : doctor.status === activeStatus);
       const matchesSpecialty = !specialtyFilter.value || normalize(doctor.specialty) === specialtyFilter.value;
       const values = [fullName(doctor), doctor.document, doctor.license, doctor.phone, doctor.specialty, doctor.service, doctor.email];
       const matchesQuery = !query || values.some(value => normalize(value).includes(query) || (compactQuery && identifier(value).includes(compactQuery)));
@@ -112,9 +116,9 @@
     return `<tr${selectedId === doctor.id ? ' class="is-selected"' : ""}>
       <td><div class="doctor-identity"><span class="doctor-avatar">${icon("doctor-icon.svg")}</span><div><strong title="${escapeHtml(fullName(doctor))}">${escapeHtml(fullName(doctor))}</strong><small>${escapeHtml(doctor.license)}</small></div></div></td>
       <td><div class="doctor-info">${icon("specialty-icon.svg")}<div><b title="${escapeHtml(doctor.specialty)}">${escapeHtml(doctor.specialty)}</b><small title="${escapeHtml(doctor.service)}">${escapeHtml(doctor.service)}</small></div></div></td>
-      <td><div class="doctor-info">${icon("time-icon.svg")}<div><b>${escapeHtml(doctor.shift)} <span class="shift-hours">· ${escapeHtml(hours(doctor))}</span></b><small>${escapeHtml(doctor.phone)}</small></div></div></td>
+      <td><div class="doctor-info">${icon("time-icon.svg")}<div><b>${escapeHtml(shiftLabels[doctor.shift])} <span class="shift-hours">· ${escapeHtml(hours(doctor))}</span></b><small>${escapeHtml(doctor.phone)}</small></div></div></td>
       <td>${pill(doctor)}</td>
-      <td><div class="row-actions">${actionButton(doctor, "view", "Ver detalle de", "arrow-left.svg")}</div></td>
+      <td><div class="row-actions">${actionButton(doctor, "view", window.HospitalI18n.t("doctors.ver_detalle_de"), "arrow-left.svg")}</div></td>
     </tr>`;
   }
 
@@ -124,35 +128,35 @@
     currentPage = Math.max(1, Math.min(currentPage, pageCount));
     const start = (currentPage - 1) * pageSize;
     const visible = matches.slice(start, start + pageSize);
-    rows.innerHTML = visible.map(row).join("");
+    window.HospitalI18n.setHTML(rows, visible.map(row).join(""));
     document.querySelector(".doctor-table-container").classList.toggle("is-empty", matches.length === 0);
     document.getElementById("doctor-empty").hidden = matches.length > 0;
-    document.getElementById("empty-description").textContent = doctors.length ? "Prueba con otro nombre o ajusta los filtros." : "Agrega el primer médico para comenzar el directorio.";
+    window.HospitalI18n.bindText(document.getElementById("empty-description"), () => doctors.length ? window.HospitalI18n.t("doctors.prueba_con_otro_nombre_o_ajusta_los_filtros") : window.HospitalI18n.t("doctors.agrega_el_primer_medico_para_comenzar_el_directorio"));
     document.getElementById("clear-filters").hidden = doctors.length === 0;
-    document.getElementById("results-summary").textContent = matches.length ? `Mostrando ${start + 1} a ${start + visible.length} de ${matches.length} ${matches.length === 1 ? "médico" : "médicos"}` : "Mostrando 0 médicos";
+    window.HospitalI18n.bindText(document.getElementById("results-summary"), () => matches.length ? window.HospitalI18n.t("ambulances.mostrando_value_a_value_de_value_value", {value0: start + 1, value1: start + visible.length, value2: matches.length, value3: matches.length === 1 ? window.HospitalI18n.t("doctors.medico") : window.HospitalI18n.t("doctors.medicos")}) : window.HospitalI18n.t("doctors.mostrando_0_medicos"));
     const pages = new Set([1, pageCount, currentPage - 1, currentPage, currentPage + 1]);
     let previous = 0;
     const numbers = [...pages].filter(page => page >= 1 && page <= pageCount).sort((a, b) => a - b).map(page => {
       const gap = previous && page - previous > 1 ? '<span aria-hidden="true">…</span>' : "";
       previous = page;
-      return `${gap}<button type="button" data-page="${page}" aria-label="Página ${page}"${page === currentPage ? ' class="is-active" aria-current="page"' : ""}>${page}</button>`;
+      return `${gap}<button type="button" data-page="${page}" aria-label="${window.HospitalI18n.html("ambulances.pagina_value", {value0: page})}" data-i18n-aria-label="ambulances.pagina_value" data-i18n-aria-label-params="${window.HospitalI18n.escape(JSON.stringify({value0: page}))}"${page === currentPage ? ' class="is-active" aria-current="page"' : ""}>${page}</button>`;
     }).join("");
-    pagination.innerHTML = `<button type="button" data-page="${currentPage - 1}" aria-label="Página anterior"${currentPage === 1 ? " disabled" : ""}>‹</button>${numbers}<button type="button" data-page="${currentPage + 1}" aria-label="Página siguiente"${currentPage === pageCount ? " disabled" : ""}>›</button>`;
+    window.HospitalI18n.setHTML(pagination, `<button type="button" data-page="${currentPage - 1}" aria-label="${window.HospitalI18n.html("trace.pagina_anterior")}" data-i18n-aria-label="trace.pagina_anterior"${currentPage === 1 ? " disabled" : ""}>‹</button>${numbers}<button type="button" data-page="${currentPage + 1}" aria-label="${window.HospitalI18n.html("trace.pagina_siguiente")}" data-i18n-aria-label="trace.pagina_siguiente"${currentPage === pageCount ? " disabled" : ""}>›</button>`);
   }
 
-  function detailItem(label, value) { return `<dt>${label}</dt><dd>${escapeHtml(value || "No indicado")}</dd>`; }
+  function detailItem(label, value) { return `<dt>${label}</dt><dd>${escapeHtml(value || window.HospitalI18n.t("doctors.no_indicado"))}</dd>`; }
 
   function renderDetail(doctor) {
     document.getElementById("edit-from-detail").hidden=doctor.archived;
-    document.getElementById("delete-from-detail").innerHTML=icon(doctor.archived ? "save-floppy.svg" : "trash-icon.svg")+(doctor.archived ? "Restaurar" : "Eliminar");
-    document.getElementById("detail-content").innerHTML = `<section class="detail-profile">
+    window.HospitalI18n.setHTML(document.getElementById("delete-from-detail"), icon(doctor.archived ? "save-floppy.svg" : "trash-icon.svg")+(doctor.archived ? window.HospitalI18n.t("personnel.restaurar") : window.HospitalI18n.t("routes.eliminar")));
+    window.HospitalI18n.setHTML(document.getElementById("detail-content"), `<section class="detail-profile">
       <div class="detail-identity"><span class="doctor-avatar">${icon("doctor-icon.svg")}</span><div><h3>${escapeHtml(fullName(doctor))}</h3><p>${escapeHtml(doctor.specialty)}</p></div></div>
-      <div class="detail-profile-footer"><span class="registration-label">Registro ${escapeHtml(doctor.license)}</span>${pill(doctor)}</div>
+      <div class="detail-profile-footer"><span class="registration-label">${window.HospitalI18n.mark("doctors.registro_value", {value0: doctor.license})}</span>${pill(doctor)}</div>
     </section>
-    <section class="detail-card"><h3>${icon("person-icon.svg")}Datos de contacto</h3><dl>${detailItem("Documento (C.I.)", doctor.document)}${detailItem("Teléfono", doctor.phone)}${detailItem("Correo electrónico", doctor.email)}</dl></section>
-    <section class="detail-card"><h3>${icon("specialty-icon.svg")}Información profesional</h3><dl>${detailItem("Registro MSP", doctor.license)}${detailItem("Especialidad", doctor.specialty)}${detailItem("Servicio", doctor.service)}${detailItem("Consultorio / Área", doctor.office)}</dl></section>
-    <section class="detail-card"><h3>${icon("calendar-icon.svg")}Turno y atención</h3><dl>${detailItem("Disponibilidad", doctor.status)}${detailItem("Turno", doctor.shift)}${detailItem("Días de atención", doctor.days)}${detailItem("Horario", hours(doctor))}</dl></section>
-    <section class="detail-card"><h3>${icon("document-icon.svg")}Observaciones</h3><p>${escapeHtml(doctor.notes || "Sin observaciones registradas.")}</p></section>`;
+    <section class="detail-card"><h3>${icon("person-icon.svg")}${window.HospitalI18n.mark("doctors.datos_de_contacto")}</h3><dl>${detailItem(window.HospitalI18n.t("personnel.documento_c_i"), doctor.document)}${detailItem(window.HospitalI18n.t("destinations.telefono"), doctor.phone)}${detailItem(window.HospitalI18n.t("doctors.correo_electronico"), doctor.email)}</dl></section>
+    <section class="detail-card"><h3>${icon("specialty-icon.svg")}${window.HospitalI18n.mark("doctors.informacion_profesional")}</h3><dl>${detailItem(window.HospitalI18n.t("doctors.registro_msp_2"), doctor.license)}${detailItem(window.HospitalI18n.t("patients.especialidad"), doctor.specialty)}${detailItem(window.HospitalI18n.t("patients.servicio"), doctor.service)}${detailItem(window.HospitalI18n.t("doctors.consultorio_area"), doctor.office)}</dl></section>
+    <section class="detail-card"><h3>${icon("calendar-icon.svg")}${window.HospitalI18n.mark("doctors.turno_y_atencion")}</h3><dl>${detailItem(window.HospitalI18n.t("doctors.disponibilidad"), statusLabels[doctor.status])}${detailItem(window.HospitalI18n.t("doctors.turno"), shiftLabels[doctor.shift])}${detailItem(window.HospitalI18n.t("doctors.dias_de_atencion"), dayLabels[doctor.days])}${detailItem(window.HospitalI18n.t("shared.horario"), hours(doctor))}</dl></section>
+    <section class="detail-card"><h3>${icon("document-icon.svg")}${window.HospitalI18n.mark("doctors.observaciones")}</h3><p>${escapeHtml(doctor.notes || window.HospitalI18n.t("doctors.sin_observaciones_registradas"))}</p></section>`);
   }
 
   function setBackgroundInert(value) {
@@ -197,9 +201,9 @@
     editingVersion = doctor?.version || null;
     form.reset();
     formError.hidden = true;
-    document.getElementById("form-title").textContent = doctor ? "Editar médico" : "Nuevo médico";
-    document.getElementById("form-subtitle").textContent = doctor ? `Actualiza la información de ${fullName(doctor)}.` : "Completa la información para agregar un médico al directorio.";
-    document.getElementById("save-label").textContent = doctor ? "Guardar cambios" : "Guardar médico";
+    window.HospitalI18n.bindText(document.getElementById("form-title"), () => doctor ? window.HospitalI18n.t("doctors.editar_medico") : window.HospitalI18n.t("doctors.nuevo_medico"));
+    window.HospitalI18n.bindText(document.getElementById("form-subtitle"), () => doctor ? window.HospitalI18n.t("doctors.actualiza_la_informacion_de_value", {value0: fullName(doctor)}) : window.HospitalI18n.t("doctors.completa_la_informacion_para_agregar_un_medico_al_directorio"));
+    window.HospitalI18n.bindText(document.getElementById("save-label"), () => doctor ? window.HospitalI18n.t("trace_view.guardar_cambios") : window.HospitalI18n.t("doctors.guardar_medico"));
     if (doctor) fields.forEach(key => { form.elements[key].value = doctor[key]; });
     document.getElementById("form-status-dot").dataset.status = form.elements.status.value;
     dialog.showModal();
@@ -211,17 +215,17 @@
     deletingId = doctor.id;
     deletingVersion = doctor.version;
     deleteReturnFocus = document.activeElement;
-    document.querySelector(".delete-note").textContent=doctor.archived ? "Volverá al directorio con sus datos y disponibilidad anteriores." : "Se conservará en Inactivos y en el historial de los pacientes.";
-    document.getElementById("delete-title").textContent=doctor.archived ? "¿Restaurar este médico?" : "¿Eliminar este médico?";
-    document.getElementById("confirm-delete").textContent=doctor.archived ? "Restaurar médico" : "Eliminar médico";
-    document.getElementById("delete-description").textContent = `Se ${doctor.archived ? "restaurará" : "archivará"} a ${fullName(doctor)} (${doctor.license}). ¿Deseas continuar?`;
+    window.HospitalI18n.bindText(document.querySelector(".delete-note"), () => doctor.archived ? window.HospitalI18n.t("doctors.volvera_al_directorio_con_sus_datos_y_disponibilidad_anteriores") : window.HospitalI18n.t("doctors.se_conservara_en_inactivos_y_en_el_historial_de_los_pacientes"));
+    window.HospitalI18n.bindText(document.getElementById("delete-title"), () => doctor.archived ? window.HospitalI18n.t("doctors.restaurar_este_medico") : window.HospitalI18n.t("doctors.eliminar_este_medico"));
+    window.HospitalI18n.bindText(document.getElementById("confirm-delete"), () => doctor.archived ? window.HospitalI18n.t("doctors.restaurar_medico") : window.HospitalI18n.t("doctors.eliminar_medico"));
+    window.HospitalI18n.bindText(document.getElementById("delete-description"), () => window.HospitalI18n.t("doctors.se_value_a_value_value_deseas_continuar", {value0: doctor.archived ? window.HospitalI18n.t("doctors.restaurara") : window.HospitalI18n.t("doctors.archivara"), value1: fullName(doctor), value2: doctor.license}));
     deleteDialog.showModal();
   }
 
   function resetFilters() {
     search.value = "";
     specialtyFilter.value = "";
-    activeStatus = "Todos";
+    activeStatus = window.HospitalI18n.t("trace.todos");
     currentPage = 1;
     filters.forEach(button => { const active = button.dataset.status === activeStatus; button.classList.toggle("is-active", active); button.setAttribute("aria-pressed", String(active)); });
   }
@@ -278,13 +282,13 @@
     const record = Object.fromEntries(fields.map(key => [key, form.elements[key].value.trim()]));
     const fail = (key, message) => { console.error(message); form.elements[key].focus(); };
     const missing = ["name", "document", "license", "specialty", "service", "phone"].find(key => !record[key]);
-    if (missing) { fail(missing, "Completa los campos obligatorios con información válida."); return; }
-    if (record.phone.replace(/\D/g, "").length < 8) { fail("phone", "Ingresa un teléfono con al menos 8 dígitos."); return; }
-    for (const [key, label] of [["document", "documento"], ["license", "registro MSP"]]) {
-      if (!identifier(record[key])) { fail(key, `Ingresa un ${label} válido.`); return; }
-      if (doctors.some(doctor => doctor.id !== editingId && identifier(doctor[key]) === identifier(record[key]))) { fail(key, `Ya existe un médico con ese ${label}.`); return; }
+    if (missing) { fail(missing, window.HospitalI18n.t("doctors.completa_los_campos_obligatorios_con_informacion_valida")); return; }
+    if (record.phone.replace(/\D/g, "").length < 8) { fail("phone", window.HospitalI18n.t("doctors.ingresa_un_telefono_con_al_menos_8_digitos")); return; }
+    for (const [key, label] of [["document", window.HospitalI18n.t("doctors.documento")], ["license", window.HospitalI18n.t("doctors.registro_msp_3")]]) {
+      if (!identifier(record[key])) { fail(key, window.HospitalI18n.t("doctors.ingresa_un_value_valido", {value0: label})); return; }
+      if (doctors.some(doctor => doctor.id !== editingId && identifier(doctor[key]) === identifier(record[key]))) { fail(key, window.HospitalI18n.t("doctors.ya_existe_un_medico_con_ese_value", {value0: label})); return; }
     }
-    if (Boolean(record.startTime) !== Boolean(record.endTime)) { fail(record.startTime ? "endTime" : "startTime", "Completa ambas horas o deja el horario sin indicar."); return; }
+    if (Boolean(record.startTime) !== Boolean(record.endTime)) { fail(record.startTime ? "endTime" : "startTime", window.HospitalI18n.t("doctors.completa_ambas_horas_o_deja_el_horario_sin_indicar")); return; }
     const wasEditing = Boolean(editingId);
     const payload=toApi(record);
     if (wasEditing) Object.assign(payload,{id:editingId,version:editingVersion});
@@ -294,7 +298,7 @@
       resetFilters(); updateCatalogs();
       currentPage=Math.floor(matchingDoctors().findIndex(d=>d.id===saved.id)/pageSize)+1;
       formReturnFocus=null; dialog.close(); showDetail(saved);
-      toast(wasEditing ? `Datos de ${fullName(saved)} actualizados.` : `${fullName(saved)} agregado al directorio.`);
+      toast(() => wasEditing ? window.HospitalI18n.t("doctors.datos_de_value_actualizados", {value0: fullName(saved)}) : window.HospitalI18n.t("doctors.value_agregado_al_directorio", {value0: fullName(saved)}));
     } catch(error) { report(error); } finally { setBusy(false); }
 
   });
@@ -312,14 +316,14 @@
       await api.post(`doctors/${doctor.archived ? "restore" : "archive"}.php`,{id:doctor.id,version:deletingVersion}).then(upsert);
       deleteReturnFocus=null; deleteDialog.close(); updateCatalogs();
       closeDetail(false); newButton.focus();
-      toast(`${fullName(doctor)} ${doctor.archived ? "restaurado" : "eliminado del directorio"}.`);
+      toast(() => `${fullName(doctor)} ${doctor.archived ? window.HospitalI18n.t("doctors.restaurado") : window.HospitalI18n.t("doctors.eliminado_del_directorio")}.`);
     } catch(error) { report(error); } finally { setBusy(false); }
 
   });
 
   async function start() {
     newButton.disabled=true; updateCatalogs();
-    document.getElementById("results-summary").textContent="Cargando médicos…";
+    window.HospitalI18n.bindText(document.getElementById("results-summary"), () => window.HospitalI18n.t("doctors.cargando_medicos"));
     try {
       const session=await window.HospitalAuth.ready;
       if (!session) return;
@@ -327,8 +331,10 @@
         location.replace(api.page("src/views/management/management.html")); return;
       }
       await refresh(); newButton.disabled=false;
-    } catch(error) { report(error); document.getElementById("results-summary").textContent=""; }
+    } catch(error) { report(error); window.HospitalI18n.bindText(document.getElementById("results-summary"), () => ""); }
   }
   window.addEventListener("focus", () => { if (!busy && !dialog.open && !deleteDialog.open && !selectedId && !newButton.disabled) refresh().catch(report); });
   start();
+  window.addEventListener('hospital:localechange',()=>{updateCatalogs();renderList();const item=doctors.find(d=>d.id===selectedId);if(item)renderDetail(item);});
+
 })();

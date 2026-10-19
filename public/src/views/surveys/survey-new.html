@@ -3,134 +3,135 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nueva encuesta | Hospital de Clínicas</title>
+  <title data-i18n="survey_new.nueva_encuesta_hospital_de_clinicas">Nueva encuesta | Hospital de Clínicas</title>
   <link rel="icon" type="image/x-icon" href="../../../assets/hospital-dark.ico">
   <link rel="stylesheet" href="../../css/main-menu.css?v=20261012-settings">
-  <link rel="stylesheet" href="../../css/surveys/survey.css?v=20261014-surveys-filter-focus">
+  <link rel="stylesheet" href="../../css/surveys/survey.css?v=20261019-i18n">
   <link rel="stylesheet" href="../../css/surveys/survey-new.css?v=20261015-builder-polish">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inclusive+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-  <script src="../../js/api-client.js" defer></script>
-  <script src="../../js/auth-session.js?v=20261014-audit" defer></script>
-  <script src="../../js/main-menu.js?v=20260927-global" defer></script>
-  <script src="../../js/universal-search.js?v=20261014-surveys" defer></script>
+  <script src="../../js/i18n.js?v=20261019-i18n" defer></script>
+  <script src="../../js/api-client.js?v=20261019-i18n" defer></script>
+  <script src="../../js/auth-session.js?v=20261019-i18n" defer></script>
+  <script src="../../js/main-menu.js?v=20261019-i18n" defer></script>
+  <script src="../../js/universal-search.js?v=20261019-role-shortcuts" defer></script>
   <script src="../../../assets/vendor/qrcode/qrcode.js" defer></script>
-  <script src="../../js/surveys/survey-api.js?v=20261015-backend" defer></script>
+  <script src="../../js/surveys/survey-api.js?v=20261019-i18n" defer></script>
   <link rel="stylesheet" href="../../css/surveys/survey-integration.css?v=20261015-backend">
-  <script src="../../js/surveys/survey-templates.js?v=20261015-builder" defer></script>
-  <script src="../../js/surveys/survey-new.js?v=20261015-backend" defer></script>
+  <script src="../../js/surveys/survey-templates.js?v=20261019-i18n" defer></script>
+  <script src="../../js/surveys/survey-new.js?v=20261019-i18n" defer></script>
 </head>
 <body class="surveys-page survey-builder-page">
   <main class="app-shell">
     <aside class="sidebar">
-      <button type="button" class="sidebar-action" aria-label="Abrir menú" aria-expanded="false"><span></span><span></span><span></span></button>
-      <nav class="sidebar-nav" aria-label="Navegación principal">
+      <button type="button" class="sidebar-action" aria-label="Abrir menú" data-i18n-aria-label="main_menu.abrir_menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="sidebar-nav" aria-label="Navegación principal" data-i18n-aria-label="trace_map.navegacion_principal">
         <div class="nav-indicator"></div>
-        <a href="../main-menu.html" class="nav-item"><img src="../../../assets/Icons/house-icon.svg" alt=""><span>Inicio</span></a>
-        <a href="../documents/documents.html" class="nav-item"><img src="../../../assets/Icons/folder-icon.svg" alt=""><span>Documentos</span></a>
-        <a href="../traces/trace.html" class="nav-item"><img src="../../../assets/Icons/location-icon.svg" alt=""><span>Ambulancias</span></a>
-        <a href="survey.html" class="nav-item active" aria-current="page"><img src="../../../assets/Icons/survey-icon.svg" alt=""><span>Encuestas</span></a>
-        <a href="../management/management.html" class="nav-item"><img src="../../../assets/Icons/database-cog.svg" alt=""><span>Gestión</span></a>
+        <a href="../main-menu.html" class="nav-item"><img src="../../../assets/Icons/house-icon.svg" alt=""><span data-i18n="main_menu.inicio">Inicio</span></a>
+        <a href="../documents/documents.html" class="nav-item"><img src="../../../assets/Icons/folder-icon.svg" alt=""><span data-i18n="main_menu.documentos">Documentos</span></a>
+        <a href="../traces/trace.html" class="nav-item"><img src="../../../assets/Icons/location-icon.svg" alt=""><span data-i18n="main_menu.ambulancias">Ambulancias</span></a>
+        <a href="survey.html" class="nav-item active" aria-current="page"><img src="../../../assets/Icons/survey-icon.svg" alt=""><span data-i18n="main_menu.encuestas">Encuestas</span></a>
+        <a href="../management/management.html" class="nav-item"><img src="../../../assets/Icons/database-cog.svg" alt=""><span data-i18n="trace_map.gestion">Gestión</span></a>
         <div class="nav-spacer"></div>
-        <a href="../settings.html" class="nav-item"><img src="../../../assets/Icons/settings-icon.svg" alt=""><span>Configuración</span></a>
+        <a href="../settings.html" class="nav-item"><img src="../../../assets/Icons/settings-icon.svg" alt=""><span data-i18n="main_menu.configuracion">Configuración</span></a>
       </nav>
     </aside>
 
     <div class="surveys-layout">
       <header class="topbar">
-        <div class="brand"><img src="../../../assets/Icons/hospital-logo.png" alt=""><span>HOSPITAL DE CLINICAS</span></div>
+        <div class="brand"><img src="../../../assets/Icons/hospital-logo.png" alt=""><span data-i18n="main_menu.hospital_de_clinicas_2">HOSPITAL DE CLINICAS</span></div>
         <div class="search-wrapper">
-          <input type="search" class="search-input" placeholder="Buscar una acción o sección..." aria-label="Buscar una acción o sección">
-          <button type="button" class="topbar-action search-action" aria-label="Abrir búsqueda" aria-expanded="false"><img src="../../../assets/Icons/search-icon.svg" alt=""></button>
+          <input type="search" class="search-input" placeholder="Buscar una acción o sección..." data-i18n-placeholder="main_menu.buscar_una_accion_o_seccion" aria-label="Buscar una acción o sección" data-i18n-aria-label="main_menu.buscar_una_accion_o_seccion_2">
+          <button type="button" class="topbar-action search-action" aria-label="Abrir búsqueda" data-i18n-aria-label="main_menu.abrir_busqueda" aria-expanded="false"><img src="../../../assets/Icons/search-icon.svg" alt=""></button>
         </div>
       </header>
 
       <section class="survey-builder" aria-labelledby="builder-title">
         <div class="builder-heading">
-          <h1 id="builder-title">Nueva encuesta</h1>
-          <div class="builder-heading-actions"><span class="draft-tag">Borrador</span><button type="button" class="survey-button secondary" id="read-form" disabled><img src="../../../assets/Icons/eye.svg" alt="">Ver formulario</button><button type="button" class="survey-button secondary" id="save-survey" disabled><img src="../../../assets/Icons/save-floppy.svg" alt="">Guardar borrador</button></div>
+          <h1 id="builder-title" data-i18n="survey.nueva_encuesta">Nueva encuesta</h1>
+          <div class="builder-heading-actions"><span class="draft-tag" data-i18n="survey_new.borrador">Borrador</span><button type="button" class="survey-button secondary" id="read-form" disabled><img src="../../../assets/Icons/eye.svg" alt=""><i18n-text data-i18n="survey_view.ver_formulario" style="display:contents">Ver formulario</i18n-text></button><button type="button" class="survey-button secondary" id="save-survey" disabled><img src="../../../assets/Icons/save-floppy.svg" alt=""><i18n-text data-i18n="survey_new.guardar_borrador" style="display:contents">Guardar borrador</i18n-text></button></div>
         </div>
 
-        <nav class="builder-steps" aria-label="Pasos de creación">
-          <button type="button" class="builder-step is-current" data-step="1" aria-current="step"><span class="step-number">1</span><span><strong>Información</strong><small>Datos de uso interno</small></span></button><span class="step-connector" aria-hidden="true"></span>
-          <button type="button" class="builder-step" data-step="2"><span class="step-number">2</span><span><strong>Preguntas</strong><small>Diseño del formulario</small></span></button><span class="step-connector" aria-hidden="true"></span>
-          <button type="button" class="builder-step" data-step="3"><span class="step-number">3</span><span><strong>Configuración</strong><small>Participación y plazos</small></span></button>
+        <nav class="builder-steps" aria-label="Pasos de creación" data-i18n-aria-label="survey_new.pasos_de_creacion">
+          <button type="button" class="builder-step is-current" data-step="1" aria-current="step"><span class="step-number">1</span><span><strong data-i18n="survey_new.informacion">Información</strong><small data-i18n="survey_new.datos_de_uso_interno">Datos de uso interno</small></span></button><span class="step-connector" aria-hidden="true"></span>
+          <button type="button" class="builder-step" data-step="2"><span class="step-number">2</span><span><strong data-i18n="survey_view.preguntas">Preguntas</strong><small data-i18n="survey_new.diseno_del_formulario">Diseño del formulario</small></span></button><span class="step-connector" aria-hidden="true"></span>
+          <button type="button" class="builder-step" data-step="3"><span class="step-number">3</span><span><strong data-i18n="main_menu.configuracion">Configuración</strong><small data-i18n="survey_new.participacion_y_plazos">Participación y plazos</small></span></button>
         </nav>
 
         <form id="survey-builder-form" class="builder-body" novalidate>
           <section class="builder-screen information-screen" data-screen="1" aria-labelledby="information-title">
             <section class="builder-panel metadata-panel">
-              <div class="builder-panel-heading"><span class="survey-icon violet"><img src="../../../assets/Icons/survey-edit.svg" alt=""></span><div><h2 id="information-title">Información de la encuesta</h2><p>Organizá la encuesta para el equipo y la gestión de datos.</p></div><span class="section-number">01</span></div>
+              <div class="builder-panel-heading"><span class="survey-icon violet"><img src="../../../assets/Icons/survey-edit.svg" alt=""></span><div><h2 id="information-title" data-i18n="survey_view.informacion_de_la_encuesta">Información de la encuesta</h2><p data-i18n="survey_new.organiza_la_encuesta_para_el_equipo_y_la_gestion_de_datos">Organizá la encuesta para el equipo y la gestión de datos.</p></div><span class="section-number">01</span></div>
               <div class="builder-panel-scroll metadata-fields">
-                <div class="builder-field"><label for="internal-title">Título interno <span>Obligatorio</span></label><input id="internal-title" data-info="title" type="text" maxlength="120" placeholder="Ej. Satisfacción de pacientes · Atención general" required></div>
-                <div class="builder-field"><label for="internal-description">Descripción interna <span>Opcional</span></label><textarea id="internal-description" data-info="description" rows="3" maxlength="500" placeholder="Describí el propósito y el alcance de esta encuesta..."></textarea></div>
+                <div class="builder-field"><label for="internal-title"><i18n-text data-i18n="survey_new.titulo_interno" style="display:contents">Título interno</i18n-text> <span data-i18n="survey_new.obligatorio">Obligatorio</span></label><input id="internal-title" data-info="title" type="text" maxlength="120" placeholder="Ej. Satisfacción de pacientes · Atención general" data-i18n-placeholder="survey_new.ej_satisfaccion_de_pacientes_atencion_general" required></div>
+                <div class="builder-field"><label for="internal-description"><i18n-text data-i18n="survey_new.descripcion_interna" style="display:contents">Descripción interna</i18n-text> <span data-i18n="routes.opcional">Opcional</span></label><textarea id="internal-description" data-info="description" rows="3" maxlength="500" placeholder="Describí el propósito y el alcance de esta encuesta..." data-i18n-placeholder="survey_new.describi_el_proposito_y_el_alcance_de_esta_encuesta"></textarea></div>
                 <div class="builder-field-grid">
-                  <div class="builder-field"><label for="internal-category">Categoría</label><div class="builder-select"><select id="internal-category" data-info="category"><option value="patient_care">Atención al paciente</option><option value="transfers">Traslados</option><option value="emergency">Emergencias</option><option value="staff">Personal</option><option value="other">Otras</option></select></div></div>
-                  <div class="builder-field"><label for="internal-area">Servicio o área <span>Opcional</span></label><input id="internal-area" data-info="area" type="text" maxlength="80" placeholder="Ej. Atención al usuario"></div>
+                  <div class="builder-field"><label for="internal-category" data-i18n="survey.categoria">Categoría</label><div class="builder-select"><select id="internal-category" data-info="category"><option value="patient_care" data-i18n="survey.atencion_al_paciente">Atención al paciente</option><option value="transfers" data-i18n="survey.traslados">Traslados</option><option value="emergency" data-i18n="survey.emergencias">Emergencias</option><option value="staff" data-i18n="trace_view.personal">Personal</option><option value="other" data-i18n="survey.otras">Otras</option></select></div></div>
+                  <div class="builder-field"><label for="internal-area"><i18n-text data-i18n="survey_new.servicio_o_area" style="display:contents">Servicio o área</i18n-text> <span data-i18n="routes.opcional">Opcional</span></label><input id="internal-area" data-info="area" type="text" maxlength="80" placeholder="Ej. Atención al usuario" data-i18n-placeholder="survey_new.ej_atencion_al_usuario"></div>
                 </div>
-                <div class="builder-field"><label for="internal-notes">Notas para el equipo <span>Opcional</span></label><textarea id="internal-notes" data-info="notes" rows="2" maxlength="400" placeholder="Objetivos, observaciones o indicaciones internas..."></textarea></div>
+                <div class="builder-field"><label for="internal-notes"><i18n-text data-i18n="survey_new.notas_para_el_equipo" style="display:contents">Notas para el equipo</i18n-text> <span data-i18n="routes.opcional">Opcional</span></label><textarea id="internal-notes" data-info="notes" rows="2" maxlength="400" placeholder="Objetivos, observaciones o indicaciones internas..." data-i18n-placeholder="survey_new.objetivos_observaciones_o_indicaciones_internas"></textarea></div>
               </div>
-              <div class="panel-footnote"><img src="../../../assets/Icons/lock-icon.png" alt=""><span>Esta información es de uso interno. El texto para pacientes se define en el siguiente paso.</span></div>
+              <div class="panel-footnote"><img src="../../../assets/Icons/lock-icon.png" alt=""><span data-i18n="survey_new.esta_informacion_es_de_uso_interno_el_texto_para_pacientes_se_define_en_el_siguiente_paso">Esta información es de uso interno. El texto para pacientes se define en el siguiente paso.</span></div>
             </section>
             <aside class="builder-context">
-              <section class="builder-panel context-card"><span class="context-eyebrow">UNA ENCUESTA, TRES PASOS</span><h2>Empezá por lo que querés conocer</h2><p>Un objetivo claro ayuda a formular preguntas breves y fáciles de responder.</p><ol class="builder-guide"><li><span>1</span><div><strong>Organizá la información</strong><p>Identificá la encuesta dentro del hospital.</p></div></li><li><span>2</span><div><strong>Diseñá las preguntas</strong><p>Elegí cómo querés escuchar a los participantes.</p></div></li><li><span>3</span><div><strong>Definí la participación</strong><p>Configurá destinatarios, cantidad y fechas.</p></div></li></ol></section>
-              <section class="builder-panel owner-card"><span class="survey-icon cyan"><img src="../../../assets/Icons/person-icon.svg" alt=""></span><div><span>Responsable</span><strong data-current-user-name>Personal</strong><small>Cuenta que crea la encuesta</small></div></section>
+              <section class="builder-panel context-card"><span class="context-eyebrow" data-i18n="survey_new.una_encuesta_tres_pasos">UNA ENCUESTA, TRES PASOS</span><h2 data-i18n="survey_new.empeza_por_lo_que_queres_conocer">Empezá por lo que querés conocer</h2><p data-i18n="survey_new.un_objetivo_claro_ayuda_a_formular_preguntas_breves_y_faciles_de_responder">Un objetivo claro ayuda a formular preguntas breves y fáciles de responder.</p><ol class="builder-guide"><li><span>1</span><div><strong data-i18n="survey_new.organiza_la_informacion">Organizá la información</strong><p data-i18n="survey_new.identifica_la_encuesta_dentro_del_hospital">Identificá la encuesta dentro del hospital.</p></div></li><li><span>2</span><div><strong data-i18n="survey_new.disena_las_preguntas">Diseñá las preguntas</strong><p data-i18n="survey_new.elegi_como_queres_escuchar_a_los_participantes">Elegí cómo querés escuchar a los participantes.</p></div></li><li><span>3</span><div><strong data-i18n="survey_new.defini_la_participacion">Definí la participación</strong><p data-i18n="survey_new.configura_destinatarios_cantidad_y_fechas">Configurá destinatarios, cantidad y fechas.</p></div></li></ol></section>
+              <section class="builder-panel owner-card"><span class="survey-icon cyan"><img src="../../../assets/Icons/person-icon.svg" alt=""></span><div><span data-i18n="survey_new.responsable">Responsable</span><strong data-current-user-name data-i18n="trace_view.personal">Personal</strong><small data-i18n="survey_new.cuenta_que_crea_la_encuesta">Cuenta que crea la encuesta</small></div></section>
             </aside>
           </section>
 
           <section class="builder-screen questions-screen" data-screen="2" aria-labelledby="questions-title" hidden>
             <aside class="builder-panel question-palette" aria-labelledby="palette-title">
-              <div class="palette-heading"><h2 id="palette-title">Agregar pregunta</h2><p>Elegí un tipo de respuesta.</p></div>
-              <label class="palette-search"><img src="../../../assets/Icons/search-icon.svg" alt=""><input id="type-search" type="search" placeholder="Buscar tipo..." aria-label="Buscar tipo de pregunta" autocomplete="off"></label>
-              <div class="palette-scroll"><div class="palette-types" id="question-types"></div><div class="palette-section-heading">Elementos</div><div class="palette-types" id="form-elements"></div><p class="palette-no-match" id="palette-no-match" hidden>No hay tipos que coincidan.</p></div>
-              <div class="palette-footnote"><img src="../../../assets/Icons/information-icon.svg" alt=""><span>Seleccioná una pregunta para personalizarla.</span></div>
+              <div class="palette-heading"><h2 id="palette-title" data-i18n="survey_new.agregar_pregunta">Agregar pregunta</h2><p data-i18n="survey_new.elegi_un_tipo_de_respuesta">Elegí un tipo de respuesta.</p></div>
+              <label class="palette-search"><img src="../../../assets/Icons/search-icon.svg" alt=""><input id="type-search" type="search" placeholder="Buscar tipo..." data-i18n-placeholder="survey_new.buscar_tipo" aria-label="Buscar tipo de pregunta" data-i18n-aria-label="survey_new.buscar_tipo_de_pregunta" autocomplete="off"></label>
+              <div class="palette-scroll"><div class="palette-types" id="question-types"></div><div class="palette-section-heading" data-i18n="survey_new.elementos">Elementos</div><div class="palette-types" id="form-elements"></div><p class="palette-no-match" id="palette-no-match" hidden data-i18n="survey_new.no_hay_tipos_que_coincidan">No hay tipos que coincidan.</p></div>
+              <div class="palette-footnote"><img src="../../../assets/Icons/information-icon.svg" alt=""><span data-i18n="survey_new.selecciona_una_pregunta_para_personalizarla">Seleccioná una pregunta para personalizarla.</span></div>
             </aside>
 
             <section class="form-canvas" data-form-color="blue" aria-labelledby="questions-title">
               <div class="builder-panel form-introduction">
-                <div class="canvas-title-line"><span class="canvas-accent" aria-hidden="true"></span><span>LO QUE VERÁN LOS PARTICIPANTES</span><span class="canvas-category" id="canvas-category">Atención al paciente</span></div>
-                <div class="builder-field"><label class="visually-hidden" for="form-title">Título del formulario</label><input id="form-title" data-form="title" type="text" maxlength="150" placeholder="Título de la encuesta"></div>
-                <div class="builder-field"><label class="visually-hidden" for="form-introduction">Introducción para participantes</label><textarea id="form-introduction" data-form="introduction" rows="2" maxlength="500" placeholder="Contá brevemente por qué su opinión es importante..."></textarea></div>
+                <div class="canvas-title-line"><span class="canvas-accent" aria-hidden="true"></span><span data-i18n="survey_new.lo_que_veran_los_participantes">LO QUE VERÁN LOS PARTICIPANTES</span><span class="canvas-category" id="canvas-category" data-i18n="survey.atencion_al_paciente">Atención al paciente</span></div>
+                <div class="builder-field"><label class="visually-hidden" for="form-title" data-i18n="survey_new.titulo_del_formulario">Título del formulario</label><input id="form-title" data-form="title" type="text" maxlength="150" placeholder="Título de la encuesta" data-i18n-placeholder="survey_new.titulo_de_la_encuesta"></div>
+                <div class="builder-field"><label class="visually-hidden" for="form-introduction" data-i18n="survey_new.introduccion_para_participantes">Introducción para participantes</label><textarea id="form-introduction" data-form="introduction" rows="2" maxlength="500" placeholder="Contá brevemente por qué su opinión es importante..." data-i18n-placeholder="survey_new.conta_brevemente_por_que_su_opinion_es_importante"></textarea></div>
               </div>
               <section class="builder-panel questions-panel">
-                <div class="questions-heading"><h2 id="questions-title">Preguntas <span id="canvas-question-count">0 preguntas</span></h2><span id="canvas-element-count"></span></div>
+                <div class="questions-heading"><h2 id="questions-title"><i18n-text data-i18n="survey_view.preguntas" style="display:contents">Preguntas</i18n-text> <span id="canvas-question-count" data-i18n="survey_new.0_preguntas">0 preguntas</span></h2><span id="canvas-element-count"></span></div>
                 <div class="question-canvas-list" id="question-canvas-list"></div>
-                <div class="canvas-empty" id="canvas-empty"><span class="survey-icon violet"><img src="../../../assets/Icons/survey-edit.svg" alt=""></span><h3>Tu formulario empieza acá</h3><p>Agregá una pregunta desde el panel de tipos y adaptala a lo que querés conocer.</p><button type="button" class="survey-button secondary" data-add-type="rating"><img src="../../../assets/Icons/star-icon.svg" alt="">Agregar una valoración</button></div>
-                <footer class="questions-footer"><button type="button" class="text-button" id="add-default-question"><img src="../../../assets/Icons/plus-icon.svg" alt="">Agregar pregunta</button><nav id="question-pagination" class="survey-pagination" aria-label="Páginas de preguntas"></nav></footer>
+                <div class="canvas-empty" id="canvas-empty"><span class="survey-icon violet"><img src="../../../assets/Icons/survey-edit.svg" alt=""></span><h3 data-i18n="survey_new.tu_formulario_empieza_aca">Tu formulario empieza acá</h3><p data-i18n="survey_new.agrega_una_pregunta_desde_el_panel_de_tipos_y_adaptala_a_lo_que_queres_conocer">Agregá una pregunta desde el panel de tipos y adaptala a lo que querés conocer.</p><button type="button" class="survey-button secondary" data-add-type="rating"><img src="../../../assets/Icons/star-icon.svg" alt=""><i18n-text data-i18n="survey_new.agregar_una_valoracion" style="display:contents">Agregar una valoración</i18n-text></button></div>
+                <footer class="questions-footer"><button type="button" class="text-button" id="add-default-question"><img src="../../../assets/Icons/plus-icon.svg" alt=""><i18n-text data-i18n="survey_new.agregar_pregunta" style="display:contents">Agregar pregunta</i18n-text></button><nav id="question-pagination" class="survey-pagination" aria-label="Páginas de preguntas" data-i18n-aria-label="survey_new.paginas_de_preguntas"></nav></footer>
               </section>
             </section>
 
             <aside class="question-inspector">
-              <section class="builder-panel inspector-panel"><div class="inspector-heading"><h2 title="Configuración de la pregunta">Configuración</h2><div id="inspector-position"></div></div><div class="inspector-fields" id="inspector-fields"></div></section>
-              <section class="builder-panel appearance-panel"><details id="appearance-details" open><summary>Apariencia</summary><span class="appearance-label">Color del formulario</span><div class="form-colors" id="form-colors" role="group" aria-label="Color del formulario"></div></details><div class="builder-counts"><div><strong id="summary-questions">0</strong><span>preguntas</span></div><div><strong id="summary-required">0</strong><span>obligatorias</span></div><div><strong id="summary-elements">0</strong><span>elementos</span></div></div></section>
+              <section class="builder-panel inspector-panel"><div class="inspector-heading"><h2 title="Configuración de la pregunta" data-i18n-title="survey_new.configuracion_de_la_pregunta" data-i18n="main_menu.configuracion">Configuración</h2><div id="inspector-position"></div></div><div class="inspector-fields" id="inspector-fields"></div></section>
+              <section class="builder-panel appearance-panel"><details id="appearance-details" open><summary data-i18n="survey_new.apariencia">Apariencia</summary><span class="appearance-label" data-i18n="survey_new.color_del_formulario">Color del formulario</span><div class="form-colors" id="form-colors" role="group" aria-label="Color del formulario" data-i18n-aria-label="survey_new.color_del_formulario"></div></details><div class="builder-counts"><div><strong id="summary-questions">0</strong><span data-i18n="survey_new.preguntas">preguntas</span></div><div><strong id="summary-required">0</strong><span data-i18n="survey_new.obligatorias">obligatorias</span></div><div><strong id="summary-elements">0</strong><span data-i18n="survey_new.elementos_2">elementos</span></div></div></section>
             </aside>
           </section>
 
           <section class="builder-screen configuration-screen" data-screen="3" aria-labelledby="configuration-title" hidden>
             <div class="configuration-panels">
-              <section class="builder-panel participation-panel"><div class="settings-section-heading"><span class="survey-icon cyan"><img src="../../../assets/Icons/people-svgrepo-com.svg" alt=""></span><div><h2 id="configuration-title">Participación</h2><p>Definí quiénes podrán responder y cómo accederán.</p></div></div>
+              <section class="builder-panel participation-panel"><div class="settings-section-heading"><span class="survey-icon cyan"><img src="../../../assets/Icons/people-svgrepo-com.svg" alt=""></span><div><h2 id="configuration-title" data-i18n="survey_view.participacion">Participación</h2><p data-i18n="survey_new.defini_quienes_podran_responder_y_como_accederan">Definí quiénes podrán responder y cómo accederán.</p></div></div>
                 <div class="builder-field-grid">
-                  <div class="builder-field"><label for="answer-audience">Dirigida a</label><div class="builder-select"><select id="answer-audience" data-config="audience"><option value="patients">Pacientes</option><option value="staff">Personal</option><option value="everyone">Pacientes y personal</option></select></div></div>
-                  <div class="builder-field"><label for="answer-access">Tipo de acceso</label><div class="builder-select"><select id="answer-access" data-config="access"><option value="shared_link">Enlace compartido</option><option value="individual_link">Invitación individual</option></select></div></div>
-                  <div class="builder-field"><label for="answer-identity">Identificación de respuestas</label><div class="builder-select"><select id="answer-identity" data-config="identity"><option value="anonymous">Anónimas</option><option value="optional_name">Nombre opcional</option></select></div></div>
-                  <div class="builder-field limit-field"><label class="builder-switch"><span>Limitar cantidad de respuestas</span><input type="checkbox" role="switch" id="response-limit-enabled" data-config="limit_enabled"><i aria-hidden="true"></i></label><input id="response-limit" data-config="response_limit" type="number" min="1" max="10000" value="100" aria-label="Cantidad máxima de respuestas" disabled></div>
+                  <div class="builder-field"><label for="answer-audience" data-i18n="survey_new.dirigida_a">Dirigida a</label><div class="builder-select"><select id="answer-audience" data-config="audience"><option value="patients" data-i18n="management.pacientes">Pacientes</option><option value="staff" data-i18n="trace_view.personal">Personal</option><option value="everyone" data-i18n="survey_new.pacientes_y_personal">Pacientes y personal</option></select></div></div>
+                  <div class="builder-field"><label for="answer-access" data-i18n="survey_new.tipo_de_acceso">Tipo de acceso</label><div class="builder-select"><select id="answer-access" data-config="access"><option value="shared_link" data-i18n="survey_new.enlace_compartido">Enlace compartido</option><option value="individual_link" data-i18n="survey_new.invitacion_individual">Invitación individual</option></select></div></div>
+                  <div class="builder-field"><label for="answer-identity" data-i18n="survey_new.identificacion_de_respuestas">Identificación de respuestas</label><div class="builder-select"><select id="answer-identity" data-config="identity"><option value="anonymous" data-i18n="survey_new.anonimas">Anónimas</option><option value="optional_name" data-i18n="survey_new.nombre_opcional">Nombre opcional</option></select></div></div>
+                  <div class="builder-field limit-field"><label class="builder-switch"><span data-i18n="survey_new.limitar_cantidad_de_respuestas">Limitar cantidad de respuestas</span><input type="checkbox" role="switch" id="response-limit-enabled" data-config="limit_enabled"><i aria-hidden="true"></i></label><input id="response-limit" data-config="response_limit" type="number" min="1" max="10000" value="100" aria-label="Cantidad máxima de respuestas" data-i18n-aria-label="survey_new.cantidad_maxima_de_respuestas" disabled></div>
                 </div>
               </section>
-              <section class="builder-panel deadlines-panel"><div class="settings-section-heading"><span class="survey-icon violet"><img src="../../../assets/Icons/calendar-icon.svg" alt=""></span><div><h2>Plazos de respuesta</h2><p>Fechas y horas de Uruguay.</p></div></div>
-                <div class="builder-field-grid"><div class="builder-field"><label class="builder-switch"><span>Programar apertura</span><input type="checkbox" role="switch" id="opens-enabled" data-config="opens_enabled"><i aria-hidden="true"></i></label><input id="opens-at" data-config="opens_at" type="datetime-local" aria-label="Fecha y hora de apertura" disabled></div><div class="builder-field"><label class="builder-switch"><span>Definir fecha de cierre</span><input type="checkbox" role="switch" id="closes-enabled" data-config="closes_enabled"><i aria-hidden="true"></i></label><input id="closes-at" data-config="closes_at" type="datetime-local" aria-label="Fecha y hora de cierre" disabled></div></div>
+              <section class="builder-panel deadlines-panel"><div class="settings-section-heading"><span class="survey-icon violet"><img src="../../../assets/Icons/calendar-icon.svg" alt=""></span><div><h2 data-i18n="survey_new.plazos_de_respuesta">Plazos de respuesta</h2><p data-i18n="survey_new.fechas_y_horas_de_uruguay">Fechas y horas de Uruguay.</p></div></div>
+                <div class="builder-field-grid"><div class="builder-field"><label class="builder-switch"><span data-i18n="survey_new.programar_apertura">Programar apertura</span><input type="checkbox" role="switch" id="opens-enabled" data-config="opens_enabled"><i aria-hidden="true"></i></label><input id="opens-at" data-config="opens_at" type="datetime-local" aria-label="Fecha y hora de apertura" data-i18n-aria-label="survey_new.fecha_y_hora_de_apertura" disabled></div><div class="builder-field"><label class="builder-switch"><span data-i18n="survey_new.definir_fecha_de_cierre">Definir fecha de cierre</span><input type="checkbox" role="switch" id="closes-enabled" data-config="closes_enabled"><i aria-hidden="true"></i></label><input id="closes-at" data-config="closes_at" type="datetime-local" aria-label="Fecha y hora de cierre" data-i18n-aria-label="survey_new.fecha_y_hora_de_cierre" disabled></div></div>
               </section>
-              <section class="builder-panel completion-panel"><div class="builder-field"><label for="completion-message">Mensaje al finalizar</label><textarea id="completion-message" data-config="completion_message" maxlength="500" rows="2">Gracias por tu tiempo. Tu opinión nos ayuda a mejorar.</textarea></div></section>
+              <section class="builder-panel completion-panel"><div class="builder-field"><label for="completion-message" data-i18n="survey_new.mensaje_al_finalizar">Mensaje al finalizar</label><textarea id="completion-message" data-config="completion_message" maxlength="500" rows="2" data-i18n="survey_new.gracias_por_tu_tiempo_tu_opinion_nos_ayuda_a_mejorar">Gracias por tu tiempo. Tu opinión nos ayuda a mejorar.</textarea></div></section>
             </div>
-            <aside class="builder-panel publication-summary"><div class="publication-summary-heading"><span class="survey-icon violet"><img src="../../../assets/Icons/survey-finished.svg" alt=""></span><span class="context-eyebrow">ÚLTIMO PASO</span><h2>Resumen de publicación</h2></div><div id="publication-summary"></div><div class="review-checks" id="review-checks"></div><button type="button" class="survey-button secondary" id="review-form" disabled><img src="../../../assets/Icons/eye.svg" alt="">Revisar formulario</button></aside>
+            <aside class="builder-panel publication-summary"><div class="publication-summary-heading"><span class="survey-icon violet"><img src="../../../assets/Icons/survey-finished.svg" alt=""></span><span class="context-eyebrow" data-i18n="survey_new.ultimo_paso">ÚLTIMO PASO</span><h2 data-i18n="survey_new.resumen_de_publicacion">Resumen de publicación</h2></div><div id="publication-summary"></div><div class="review-checks" id="review-checks"></div><button type="button" class="survey-button secondary" id="review-form" disabled><img src="../../../assets/Icons/eye.svg" alt=""><i18n-text data-i18n="survey_new.revisar_formulario" style="display:contents">Revisar formulario</i18n-text></button></aside>
           </section>
         </form>
 
-        <footer class="builder-footer"><a class="survey-button secondary" href="survey.html">Cancelar</a><span id="step-progress" class="step-progress" role="status">Paso 1 de 3</span><div class="builder-footer-actions"><button type="button" class="survey-button secondary" id="previous-step" hidden><img src="../../../assets/Icons/arrow-left.svg" alt="">Anterior</button><button type="button" class="survey-button primary" id="next-step"><span>Continuar a preguntas</span><span class="next-chevron" aria-hidden="true"></span></button><button type="button" class="survey-button primary" id="publish-survey" disabled hidden><img src="../../../assets/Icons/share-icon.svg" alt="">Publicar encuesta</button></div></footer>
+        <footer class="builder-footer"><a class="survey-button secondary" href="survey.html" data-i18n="settings.cancelar">Cancelar</a><span id="step-progress" class="step-progress" role="status" data-i18n="survey_new.paso_1_de_3">Paso 1 de 3</span><div class="builder-footer-actions"><button type="button" class="survey-button secondary" id="previous-step" hidden><img src="../../../assets/Icons/arrow-left.svg" alt=""><i18n-text data-i18n="survey_view.anterior" style="display:contents">Anterior</i18n-text></button><button type="button" class="survey-button primary" id="next-step"><span data-i18n="survey_new.continuar_a_preguntas">Continuar a preguntas</span><span class="next-chevron" aria-hidden="true"></span></button><button type="button" class="survey-button primary" id="publish-survey" disabled hidden><img src="../../../assets/Icons/share-icon.svg" alt=""><i18n-text data-i18n="survey_new.publicar_encuesta" style="display:contents">Publicar encuesta</i18n-text></button></div></footer>
       </section>
     </div>
   </main>
 
-  <dialog class="survey-dialog builder-form-dialog" id="builder-form-dialog" aria-labelledby="reader-form-title"><div class="dialog-heading"><div><p class="eyebrow">FORMULARIO DE LA ENCUESTA</p><h2 id="reader-form-title">Encuesta</h2><p id="reader-form-introduction"></p></div><button type="button" class="icon-button" data-close-form aria-label="Cerrar formulario"><img src="../../../assets/Icons/cross-icon.svg" alt=""></button></div><div class="builder-form-reader" id="builder-form-reader" data-form-color="blue"></div><div class="dialog-footer"><button type="button" class="survey-button secondary" data-close-form>Cerrar formulario</button></div></dialog>
+  <dialog class="survey-dialog builder-form-dialog" id="builder-form-dialog" aria-labelledby="reader-form-title"><div class="dialog-heading"><div><p class="eyebrow" data-i18n="survey.formulario_de_la_encuesta">FORMULARIO DE LA ENCUESTA</p><h2 id="reader-form-title" data-i18n="survey.encuesta">Encuesta</h2><p id="reader-form-introduction"></p></div><button type="button" class="icon-button" data-close-form aria-label="Cerrar formulario" data-i18n-aria-label="routes.cerrar_formulario"><img src="../../../assets/Icons/cross-icon.svg" alt=""></button></div><div class="builder-form-reader" id="builder-form-reader" data-form-color="blue"></div><div class="dialog-footer"><button type="button" class="survey-button secondary" data-close-form data-i18n="routes.cerrar_formulario">Cerrar formulario</button></div></dialog>
 </body>
 </html>

@@ -17,9 +17,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'GET') {
 } elseif (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     Csrf::verify(); $user = $auth->requireUser();
     $body = Request::body(['version'], [], 6 * 1024 * 1024);
-    if (array_keys($_FILES) !== ['photo'] || !is_array($_FILES['photo'])) throw new Hospital\Http\ApiException(422, 'INVALID_UPLOAD', 'Se requiere una imagen.');
+    if (array_keys($_FILES) !== ['photo'] || !is_array($_FILES['photo'])) throw new Hospital\Http\ApiException(422, 'INVALID_UPLOAD', \Hospital\I18n::t("errors.se_requiere_una_imagen"));
     $service->replace((string) $user['id'], $body['version'] ?? null, $_FILES['photo']);
     Response::json($auth->payload($auth->requireUser(false)));
 } else {
-    header('Allow: GET, POST'); throw new Hospital\Http\ApiException(405, 'METHOD_NOT_ALLOWED', 'Método no permitido.');
+    header('Allow: GET, POST'); throw new Hospital\Http\ApiException(405, 'METHOD_NOT_ALLOWED', \Hospital\I18n::t("errors.metodo_no_permitido"));
 }

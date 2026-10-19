@@ -1,5 +1,8 @@
-document.addEventListener("DOMContentLoaded", () => {
-  "use strict";
+document.addEventListener("DOMContentLoaded", async () => {
+    "use strict";
+    await window.HospitalI18n.ready;
+    await window.HospitalAuth.ready;
+
   const form = document.getElementById("documentForm");
   if (!form) return;
   const api = window.DocumentApi;
@@ -30,11 +33,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!file) { clearFile(); return true; }
     const extension = file.name.split(".").pop().toLowerCase();
     if (!["pdf", "docx", "jpg", "jpeg", "png"].includes(extension) || !file.size || file.size > 10 * 1048576) {
-      validation("Usá un archivo PDF, DOCX, JPG o PNG con contenido, de hasta 10 MiB.");
+      validation(window.HospitalI18n.t("document_form.usa_un_archivo_pdf_docx_jpg_o_png_con_contenido_de_hasta_10_mib"));
       clearFile(); return false;
     }
-    document.getElementById("selectedFileName").textContent = file.name;
-    document.getElementById("selectedFileMeta").textContent = `${extension.toUpperCase()} · ${api.size(file.size)}`;
+    window.HospitalI18n.bindText(document.getElementById("selectedFileName"), () => file.name);
+    window.HospitalI18n.bindText(document.getElementById("selectedFileMeta"), () => `${extension.toUpperCase()} · ${api.size(file.size)}`);
     fileSummary.hidden = false; if (currentFile) currentFile.hidden = true;
     return true;
   }
@@ -69,27 +72,27 @@ document.addEventListener("DOMContentLoaded", () => {
   }));
   uploadArea.addEventListener("drop", event => {
     const files = event.dataTransfer?.files; if (!files?.length || busy) return;
-    if (files.length !== 1) { validation("Seleccioná un solo archivo."); return; }
+    if (files.length !== 1) { validation(window.HospitalI18n.t("document_form.selecciona_un_solo_archivo")); return; }
     const transfer = new DataTransfer(); transfer.items.add(files[0]); fileInput.files = transfer.files; showFile();
   });
   form.addEventListener("submit", async event => {
     event.preventDefault(); if (busy || !form.checkValidity()) return;
     selectPatient();
-    if (patientInput.value.trim() && !patient) { validation("Seleccioná un paciente del catálogo, con su nombre y cédula."); return; }
-    if (patientInput.required && !patient) { validation("Seleccioná un paciente del hospital."); return; }
+    if (patientInput.value.trim() && !patient) { validation(window.HospitalI18n.t("document_form.selecciona_un_paciente_del_catalogo_con_su_nombre_y_cedula")); return; }
+    if (patientInput.required && !patient) { validation(window.HospitalI18n.t("document_form.selecciona_un_paciente_del_hospital")); return; }
     if (!showFile()) return;
     const fields = { title: form.elements.nombre.value, description: form.elements.descripcion.value,
       document_date: form.elements.fecha.value, category_id: categoryInput.value, patient_id: patient?.id ?? null };
     if (editing) Object.assign(fields, { id: current.id, version: current.version });
     else fields.create_token = createToken;
-    setBusy(true); message.textContent = "Guardando documento...";
+    setBusy(true); window.HospitalI18n.bindText(message, () => window.HospitalI18n.t("document_form.guardando_documento"));
     try {
       const saved = await api.save(fields, fileInput.files[0], !editing);
-      message.textContent = editing ? "Cambios guardados correctamente." : "Documento cargado correctamente.";
+      window.HospitalI18n.bindText(message, () => editing ? window.HospitalI18n.t("document_form.cambios_guardados_correctamente") : window.HospitalI18n.t("document_form.documento_cargado_correctamente"));
       location.assign(`documents.html?document_id=${encodeURIComponent(saved.id)}`);
     } catch (error) {
       // Keep both selected bytes and typed fields; a stale revision requires reopening.
-      report(error); message.textContent = ""; setBusy(false);
+      report(error); window.HospitalI18n.bindText(message, () => ""); setBusy(false);
     }
   });
   async function init() {
@@ -97,17 +100,17 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       if (!await window.HospitalAuth.ready) return;
       categories = await api.categories();
-      categoryInput.replaceChildren(new Option("Seleccioná una categoría", ""), ...categories.map(item => new Option(item.name, item.id)));
+      categoryInput.replaceChildren(window.HospitalI18n.option(() => window.HospitalI18n.t("documents_edit.selecciona_una_categoria"), ""), ...categories.map(item => window.HospitalI18n.option(() => window.HospitalI18n.category(item), item.id)));
       if (editing) {
-        if (!/^[1-9][0-9]*$/.test(id || "")) throw new Error("Seleccioná un documento desde la lista.");
+        if (!/^[1-9][0-9]*$/.test(id || "")) throw new Error(window.HospitalI18n.t("documents_viewer.selecciona_un_documento_desde_la_lista"));
         current = await api.get(id);
-        if (current.archived_at) throw new Error("Restaurá el documento antes de editarlo.");
+        if (current.archived_at) throw new Error(window.HospitalI18n.t("document_form.restaura_el_documento_antes_de_editarlo"));
         form.elements.nombre.value = current.title;
         form.elements.descripcion.value = current.description;
         form.elements.fecha.value = current.document_date;
         categoryInput.value = current.category.id; patient = current.patient;
         patientInput.value = patient ? patientLabel(patient) : "";
-        currentFile.querySelector("strong").textContent = current.file.original_name;
+        window.HospitalI18n.bindText(currentFile.querySelector("strong"), () => current.file.original_name);
         currentFile.hidden = false;
       } else {
         createToken = (await api.createToken()).create_token;

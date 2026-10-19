@@ -52,8 +52,8 @@ def run():
     check(call('update.php',altered)[0]==409,'published structure cannot rewrite historical answer meanings')
     answers=[dict(question_id='short',value='Respuesta corta <script>'),dict(question_id='single',value='other',other_text='Otra opción'),dict(question_id='multi',value=['0','other'],other_text='Alternativa'),dict(question_id='rating',value=4),dict(question_id='scale',value=0),dict(question_id='date',value='2026-10-15')]
     submission=dict(token=token,version=public['version'],submit_token=public['submit_token'],answers=answers,participant_name='Nombre voluntario')
-    check(call('public/submit.php',submission,patient)[0]==409,'changed survey revision cannot accept stale submissions')
-    public=call('public/get.php',dict(token=token),patient)[1]['data'];submission.update(version=public['version'],submit_token=public['submit_token'])
+    check(s['version']>public['version'],'internal metadata edits advance only the staff editing precondition')
+    check(call('public/submit.php',{**submission,'version':s['version']},patient)[1]['error']['code']=='INVALID_SUBMISSION','signed public snapshot versions cannot be substituted')
     check(patient.call('/api/v1/surveys/public/submit.php','POST',submission,csrf=False)[0]==403,'patient submission requires its own form CSRF token')
     check(call('public/submit.php',{**submission,'answers':answers[1:]},patient)[0]==422,'required questions are checked server-side')
     check(call('public/submit.php',{**submission,'answers':answers+[answers[0]]},patient)[0]==422,'duplicate answers cannot inflate counts')
@@ -64,7 +64,7 @@ def run():
     invalid_answers=copy.deepcopy(answers);invalid_answers[2]['value']=['0','0']
     check(call('public/submit.php',{**submission,'answers':invalid_answers},patient)[0]==422,'repeated checkbox choices are rejected')
     status,payload,_=call('public/submit.php',submission,patient);assert status==201,payload
-    check(payload['data']['accepted'] and payload['data']['completion_message']==body['config']['completion_message'],'actual patient response commits before success acknowledgement')
+    check(payload['data']['accepted'] and payload['data']['completion_message']==body['config']['completion_message'],'an open patient response commits after internal metadata edits without refreshing or discarding answers')
     check(call('public/submit.php',submission,patient)[1]['data']['replayed'],'identical retries are idempotent')
     changed=copy.deepcopy(submission);changed['answers'][0]['value']='Modificado'
     check(call('public/submit.php',changed,patient)[0]==409,'retry tokens cannot replace an already submitted response')
@@ -73,13 +73,18 @@ def run():
     entries=call('answers.php?id='+sid+'&question_id=short')[1]['data'];other_entries=call('answers.php?id='+sid+'&question_id=multi')[1]['data']
     check(entries[0]['value']=='Respuesta corta <script>' and entries[0]['participant_name']=='Nombre voluntario' and other_entries[0]['value']=='Alternativa','authorized written/Other results include voluntary name without patient linkage')
     check(call('answers.php?id='+sid+'&question_id=short',client=other)[0]==404,'written answer searches preserve owner scope')
+    pending=call('public/get.php',dict(token=token),patient)[1]['data'];pending_submission={**submission,'version':pending['version'],'submit_token':pending['submit_token']}
     status,payload,_=call('link-update.php',dict(id=sid,version=s['version'],link_id=links[0]['id']));assert status==200,payload;s=payload['data']['survey'];new_token=payload['data']['links'][0]['token']
     check(call('public/get.php',dict(token=token),patient)[0]==404 and new_token!=token,'revoking shared link rotates it without deleting responses')
+    check(call('public/submit.php',pending_submission,patient)[0]==404,'revocation rejects previously issued unsent credentials')
+    pending=call('public/get.php',dict(token=new_token),patient)[1]['data'];pending_submission={**submission,'token':new_token,'version':pending['version'],'submit_token':pending['submit_token']}
     status,payload,_=call('transition.php',dict(id=sid,version=s['version'],action='close'));assert status==200,payload;s=payload['data']
     check(call('public/get.php',dict(token=new_token),patient)[0]==409,'closed surveys reject public access')
+    check(call('public/submit.php',pending_submission,patient)[0]==409,'closing rejects previously issued unsent credentials')
     s=call('transition.php',dict(id=sid,version=s['version'],action='reopen'))[1]['data']
     s=call('transition.php',dict(id=sid,version=s['version'],action='archive'))[1]['data']
     check(call('public/get.php',dict(token=new_token),patient)[0]==404 and call('get.php?id='+sid)[1]['data']['response_count']==1,'archive blocks public access while preserving all results')
+    check(call('public/submit.php',pending_submission,patient)[0]==404,'archiving rejects previously issued unsent credentials')
     s=call('transition.php',dict(id=sid,version=s['version'],action='restore'))[1]['data']
     check(call('public/get.php',dict(token=new_token),patient)[0]==200,'restoration returns the original form/link')
     def publish(data):
@@ -87,9 +92,11 @@ def run():
     simple=record();simple['items']=[item('rating','rating')];simple['config']['identity']='anonymous';simple['config']['access']='individual_link'
     single=publish(simple);status,payload,_=call('link-update.php',dict(id=single['id'],version=single['version']));assert status==200,payload;single=payload['data']['survey'];individual=payload['data']['links'][0]['token']
     people=[Client(),Client()];forms=[call('public/get.php',dict(token=individual),p)[1]['data'] for p in people]
+    status,payload,_=call('link-update.php',dict(id=single['id'],version=single['version']));assert status==200,payload;single=payload['data']['survey']
+    check(single['version']>forms[0]['version'],'creating another invitation changes the admin revision after patient access')
     requests=[dict(token=individual,version=f['version'],submit_token=f['submit_token'],answers=[dict(question_id='rating',value=5)],participant_name='') for f in forms]
     with ThreadPoolExecutor(2) as pool:codes=list(pool.map(lambda n:call('public/submit.php',requests[n],people[n])[0],range(2)))
-    check(sorted(codes)==[201,409] and call('get.php?id='+single['id'])[1]['data']['response_count']==1,'single-use invitations enforce one response under concurrent submissions')
+    check(sorted(codes)==[201,409] and call('get.php?id='+single['id'])[1]['data']['response_count']==1,'open single-use invitations survive another invitation creation and still serialize concurrent responses')
     check(call('public/get.php',dict(token=individual),Client())[0]==409,'consumed invitations cannot be reopened')
     cap=copy.deepcopy(simple);cap['config'].update(access='shared_link',limit_enabled=True,response_limit=1);capped=publish(cap);ct=call('links.php?id='+capped['id'])[1]['data'][0]['token']
     people=[Client(),Client()];forms=[call('public/get.php',dict(token=ct),p)[1]['data'] for p in people]
@@ -101,6 +108,12 @@ def run():
     check(call('public/get.php',dict(token=st),Client())[0]==409,'future opening dates are enforced without a scheduled worker')
     sql("UPDATE surveys SET opens_at=NULL,closes_at=DATE_SUB(UTC_TIMESTAMP(),INTERVAL 1 MINUTE) WHERE id="+scheduled['id'])
     check(call('public/get.php',dict(token=st),Client())[0]==409,'expired closing dates are enforced at access time')
+    sql('UPDATE surveys SET closes_at=NULL WHERE id='+scheduled['id']);timed_patient=Client();opened=call('public/get.php',dict(token=st),timed_patient)[1]['data']
+    timed_submission=dict(token=st,version=opened['version'],submit_token=opened['submit_token'],answers=[dict(question_id='rating',value=5)],participant_name='')
+    sql("UPDATE surveys SET closes_at=DATE_SUB(UTC_TIMESTAMP(),INTERVAL 1 MINUTE),version=version+1 WHERE id="+scheduled['id'])
+    check(call('public/submit.php',timed_submission,timed_patient)[0]==409,'current deadlines still reject open responses with older signed versions')
+    sql("UPDATE surveys SET closes_at=NULL,opens_at='2099-01-01 13:00:00',version=version+1 WHERE id="+scheduled['id'])
+    check(call('public/submit.php',timed_submission,timed_patient)[0]==409,'a postponed opening still rejects previously issued credentials')
     staff=copy.deepcopy(simple);staff['config'].update(access='shared_link',audience='staff');staff_survey=publish(staff);staff_token=call('links.php?id='+staff_survey['id'])[1]['data'][0]['token']
     check(call('public/get.php',dict(token=staff_token),Client())[0]==401 and call('public/get.php',dict(token=staff_token),owner)[0]==200,'staff-only audience requires an approved live staff session')
     bad=call('public/get.php',dict(token='a'*64),Client());check(bad[0]==404,'unknown capability tokens return generic missing-record responses')

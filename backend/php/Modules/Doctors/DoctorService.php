@@ -19,11 +19,11 @@ final class DoctorService
             $this->db->beginTransaction();
             try {
                 $u=(new UserRepository($this->db))->byId($actor,true);
-                if (!$u || $u['status']!=='active' || $u['staff_status']!=='active' || (int)$u['auth_version']!==(int)($_SESSION['auth_version']??0)) throw new ApiException(401,'SESSION_EXPIRED','La sesión ya no tiene acceso.');
+                if (!$u || $u['status']!=='active' || $u['staff_status']!=='active' || (int)$u['auth_version']!==(int)($_SESSION['auth_version']??0)) throw new ApiException(401,'SESSION_EXPIRED',\Hospital\I18n::t("errors.la_sesion_ya_no_tiene_acceso"));
                 $this->access($actor); $result=$work(); $this->db->commit(); return $result;
             } catch (\Throwable $e) {
                 if ($this->db->inTransaction()) $this->db->rollBack();
-                if ($e instanceof \PDOException && ($e->errorInfo[1]??0)===1062) throw new ApiException(409,'DOCTOR_CONFLICT','Ya existe un médico con ese documento o registro MSP.');
+                if ($e instanceof \PDOException && ($e->errorInfo[1]??0)===1062) throw new ApiException(409,'DOCTOR_CONFLICT',\Hospital\I18n::t("errors.ya_existe_un_medico_con_ese_documento_o_registro_msp"));
                 throw $e;
             }
         });
@@ -49,7 +49,7 @@ final class DoctorService
     public function get(string $actor,string $id): array
     {
         $this->access($actor); $s=$this->db->prepare($this->query().' WHERE d.staff_id=?'); $s->execute([$id]); $r=$s->fetch();
-        if (!$r) throw new ApiException(404,'DOCTOR_NOT_FOUND','No se encontró el médico.');
+        if (!$r) throw new ApiException(404,'DOCTOR_NOT_FOUND',\Hospital\I18n::t("errors.no_se_encontro_el_medico"));
         return $this->serialize($r);
     }
     public function catalogs(string $actor): array
@@ -60,21 +60,21 @@ final class DoctorService
     private function lock(string $id,int $version): array
     {
         $s=$this->db->prepare('SELECT d.*,s.version AS staff_version FROM doctor_profiles d JOIN staff s ON s.id=d.staff_id WHERE d.staff_id=? FOR UPDATE'); $s->execute([$id]); $r=$s->fetch();
-        if (!$r) throw new ApiException(404,'DOCTOR_NOT_FOUND','No se encontró el médico.');
-        if ((int)$r['version']+(int)$r['staff_version']!==$version) throw new ApiException(409,'VERSION_CONFLICT','El médico cambió. Volvé a abrirlo antes de guardar.');
+        if (!$r) throw new ApiException(404,'DOCTOR_NOT_FOUND',\Hospital\I18n::t("errors.no_se_encontro_el_medico"));
+        if ((int)$r['version']+(int)$r['staff_version']!==$version) throw new ApiException(409,'VERSION_CONFLICT',\Hospital\I18n::t("errors.el_medico_cambio_volve_a_abrirlo_antes_de_guardar"));
         return $r;
     }
     private function checkTransfer(string $id): void
     {
         $s=$this->db->prepare("SELECT t.id FROM transfers t JOIN transfer_crew c ON c.transfer_id=t.id WHERE c.staff_id=? AND c.responsibility='doctor' AND t.status NOT IN ('completed','cancelled') LIMIT 1"); $s->execute([$id]);
-        if ($s->fetchColumn()) throw new ApiException(409,'DOCTOR_IN_USE','El médico tiene un traslado pendiente o en curso.');
+        if ($s->fetchColumn()) throw new ApiException(409,'DOCTOR_IN_USE',\Hospital\I18n::t("errors.el_medico_tiene_un_traslado_pendiente_o_en_curso"));
     }
     private function catalogId(string $table,string $name): string
     {
         // Table names are internal constants; labels are always bound parameters.
         $s=$this->db->prepare("INSERT INTO $table (name) VALUES (?) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)"); $s->execute([$name]); $id=$this->db->lastInsertId();
         $s=$this->db->prepare("SELECT status FROM $table WHERE id=?"); $s->execute([$id]);
-        if ($s->fetchColumn()!=='active') throw new ApiException(422,'CATALOG_INACTIVE','Seleccioná una especialidad y un servicio activos.');
+        if ($s->fetchColumn()!=='active') throw new ApiException(422,'CATALOG_INACTIVE',\Hospital\I18n::t("errors.selecciona_una_especialidad_y_un_servicio_activos"));
         return $id;
     }
     public function save(string $actor,array $input,?string $id=null): array
@@ -83,17 +83,17 @@ final class DoctorService
         $id=$this->transaction($actor,function() use($actor,$f,$id,$version) {
             if ($id!==null) {
                 $old=$this->lock($id,$version);
-                if ($old['status']!=='active') throw new ApiException(409,'DOCTOR_ARCHIVED','Restaurá el médico antes de editarlo.');
+                if ($old['status']!=='active') throw new ApiException(409,'DOCTOR_ARCHIVED',\Hospital\I18n::t("errors.restaura_el_medico_antes_de_editarlo"));
                 if ($f['availability']==='inactive') $this->checkTransfer($id);
                 $s=$this->db->prepare('SELECT registration_national_id FROM users WHERE staff_id=?'); $s->execute([$id]); $ci=$s->fetchColumn();
-                if ($ci!==false && $ci!==$f['national_id']) throw new ApiException(409,'IDENTITY_LINKED','El documento está vinculado a una cuenta y no puede cambiarse desde este directorio.');
+                if ($ci!==false && $ci!==$f['national_id']) throw new ApiException(409,'IDENTITY_LINKED',\Hospital\I18n::t("errors.el_documento_esta_vinculado_a_una_cuenta_y_no_puede_cambiarse_desde_este_directorio"));
             } else {
                 $s=$this->db->prepare('SELECT id,status FROM staff WHERE national_id=? FOR UPDATE'); $s->execute([$f['national_id']]); $staff=$s->fetch();
                 if ($staff) {
-                    if ($staff['status']!=='active') throw new ApiException(409,'STAFF_INACTIVE','La identidad del personal está inactiva.');
+                    if ($staff['status']!=='active') throw new ApiException(409,'STAFF_INACTIVE',\Hospital\I18n::t("errors.la_identidad_del_personal_esta_inactiva"));
                     $id=(string)$staff['id'];
                     $s=$this->db->prepare('SELECT staff_id FROM doctor_profiles WHERE staff_id=?'); $s->execute([$id]);
-                    if ($s->fetchColumn()) throw new ApiException(409,'DOCTOR_CONFLICT','Ya existe un médico con ese documento; revisá también los inactivos.');
+                    if ($s->fetchColumn()) throw new ApiException(409,'DOCTOR_CONFLICT',\Hospital\I18n::t("errors.ya_existe_un_medico_con_ese_documento_revisa_tambien_los_inactivos"));
                 } else {
                     $s=$this->db->prepare('INSERT INTO staff (national_id,full_name) VALUES (?,?)'); $s->execute([$f['national_id'],$f['full_name']]); $id=$this->db->lastInsertId();
                 }
@@ -117,7 +117,7 @@ final class DoctorService
     {
         $this->transaction($actor,function() use($actor,$id,$version,$restore) {
             $old=$this->lock($id,$version); $state=$restore?'active':'archived';
-            if ($old['status']===$state) throw new ApiException(409,'VERSION_CONFLICT','El estado del médico cambió.');
+            if ($old['status']===$state) throw new ApiException(409,'VERSION_CONFLICT',\Hospital\I18n::t("errors.el_estado_del_medico_cambio"));
             if (!$restore) $this->checkTransfer($id);
             // Keep shared staff and existing encounter/crew references intact.
             $s=$this->db->prepare('UPDATE doctor_profiles SET status=?,archived_at=?,version=version+1 WHERE staff_id=?'); $s->execute([$state,$restore?null:gmdate('Y-m-d H:i:s'),$id]);

@@ -16,7 +16,7 @@ set_exception_handler(static function (Throwable $error): void {
             if (is_int($number)) $diagnostic.=' driver_code='.$number;
         }
         error_log('Hospital request '.$GLOBALS['request_id'].' failed: '.$diagnostic);
-        Hospital\Http\Response::error(new Hospital\Http\ApiException(503, 'SERVICE_UNAVAILABLE', 'El servicio no está disponible. Revisá la configuración o intentá nuevamente.'));
+        Hospital\Http\Response::error(new Hospital\Http\ApiException(503, 'SERVICE_UNAVAILABLE', \Hospital\I18n::t("errors.el_servicio_no_esta_disponible_revisa_la_configuracion_o_intenta_nuevamente")));
     }
 });
 if (PHP_SAPI !== 'cli') {

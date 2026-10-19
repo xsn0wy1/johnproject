@@ -4,7 +4,7 @@
   function createBasemap(map, { onLoad = () => {}, onFallback = () => {}, onError = () => {} } = {}) {
     const config = window.TRACE_MAP_CONFIG || {};
     const key = config.cartoApiKey || document.querySelector('meta[name="carto-basemap-key"]')?.content.trim();
-    const osmAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors';
+    const osmAttribution = `${window.HospitalI18n.mark("trace_map_shared.copy")} <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">${window.HospitalI18n.mark("trace_map_shared.openstreetmap")}</a> ${window.HospitalI18n.mark("trace_map_shared.contributors")}`;
     const osm = () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19, attribution: osmAttribution, className: 'osm-dark-tiles', keepBuffer: 2
     });
@@ -13,7 +13,7 @@
       maxZoom: 19, attribution: config.attribution || osmAttribution,
       className: config.tileClassName || ''
     }) : useCarto ? L.tileLayer(`https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?key=${encodeURIComponent(key)}`, {
-      maxZoom: 20, attribution: `${osmAttribution}, &copy; <a href="https://carto.com/attribution/" target="_blank" rel="noopener">CARTO</a>`
+      maxZoom: 20, attribution: `${window.HospitalI18n.mark("trace_map_shared.value_copy", {value0: osmAttribution})} <a href="https://carto.com/attribution/" target="_blank" rel="noopener">${window.HospitalI18n.mark("trace_map_shared.carto")}</a>`
     }) : osm();
     let failures = 0;
     let loadedTiles = 0;
@@ -43,9 +43,9 @@
 
 
   function adapt(item) {
-    const status=item.status==='scheduled'?'PROGRAMADO':item.status==='arrived'?'EN DESTINO':item.status==='completed'?'FINALIZADO':item.status==='cancelled'?'CANCELADO':item.is_delayed?'DEMORADO':'EN CURSO';
+    const status=item.status==='scheduled'?'scheduled':item.status==='arrived'?'arrived':item.status==='completed'?'completed':item.status==='cancelled'?'cancelled':item.is_delayed?'delayed':'in_progress';
     const coordinates=item.geometry.map(p=>[p.latitude,p.longitude]);
-    return {id:item.id,name:`TRASLADO ${item.id}`,ambulance:item.ambulance.code,origin:item.origin.name,destination:item.destination.name,
+    return {id:item.id,get name(){return window.HospitalI18n.t("trace.traslado_value", {value0: item.id});},ambulance:item.ambulance.code,origin:item.origin.name,destination:item.destination.name,
       eta:window.TraceApi.time(item.eta).slice(0,5),status,color:['#8b5cf6','#3b82f6','#06b6d4','#10b981','#f97316'][Number(item.id)%5],coordinates,
       currentPosition:item.position?[item.position.latitude,item.position.longitude]:coordinates[0],sampledAt:item.position?.recorded_at,positionId:item.position?.id??null,
       lifecycle:item.status,distanceMeters:item.distance_meters};

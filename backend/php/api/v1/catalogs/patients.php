@@ -4,7 +4,7 @@ require dirname(__DIR__, 3) . '/bootstrap.php';
 use Hospital\Http\ApiException;
 // Search terms may contain patient identity. Keep them out of URLs/access logs.
 Hospital\Http\Request::method('POST'); $auth->requireUser(false); Hospital\Security\Csrf::verify();
-if ($_GET) throw new ApiException(422, 'UNEXPECTED_FIELDS', 'Filtro no permitido.');
+if ($_GET) throw new ApiException(422, 'UNEXPECTED_FIELDS', \Hospital\I18n::t("errors.filtro_no_permitido"));
 $body = Hospital\Http\Request::body(['q']);
 $q = Hospital\Modules\Settings\SettingsService::text($body['q'] ?? '', 'q', 150, true);
 if (mb_strlen($q) < 2) { Hospital\Http\Response::json([]); return; }

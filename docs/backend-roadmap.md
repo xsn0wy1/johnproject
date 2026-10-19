@@ -2,6 +2,8 @@
 
 Prepared: 12 October 2026. Companion analysis: [backend-analysis.md](backend-analysis.md).
 
+This roadmap preserves the original target architecture and phase plan. Current implementation (19 October 2026) includes identity/account administration, settings, documents, transfers/simulation, the six management catalogs and surveys (schema 001–011). Complete JSON-based Spanish/English interface translation is integrated using the existing SQL locale preference, shared browser/PHP dictionaries and the current API contracts. Calendar/appointment management, reports, light theme and email recovery remain deferred; appointment counts are read-only. AGENTS.md and api-contracts.md take precedence for completed behavior and deliberate changes to the original plan, including console-only errors and administrator-assisted password recovery.
+
 ## Target and working decisions
 
 Build one PHP application using the existing frontend, a single relational database, private server file storage, and JSON APIs. Run it locally through XAMPP. All account holders are hospital staff; all sample patients, documents, and ambulance positions used for development are test data.
@@ -52,7 +54,7 @@ flowchart LR
 
 ### Proposed project layout
 
-This is the target layout. The identity slice described in [user-system.md](user-system.md) is implemented; later domain folders remain planned. The PHP location was updated to match the user's requirement that every PHP file stay inside `backend/php/`.
+This is the original target layout, not an inventory of implemented endpoint names. Current modules also include personnel, destinations and surveys; consult api-contracts.md for actual paths. Every PHP file stays inside `backend/php/`.
 
 ```text
 public/
@@ -75,7 +77,7 @@ backend/
     dev-router.php         local PHP built-in server alternative
   apache/hospital.conf.example
 db/
-  sql/schema.sql           initial version 001
+  sql/schema.sql           current snapshot 001–011
   sql/migrations/          numbered changes for later slices
   json/fixtures/           fictional input datasets only
 storage/
@@ -327,8 +329,8 @@ Dependencies: identity precedes all protected writes; shared catalogs precede do
 - Implement meaningful integration tests for access boundaries, transactions, concurrency, file integrity and lifecycle behavior. Test with two independent user sessions; testing only as admin misses most authorization failures.
 - Keep all development fixtures fictional and versioned. Do not automatically import browser data into SQL or publish files to external services.
 
-## First implementation package
+## First implementation package (historical)
 
-The first package is now implemented as **phase 0 foundations plus phase 1a**, at the user's requested part-by-part scope. [user-system.md](user-system.md) records the actual behavior and boundaries; [xampp-setup.md](xampp-setup.md) explains installation. Runtime compatibility, schema creation, API access boundaries and browser login/session/logout flows were verified. Git initialization, a general upgrade migration runner, password recovery/change and an administration UI remain future work; the initial setup command installs schema 001 and is not an upgrade engine.
+The first package implemented **phase 0 foundations plus phase 1a** on 12 October. Its initial setup installed schema 001; later slices added the numbered migration runner, password changes/administrator reset, account administration UI and the domain modules listed at the top of this document. setup.php now applies missing migrations; migrate.php upgrades an existing configured database. [xampp-setup.md](xampp-setup.md) contains current installation instructions.
 
-Continue with the next explicitly requested slice using these same contracts and data owners. Settings writes should use the existing account/staff/settings rows, partial updates and versions. Documents, management and tracking retain their later phase dependencies.
+Further slices retain these same contracts and data owners. Settings, doctors and personnel already share staff identities and opaque revisions. See AGENTS.md for current verification and remaining scope.

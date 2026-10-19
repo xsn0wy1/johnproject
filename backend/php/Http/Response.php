@@ -9,6 +9,7 @@ final class Response
         if (session_status() === PHP_SESSION_ACTIVE) session_write_close();
         http_response_code($status);
         header('Content-Type: application/json; charset=utf-8');
+        header('Content-Language: ' . \Hospital\I18n::locale());
         echo json_encode(['success' => true, 'data' => $data, 'meta' => ['request_id' => $GLOBALS['request_id']] + $meta], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
     }
 
@@ -16,6 +17,7 @@ final class Response
     {
         http_response_code($error->status);
         header('Content-Type: application/json; charset=utf-8');
+        header('Content-Language: ' . \Hospital\I18n::locale());
         $payload = ['code' => $error->errorCode, 'message' => $error->getMessage()];
         if ($error->fields) $payload['fields'] = $error->fields;
         echo json_encode(['success' => false, 'error' => $payload, 'meta' => ['request_id' => $GLOBALS['request_id']]], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);

@@ -6,5 +6,5 @@ use Hospital\Http\Response;
 use Hospital\Modules\Transfers\TransferInput;
 $service=new Hospital\Modules\Transfers\TransferService($db,$config);
 Request::method('GET'); $user=$auth->requireUser(false);
-if(array_diff(array_keys($_GET),['id']))throw new Hospital\Http\ApiException(422,'UNEXPECTED_FIELDS','Parámetro no permitido.');
+if(array_diff(array_keys($_GET),['id']))throw new Hospital\Http\ApiException(422,'UNEXPECTED_FIELDS',\Hospital\I18n::t("errors.parametro_no_permitido"));
 Response::json($service->get((string)$user['id'],Request::id($_GET['id']??null)));

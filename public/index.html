@@ -4,43 +4,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inicio de Sesion</title>
-  <link rel="stylesheet" href="src/css/login-register/log-reg.css">
+  <title data-i18n="login.inicio_de_sesion">Inicio de Sesion</title>
+  <link rel="stylesheet" href="src/css/login-register/log-reg.css?v=20261019-auth-effects">
+  <link rel="stylesheet" href="src/css/login-register/auth-interactions.css?v=20261019-auth-link-color">
   <link rel="icon" type="image/x-icon" href="assets/hospital-gradient.ico">
-  <script src="src/js/api-client.js" defer></script>
-  <script src="src/js/auth-session.js?v=20261014-audit" defer></script>
+  <script src="src/js/i18n.js?v=20261019-i18n" defer></script>
+  <script src="src/js/api-client.js?v=20261019-i18n" defer></script>
+  <script src="src/js/auth-session.js?v=20261019-i18n" defer></script>
 </head>
 
 <body>
   <div class="tarjeta">
-    <h1>Inicio de Sesion</h1>
+    <h1 data-i18n="login.inicio_de_sesion">Inicio de Sesion</h1>
 
     <form id="loginForm" method="POST" action="api/v1/auth/login.php">
-      <input type="text" name="username" autocomplete="username" maxlength="50" placeholder="Usuario" required>
+      <input type="text" name="username" autocomplete="username" maxlength="50" placeholder="Usuario" data-i18n-placeholder="login.usuario" required>
 
       <div class="password-wrapper">
-        <input type="password" id="loginContraseña" name="password" autocomplete="current-password" placeholder="Contraseña" required>
+        <input type="password" id="loginContraseña" name="password" autocomplete="current-password" placeholder="Contraseña" data-i18n-placeholder="login.contrasena" required>
         <button type="button" id="toggleLoginPasswordBtn" class="btn-toggle-eye">
-          <img src="assets/Icons/eye.svg" id="loginEyeIcon" alt="Mostrar u ocultar contraseña">
+          <img src="assets/Icons/eye.svg" id="loginEyeIcon" alt="Mostrar u ocultar contraseña" data-i18n-alt="login.mostrar_u_ocultar_contrasena">
         </button>
       </div>
 
       <p id="loginMessage" role="status" aria-live="polite"></p>
 
       <p>
-        ¿Olvidaste tu contraseña?
-        <a href="src/views/register-restore/restore-password.html">Recuperar Contraseña</a>
+        <i18n-text data-i18n="login.olvidaste_tu_contrasena" style="display:contents">¿Olvidaste tu contraseña?</i18n-text>
+        <a href="src/views/register-restore/restore-password.html" data-i18n="login.recuperar_contrasena">Recuperar Contraseña</a>
       </p>
-      <button type="submit">Inicio sesion</button>
+      <button type="submit" data-i18n="login.inicio_sesion">Inicio sesion</button>
     </form>
 
     <p>
-      ¿No tienes cuenta?
-      <a href="src/views/register-restore/register.html">Registrate</a>
+      <i18n-text data-i18n="login.no_tienes_cuenta" style="display:contents">¿No tienes cuenta?</i18n-text>
+      <a href="src/views/register-restore/register.html" data-i18n="login.registrate">Registrate</a>
     </p>
   </div>
 
-  <script src="src/js/login-register/login.js"></script>
+  <script src="src/js/login-register/login.js?v=20261019-i18n"></script>
 </body>
 
 </html>

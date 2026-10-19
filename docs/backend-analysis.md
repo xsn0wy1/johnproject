@@ -2,6 +2,8 @@
 
 Reviewed: 12 October 2026. This is a requirements and integration analysis of the existing frontend, not an audit of an existing database implementation.
 
+Historical baseline: the observations and file counts below describe 12 October, before the backend slices. As of 19 October, identity/account administration, settings, documents, transfers/simulation, six management catalogs and surveys are implemented (schema 001–011). Calendar/appointment management and reports remain deferred, with unavailable navigation removed; the patient appointment count is read-only. Current behavior/contracts and verification are maintained in AGENTS.md and api-contracts.md.
+
 ## Confirmed scope
 
 - Accounts are for hospital staff only. Patients are managed records, not login accounts.
@@ -176,3 +178,7 @@ This document preserves the original frontend audit as a baseline. Registration,
 ## Survey follow-up (15 October 2026)
 
 The later survey frontend and the user’s explicit scope now supply the previously missing product requirements. Survey authoring/publication, unnamed shared/single-use access, isolated patient submission and protected results use the existing PHP/session/PDO architecture with migration 011. Staff manage their own surveys, administrators manage all; patient records are not linked. Current contracts and decisions are in api-contracts.md and AGENTS.md; the original empty-survey observations above remain historical.
+
+## Localization follow-up (19 October 2026)
+
+The existing 25 pages now share JSON-based Spanish/English interface translation. Spanish wording remains the baseline; staff language persists in the existing SQL settings, while public pages default to Spanish and accept explicit English URLs. PHP messages use the same dictionaries and an explicit request-language header. Record text, uploaded documents and saved survey content retain their original language. Current contracts and focused verification are recorded in api-contracts.md and AGENTS.md.

@@ -21,7 +21,7 @@ final class DestinationService
             try { $this->access->actor($actor); $result=$work(); $this->db->commit(); return $result; }
             catch (\Throwable $e) {
                 if ($this->db->inTransaction()) $this->db->rollBack();
-                if ($e instanceof \PDOException && ($e->errorInfo[1]??0)===1062) throw new ApiException(409,'DESTINATION_CONFLICT','Ya existe ese centro con la misma dirección y localidad. Revisá también los inactivos.');
+                if ($e instanceof \PDOException && ($e->errorInfo[1]??0)===1062) throw new ApiException(409,'DESTINATION_CONFLICT',\Hospital\I18n::t("errors.ya_existe_ese_centro_con_la_misma_direccion_y_localidad_revisa_tambien_los_inactivos"));
                 throw $e;
             }
         });
@@ -31,11 +31,11 @@ final class DestinationService
         $f=[];
         foreach (['name'=>100,'address'=>180,'locality'=>80,'phone'=>25] as $key=>$max) $f[$key]=SettingsService::text($input[$key]??null,$key,$max,$key==='phone');
         $digits=strlen(preg_replace('/\D/','',$f['phone']));
-        if ($f['phone']!=='' && (!preg_match('/^\+?[0-9 ().-]+$/',$f['phone']) || $digits<8 || $digits>15)) throw new ApiException(422,'VALIDATION_FAILED','Ingresá un teléfono de 8 a 15 dígitos o dejalo vacío.');
+        if ($f['phone']!=='' && (!preg_match('/^\+?[0-9 ().-]+$/',$f['phone']) || $digits<8 || $digits>15)) throw new ApiException(422,'VALIDATION_FAILED',\Hospital\I18n::t("errors.ingresa_un_telefono_de_8_a_15_digitos_o_dejalo_vacio"));
         $f['facility_type']=TransferInput::choice($input['facility_type']??null,['hospital','sanatorium','health_center','other']);
         $f['availability']=TransferInput::choice($input['availability']??null,['active','inactive']);
         $f['notes']=TransferInput::notes($input['notes']??null);
-        if (mb_strlen($f['notes'])>400) throw new ApiException(422,'VALIDATION_FAILED','La referencia admite hasta 400 caracteres.');
+        if (mb_strlen($f['notes'])>400) throw new ApiException(422,'VALIDATION_FAILED',\Hospital\I18n::t("errors.la_referencia_admite_hasta_400_caracteres"));
         return $f;
     }
     private function serialize(array $row): array
@@ -53,14 +53,14 @@ final class DestinationService
     public function get(string $actor,string $id): array
     {
         $this->access($actor); $s=$this->db->prepare('SELECT * FROM facilities WHERE id=?'); $s->execute([$id]); $row=$s->fetch();
-        if (!$row) throw new ApiException(404,'DESTINATION_NOT_FOUND','No se encontró el destino.');
+        if (!$row) throw new ApiException(404,'DESTINATION_NOT_FOUND',\Hospital\I18n::t("errors.no_se_encontro_el_destino"));
         return $this->serialize($row);
     }
     private function lock(string $id,int $version): array
     {
         $s=$this->db->prepare('SELECT * FROM facilities WHERE id=? FOR UPDATE'); $s->execute([$id]); $row=$s->fetch();
-        if (!$row) throw new ApiException(404,'DESTINATION_NOT_FOUND','No se encontró el destino.');
-        if ((int)$row['version']!==$version) throw new ApiException(409,'VERSION_CONFLICT','El destino cambió. Volvé a abrirlo antes de guardar.');
+        if (!$row) throw new ApiException(404,'DESTINATION_NOT_FOUND',\Hospital\I18n::t("errors.no_se_encontro_el_destino"));
+        if ((int)$row['version']!==$version) throw new ApiException(409,'VERSION_CONFLICT',\Hospital\I18n::t("errors.el_destino_cambio_volve_a_abrirlo_antes_de_guardar"));
         return $row;
     }
     public function save(string $actor,array $input,?string $id=null): array
@@ -72,7 +72,7 @@ final class DestinationService
                 $s=$this->db->prepare('INSERT INTO facilities (name,address,locality,facility_type,phone,notes,availability) VALUES (?,?,?,?,?,?,?)'); $s->execute($values); $id=$this->db->lastInsertId();
             } else {
                 $old=$this->lock($id,$version);
-                if ($old['status']!=='active') throw new ApiException(409,'DESTINATION_ARCHIVED','Restaurá el destino antes de editarlo.');
+                if ($old['status']!=='active') throw new ApiException(409,'DESTINATION_ARCHIVED',\Hospital\I18n::t("errors.restaura_el_destino_antes_de_editarlo"));
                 // A changed address must not keep an old map location. Trace snapshots remain intact.
                 $moved=$old['address']!==$f['address'] || $old['locality']!==$f['locality'];
                 $values[]=$id;
@@ -86,7 +86,7 @@ final class DestinationService
     {
         $this->transaction($actor,function() use($actor,$id,$version,$restore) {
             $old=$this->lock($id,$version); $state=$restore?'active':'archived';
-            if ($old['status']===$state) throw new ApiException(409,'VERSION_CONFLICT','El estado del destino cambió.');
+            if ($old['status']===$state) throw new ApiException(409,'VERSION_CONFLICT',\Hospital\I18n::t("errors.el_estado_del_destino_cambio"));
             $s=$this->db->prepare('UPDATE facilities SET status=?,archived_at=?,version=version+1 WHERE id=?'); $s->execute([$state,$restore?null:gmdate('Y-m-d H:i:s'),$id]);
             $this->access->audit($actor,$restore?'destination.restored':'destination.archived',$id,'facility');
         });

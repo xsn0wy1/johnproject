@@ -15,7 +15,7 @@ final class Csrf
     {
         $given = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
         if (!is_string($given) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $given)) {
-            throw new ApiException(403, 'CSRF_INVALID', 'La sesión del formulario venció. Volvé a intentarlo.');
+            throw new ApiException(403, 'CSRF_INVALID', \Hospital\I18n::t("errors.la_sesion_del_formulario_vencio_volve_a_intentarlo"));
         }
     }
 }

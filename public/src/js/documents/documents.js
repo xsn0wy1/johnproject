@@ -1,5 +1,8 @@
-document.addEventListener("DOMContentLoaded", () => {
-  "use strict";
+document.addEventListener("DOMContentLoaded", async () => {
+    "use strict";
+    await window.HospitalI18n.ready;
+    await window.HospitalAuth.ready;
+
   const grid = document.getElementById("documentsGrid");
   const searchInput = document.getElementById("documentSearchInput");
   const searchButton = document.getElementById("documentSearchButton");
@@ -71,12 +74,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const visible = filtered;
 
     const cards = visible.map((item) => `
-      <${selectionMode ? 'div role="button" tabindex="0"' : `a href="documents-viewer.html?id=${encodeURIComponent(item.id)}"`} class="document-link" aria-label="Abrir ${escapeHtml(item.title)}" data-document-id="${escapeHtml(item.id)}" data-file-type="${escapeHtml(fileType(item))}"${selectionMode ? ' aria-describedby="documentSelectionStatus"' : ''}>
+      <${selectionMode ? 'div role="button" tabindex="0"' : `a href="documents-viewer.html?id=${encodeURIComponent(item.id)}"`} class="document-link" aria-label="${window.HospitalI18n.html("documents.abrir_value", {value0: item.title})}" data-i18n-aria-label="documents.abrir_value" data-i18n-aria-label-params="${window.HospitalI18n.escape(JSON.stringify({value0: item.title}))}" data-document-id="${escapeHtml(item.id)}" data-file-type="${escapeHtml(fileType(item))}"${selectionMode ? ' aria-describedby="documentSelectionStatus"' : ''}>
         <article class="document-folder-card">
           ${selectionMode ? `<span class="document-selection-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${selectionMode === "edit" ? "1.8" : "2.5"}" stroke-linecap="round" stroke-linejoin="round"><path d="${selectionMode === "edit" ? "m16 3 5 5-12 12-6 1 1-6L16 3ZM14 5l5 5" : "m5 12 4 4L19 6"}"/></svg></span>` : `
-          <button type="button" class="more-options" aria-label="Opciones de ${escapeHtml(item.title)}" aria-haspopup="true" aria-expanded="false">⋮</button>
+          <button type="button" class="more-options" aria-label="${window.HospitalI18n.html("documents.opciones_de_value", {value0: item.title})}" data-i18n-aria-label="documents.opciones_de_value" data-i18n-aria-label-params="${window.HospitalI18n.escape(JSON.stringify({value0: item.title}))}" aria-haspopup="true" aria-expanded="false">⋮</button>
           <div class="document-dropdown-menu"><ul>
-            ${listState === "archived" ? '<li><button type="button" class="restore-btn">Restaurar</button></li>' : '<li><button type="button" class="edit-btn">Editar</button></li><li><button type="button" class="select-btn">Seleccionar</button></li><li><button type="button" class="delete-btn">Eliminar</button></li>'}
+            ${listState === "archived" ? `<li><button type="button" class="restore-btn">${window.HospitalI18n.mark("personnel.restaurar")}</button></li>` : `<li><button type="button" class="edit-btn">${window.HospitalI18n.mark("trace_view.editar")}</button></li><li><button type="button" class="select-btn">${window.HospitalI18n.mark("documents.seleccionar")}</button></li><li><button type="button" class="delete-btn">${window.HospitalI18n.mark("routes.eliminar")}</button></li>`}
           </ul></div>`}
           <img src="../../../assets/Icons/folder-icon.svg" alt="">
           <p class="document-date">${escapeHtml(api.date(item.document_date))}</p>
@@ -90,16 +93,16 @@ document.addEventListener("DOMContentLoaded", () => {
       () => '<div class="document-placeholder" aria-hidden="true"></div>'
     ).join("") : "";
 
-    grid.innerHTML = cards + emptySlots;
+    window.HospitalI18n.setHTML(grid, cards + emptySlots);
     if (!visible.length) {
-      grid.innerHTML = `<div class="document-placeholder has-message">${loading ? '<p class="documents-empty">Cargando documentos...</p>' : loaded ? '<p class="documents-empty">No se encontraron documentos.</p>' : ''}</div>`;
+      window.HospitalI18n.setHTML(grid, `<div class="document-placeholder has-message">${loading ? `<p class="documents-empty">${window.HospitalI18n.mark("documents.cargando_documentos")}</p>` : loaded ? `<p class="documents-empty">${window.HospitalI18n.mark("documents.no_se_encontraron_documentos")}</p>` : ''}</div>`);
     }
     grid.classList.toggle("list-view", viewMode === "list");
     grid.setAttribute("aria-busy", String(loading));
     pagination.hidden = viewMode !== "grid";
     prevButton.disabled = loading || currentPage === 1;
     nextButton.disabled = loading || currentPage >= pageCount;
-    if (resultsStatus) resultsStatus.textContent = loaded ? (viewMode==='list'?`${documents.length} de ${total} documentos.`:`${total} ${total === 1 ? "documento encontrado" : "documentos encontrados"}. Página ${currentPage} de ${pageCount}.`) : "";
+    if (resultsStatus) window.HospitalI18n.bindText(resultsStatus, () => loaded ? (viewMode==='list'?window.HospitalI18n.t("documents.value_de_value_documentos", {value0: documents.length, value1: total}):window.HospitalI18n.t("documents.grid_result_summary", {count:total, result:total===1?window.HospitalI18n.t("documents.documento_encontrado"):window.HospitalI18n.t("documents.documentos_encontrados"),page:currentPage,pages:pageCount})) : "");
     updateSelection();
   }
 
@@ -114,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
       link.querySelector(".document-folder-card").classList.toggle("selected", selected);
       if (selectionMode) {
         const name = link.querySelector(".document-name").textContent.trim();
-        link.setAttribute("aria-label", `${selectionMode === "edit" ? "Editar" : "Seleccionar"} ${name}`);
+        window.HospitalI18n.bindAttr(link, "aria-label", () => `${selectionMode === "edit" ? window.HospitalI18n.t("trace_view.editar") : window.HospitalI18n.t("documents.seleccionar")} ${name}`);
         link.setAttribute("aria-disabled", String(isDeleting));
         if (selectionMode === "bulk") link.setAttribute("aria-pressed", String(selected));
       }
@@ -131,22 +134,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const count = selectedDocumentIds.size;
     const scope = matches();
     const allSelected = scope.length > 0 && scope.every((item) => selectedDocumentIds.has(String(item.id)));
-    selectionTitle.textContent = bulk ? "Seleccionar documentos" : "Elegí un documento para editar";
+    window.HospitalI18n.bindText(selectionTitle, () => bulk ? window.HospitalI18n.t("documents.seleccionar_documentos") : window.HospitalI18n.t("documents.elegi_un_documento_para_editar"));
     if (isDeleting) {
-      selectionStatus.textContent = "Eliminando documentos...";
+      window.HospitalI18n.bindText(selectionStatus, () => window.HospitalI18n.t("documents.eliminando_documentos"));
     } else if (!bulk) {
-      selectionStatus.textContent = scope.length ? "Hacé clic en una tarjeta para abrir su edición." : "No hay documentos en esta vista. Cambiá los filtros o cancelá.";
+      window.HospitalI18n.bindText(selectionStatus, () => scope.length ? window.HospitalI18n.t("documents.hace_clic_en_una_tarjeta_para_abrir_su_edicion") : window.HospitalI18n.t("documents.no_hay_documentos_en_esta_vista_cambia_los_filtros_o_cancela"));
     } else if (!count) {
-      selectionStatus.textContent = "Hacé clic en las tarjetas para seleccionarlas.";
+      window.HospitalI18n.bindText(selectionStatus, () => window.HospitalI18n.t("documents.hace_clic_en_las_tarjetas_para_seleccionarlas"));
     } else {
       const visibleIds = new Set(links.map((link) => link.dataset.documentId));
       const outsideView = [...selectedDocumentIds].filter((id) => !visibleIds.has(id)).length;
-      selectionStatus.textContent = `${count} ${count === 1 ? "documento seleccionado" : "documentos seleccionados"}${outsideView ? ` · ${outsideView} fuera de esta vista` : ""}.`;
+      window.HospitalI18n.bindText(selectionStatus, () => `${count} ${count === 1 ? window.HospitalI18n.t("documents.documento_seleccionado") : window.HospitalI18n.t("documents.documentos_seleccionados")}${outsideView ? window.HospitalI18n.t("documents.value_fuera_de_esta_vista", {value0: outsideView}) : ""}.`);
     }
     selectAllButton.hidden = !bulk;
     selectAllButton.disabled = isDeleting || !scope.length;
-    selectAllButton.textContent = allSelected ? "Deseleccionar todos" : "Seleccionar todos";
-    selectAllButton.title = "Seleccionar o deseleccionar los documentos de esta página";
+    window.HospitalI18n.bindText(selectAllButton, () => allSelected ? window.HospitalI18n.t("documents.deseleccionar_todos") : window.HospitalI18n.t("documents.seleccionar_todos"));
+    window.HospitalI18n.bindAttr(selectAllButton, "title", () => window.HospitalI18n.t("documents.seleccionar_o_deseleccionar_los_documentos_de_esta_pagina"));
     editSelectedButton.hidden = !bulk || count > 1;
     editSelectedButton.disabled = isDeleting || count !== 1;
     deleteSelectedButton.hidden = !bulk;
@@ -207,8 +210,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const items = documents.filter((item) => ids.includes(String(item.id)));
     if (!items.length) return;
     const question = items.length === 1
-      ? `¿Archivar "${items[0].title}"?`
-      : `¿Archivar los ${items.length} documentos seleccionados? Se conservarán los archivos y su historial.`;
+      ? window.HospitalI18n.t("documents.archivar_value", {value0: items[0].title})
+      : window.HospitalI18n.t("documents.archivar_los_value_documentos_seleccionados_se_conservaran_los_archivos_y_su_historial", {value0: items.length});
     if (!confirm(question)) return;
 
     closeMenus();
@@ -217,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
     grid.setAttribute("aria-busy", "true");
     actionStatus.hidden = false;
     actionStatus.classList.remove("error");
-    actionStatus.textContent = "Eliminando documentos...";
+    window.HospitalI18n.bindText(actionStatus, () => window.HospitalI18n.t("documents.eliminando_documentos"));
     try {
       const results = [];
       for (let offset = 0; offset < items.length; offset += 100) {
@@ -226,9 +229,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const failures = results.filter(item => !item.success);
       failures.forEach(item => window.HospitalApi.report(new window.HospitalApi.ApiError(item.error.message, item.error.status, item.error.code), "documents"));
       const count = results.length - failures.length;
-      actionStatus.textContent = count ? `${count} ${count === 1 ? "documento archivado" : "documentos archivados"}.` : "";
+      window.HospitalI18n.bindText(actionStatus, () => count ? `${count} ${count === 1 ? window.HospitalI18n.t("documents.documento_archivado") : window.HospitalI18n.t("documents.documentos_archivados")}.` : "");
       actionStatus.hidden = !count;
-    } catch (error) { window.HospitalApi.report(error, "documents"); actionStatus.textContent = ""; actionStatus.hidden = true; }
+    } catch (error) { window.HospitalApi.report(error, "documents"); window.HospitalI18n.bindText(actionStatus, () => ""); actionStatus.hidden = true; }
     finally { isDeleting = false; grid.setAttribute("aria-busy", "false"); await load(); }
   }
 
@@ -308,11 +311,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   setupFilter(typeButton, typeMenu, "type", (value, label) => {
     selectedType = value;
-    document.getElementById("documentTypeLabel").textContent = `Tipo: ${label}`;
+    window.HospitalI18n.bindText(document.getElementById("documentTypeLabel"), () => window.HospitalI18n.t("documents.tipo_value", {value0: label}));
   });
   setupFilter(dateButton, dateMenu, "date", (value, label) => {
     selectedDateOrder = value;
-    document.getElementById("documentDateLabel").textContent = value ? label : "Fecha";
+    window.HospitalI18n.bindText(document.getElementById("documentDateLabel"), () => value ? label : window.HospitalI18n.t("documents.fecha"));
   });
 
   function closeMenus() {
@@ -413,10 +416,12 @@ document.addEventListener("DOMContentLoaded", () => {
   archiveToggle.addEventListener("click", () => {
     listState = listState === "active" ? "archived" : "active";
     archiveToggle.setAttribute("aria-pressed", String(listState === "archived"));
-    archiveToggle.textContent = listState === "archived" ? "Ver activos" : "Ver archivados";
+    window.HospitalI18n.bindText(archiveToggle, () => listState === "archived" ? window.HospitalI18n.t("personnel.ver_activos") : window.HospitalI18n.t("personnel.ver_archivados"));
     currentPage = 1; load();
   });
   window.addEventListener("pageshow", event => { if (event.persisted) load(); });
   grid.addEventListener('scroll',()=>{if(grid.scrollTop+grid.clientHeight>=grid.scrollHeight-100)load(true);});
   load();
+  window.addEventListener('hospital:localechange',()=>{render();});
+
 });

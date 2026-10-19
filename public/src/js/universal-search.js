@@ -2,7 +2,10 @@
     const scriptUrl = document.currentScript.src;
     const viewsBase = new URL('../views/', scriptUrl);
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+    await window.HospitalI18n.ready;
+    await window.HospitalAuth.ready;
+
         const searchBtn = document.querySelector('.search-action');
         const topbar = searchBtn?.closest('.topbar, .settings-search-host');
         const searchInput = topbar?.querySelector('.search-input');
@@ -13,16 +16,16 @@
         searchWrapper.setAttribute('role', 'search');
         searchInput.type = 'text';
         if (!searchInput.id) searchInput.id = 'quick-search';
-        const localSearchType = document.getElementById('documentsGrid') ? 'documentos' : null;
-        searchInput.placeholder = 'Buscar una acción o sección...';
-        searchInput.setAttribute('aria-label', 'Buscar una acción o sección');
+        const localSearchType = document.getElementById('documentsGrid') ? 'documents' : null;
+        window.HospitalI18n.bindAttr(searchInput, "placeholder", () => window.HospitalI18n.t("main_menu.buscar_una_accion_o_seccion"));
+        window.HospitalI18n.bindAttr(searchInput, "aria-label", () => window.HospitalI18n.t("main_menu.buscar_una_accion_o_seccion_2"));
         searchInput.setAttribute('role', 'combobox');
         searchInput.setAttribute('aria-autocomplete', 'list');
         searchInput.setAttribute('aria-controls', 'search-results-list');
         searchInput.setAttribute('aria-expanded', 'false');
         searchInput.setAttribute('autocomplete', 'off');
         searchInput.tabIndex = -1;
-        searchBtn.setAttribute('aria-label', 'Abrir búsqueda');
+        window.HospitalI18n.bindAttr(searchBtn, "aria-label", () => window.HospitalI18n.t("main_menu.abrir_busqueda"));
         searchBtn.setAttribute('aria-controls', searchInput.id);
         searchBtn.setAttribute('aria-expanded', 'false');
 
@@ -32,9 +35,9 @@
             searchPanel.className = 'search-results';
             searchPanel.id = 'search-results';
             searchPanel.hidden = true;
-            searchPanel.innerHTML = '<div class="search-results-heading"><span id="search-results-title">Accesos rápidos</span></div>' +
-                '<ul id="search-results-list" class="search-results-list" role="listbox" aria-label="Resultados de búsqueda"></ul>' +
-                '<p class="search-results-footer">Haz clic en una opción disponible para ir a esa sección.</p>';
+            window.HospitalI18n.setHTML(searchPanel, `<div class="search-results-heading"><span id="search-results-title">${window.HospitalI18n.mark("main_menu.accesos_rapidos")}</span></div>` +
+                `<ul id="search-results-list" class="search-results-list" role="listbox" aria-label="${window.HospitalI18n.html("main_menu.resultados_de_busqueda")}" data-i18n-aria-label="main_menu.resultados_de_busqueda"></ul>` +
+                `<p class="search-results-footer">${window.HospitalI18n.mark("main_menu.haz_clic_en_una_opcion_disponible_para_ir_a_esa_seccion")}</p>`);
             topbar.append(searchPanel);
             const status = document.createElement('span');
             status.id = 'search-status';
@@ -49,148 +52,147 @@
         const searchStatus = topbar.querySelector('#search-status');
         if (!searchList || !searchTitle || !searchStatus) return;
         if (localSearchType) {
-            searchPanel.querySelector('.search-results-footer').textContent =
-                localSearchType === 'documentos'
-                    ? 'Haz clic en una opción para ir a esa sección. Usá la búsqueda de la lista para filtrar documentos.'
-                    : `Haz clic en una opción para ir a esa sección. La lista de ${localSearchType} también se filtra.`;
+            window.HospitalI18n.bindText(searchPanel.querySelector('.search-results-footer'), () => window.HospitalI18n.t('universal_search.haz_clic_en_una_opcion_para_ir_a_esa_seccion_usa_la_busqueda_de_la_lista_para_filtrar_docu'));
         }
 
         const destinations = [
             {
-                title: 'Cargar documento',
-                section: 'Documentos',
-                detail: 'Abrir formulario de carga',
+                get title() { return window.HospitalI18n.t("universal_search.cargar_documento"); },
+                get section() { return window.HospitalI18n.t("main_menu.documentos"); },
+                get detail() { return window.HospitalI18n.t("universal_search.abrir_formulario_de_carga"); },
                 href: 'documents/documents-upload.html',
                 icon: '../../assets/Icons/folder-icon.svg',
-                terms: 'subir documento cargar archivo adjuntar archivo nuevo documento'
+                get terms() { return window.HospitalI18n.t("universal_search.subir_documento_cargar_archivo_adjuntar_archivo_nuevo_documento"); }
             },
             {
-                title: 'Gestionar pacientes',
-                section: 'Gestión',
-                detail: 'Abrir la sección de pacientes',
+                get title() { return window.HospitalI18n.t("universal_search.gestionar_pacientes"); },
+                get section() { return window.HospitalI18n.t("trace_map.gestion"); },
+                get detail() { return window.HospitalI18n.t("universal_search.abrir_la_seccion_de_pacientes"); },
                 href: 'management/patients.html',
                 requiredRole: 'records_manager',
                 icon: '../../assets/Icons/database-cog.svg',
-                terms: 'cargar paciente registrar paciente agregar paciente nuevo paciente'
+                get terms() { return window.HospitalI18n.t("universal_search.cargar_paciente_registrar_paciente_agregar_paciente_nuevo_paciente"); }
             },
             {
-                title: 'Gestionar médicos',
-                section: 'Gestión',
-                detail: 'Equipo médico y especialidades',
+                get title() { return window.HospitalI18n.t("universal_search.gestionar_medicos"); },
+                get section() { return window.HospitalI18n.t("trace_map.gestion"); },
+                get detail() { return window.HospitalI18n.t("universal_search.equipo_medico_y_especialidades"); },
                 href: 'management/doctors.html',
                 requiredRole: 'records_manager',
                 icon: '../../assets/Icons/doctor-icon.svg',
-                terms: 'doctores medicos médicos especialistas registrar agregar nuevo médico doctor'
+                get terms() { return window.HospitalI18n.t("universal_search.doctores_medicos_medicos_especialistas_registrar_agregar_nuevo_medico_doctor"); }
             },
             {
-                title: 'Gestionar ambulancias',
-                section: 'Gestión',
-                detail: 'Abrir la sección de ambulancias',
+                get title() { return window.HospitalI18n.t("universal_search.gestionar_ambulancias"); },
+                get section() { return window.HospitalI18n.t("trace_map.gestion"); },
+                get detail() { return window.HospitalI18n.t("universal_search.abrir_la_seccion_de_ambulancias"); },
                 href: 'management/ambulances.html',
                 requiredRole: 'dispatcher',
                 icon: '../../assets/Icons/ambulance-icon.png',
-                terms: 'cargar vehiculo cargar vehículo registrar ambulancia agregar vehiculo transporte'
+                get terms() { return window.HospitalI18n.t("universal_search.cargar_vehiculo_cargar_vehiculo_registrar_ambulancia_agregar_vehiculo_transporte"); }
             },
             {
-                title: 'Crear encuesta',
-                section: 'Encuestas',
-                detail: 'Crear un borrador de encuesta',
+                get title() { return window.HospitalI18n.t("survey.crear_encuesta"); },
+                get section() { return window.HospitalI18n.t("main_menu.encuestas"); },
+                get detail() { return window.HospitalI18n.t("universal_search.crear_un_borrador_de_encuesta"); },
                 href: 'surveys/survey-new.html',
                 icon: '../../assets/Icons/survey-icon.svg',
-                terms: 'crear encuesta nueva encuesta subir encuesta'
+                get terms() { return window.HospitalI18n.t("universal_search.crear_encuesta_nueva_encuesta_subir_encuesta"); }
             },
             {
-                title: 'Gestionar cuentas',
-                section: 'Gestión', detail: 'Aprobación y permisos del personal', href: 'management/accounts.html', requiredRole: 'admin', icon: '../../assets/Icons/person-icon.svg', terms: 'cuentas usuarios aprobar permisos roles',
+                get title() { return window.HospitalI18n.t("universal_search.gestionar_cuentas"); },
+                get section() { return window.HospitalI18n.t("trace_map.gestion"); }, get detail() { return window.HospitalI18n.t("universal_search.aprobacion_y_permisos_del_personal"); }, href: 'management/accounts.html', requiredRole: 'admin', icon: '../../assets/Icons/person-icon.svg', terms: window.HospitalI18n.t("shared.cuentas_usuarios_aprobar_permisos_roles"),
             },
             {
-                title: 'Gestionar rutas',
-                section: 'Gestión',
-                detail: 'Recorridos opcionales para traslados',
+                get title() { return window.HospitalI18n.t("universal_search.gestionar_rutas"); },
+                get section() { return window.HospitalI18n.t("trace_map.gestion"); },
+                get detail() { return window.HospitalI18n.t("universal_search.recorridos_opcionales_para_traslados"); },
                 href: 'management/routes.html',
                 requiredRole: 'dispatcher',
                 icon: '../../assets/Icons/map-icon.svg',
-                terms: 'rutas recorridos itinerarios paradas',
+                get terms() { return window.HospitalI18n.t("universal_search.rutas_recorridos_itinerarios_paradas"); },
             },
             {
-                title: 'Gestionar destinos',
-                section: 'Gestión',
-                detail: 'Plantillas de centros y direcciones',
+                get title() { return window.HospitalI18n.t("universal_search.gestionar_destinos"); },
+                get section() { return window.HospitalI18n.t("trace_map.gestion"); },
+                get detail() { return window.HospitalI18n.t("universal_search.plantillas_de_centros_y_direcciones"); },
                 href: 'management/destinations.html',
                 requiredRole: 'dispatcher',
                 icon: '../../assets/Icons/location-icon.svg',
-                terms: 'destinos centros hospitales sanatorios policlinicas direcciones'
+                get terms() { return window.HospitalI18n.t("universal_search.destinos_centros_hospitales_sanatorios_policlinicas_direcciones"); }
             },
             {
-                title: 'Gestionar personal',
-                section: 'Gestión',
-                detail: 'Choferes y copilotos',
+                get title() { return window.HospitalI18n.t("universal_search.gestionar_personal"); },
+                get section() { return window.HospitalI18n.t("trace_map.gestion"); },
+                get detail() { return window.HospitalI18n.t("universal_search.choferes_y_copilotos"); },
                 href: 'management/personnel.html',
                 requiredRole: 'dispatcher',
                 icon: '../../assets/Icons/person-icon.svg',
-                terms: 'personal choferes conductores copilotos registrar conductor agregar personal'
+                get terms() { return window.HospitalI18n.t("universal_search.personal_choferes_conductores_copilotos_registrar_conductor_agregar_personal"); }
             },
             {
-                title: 'Nuevo traslado',
-                section: 'Ambulancias',
-                detail: 'Abrir formulario de traslado',
+                get title() { return window.HospitalI18n.t("universal_search.nuevo_traslado"); },
+                get section() { return window.HospitalI18n.t("main_menu.ambulancias"); },
+                get detail() { return window.HospitalI18n.t("universal_search.abrir_formulario_de_traslado"); },
                 href: 'traces/trace-new.html',
+                requiredRole: 'dispatcher',
                 icon: '../../assets/Icons/location-icon.svg',
-                terms: 'crear traslado registrar traslado cargar traslado'
+                get terms() { return window.HospitalI18n.t("universal_search.crear_traslado_registrar_traslado_cargar_traslado"); }
             },
             {
-                title: 'Ver documentos',
-                section: 'Documentos',
-                detail: 'Explorar documentos',
+                get title() { return window.HospitalI18n.t("universal_search.ver_documentos"); },
+                get section() { return window.HospitalI18n.t("main_menu.documentos"); },
+                get detail() { return window.HospitalI18n.t("universal_search.explorar_documentos"); },
                 href: 'documents/documents.html',
                 icon: '../../assets/Icons/folder-icon.svg',
-                terms: 'buscar documentos lista documentos archivos'
+                get terms() { return window.HospitalI18n.t("universal_search.buscar_documentos_lista_documentos_archivos"); }
             },
             {
-                title: 'Ver traslados',
-                section: 'Ambulancias',
-                detail: 'Explorar traslados',
+                get title() { return window.HospitalI18n.t("trace_map.ver_traslados"); },
+                get section() { return window.HospitalI18n.t("main_menu.ambulancias"); },
+                get detail() { return window.HospitalI18n.t("universal_search.explorar_traslados"); },
                 href: 'traces/trace.html',
                 icon: '../../assets/Icons/location-icon.svg',
-                terms: 'seguimiento trazabilidad ambulancias vehiculos vehículos'
+                get terms() { return window.HospitalI18n.t("universal_search.seguimiento_trazabilidad_ambulancias_vehiculos_vehiculos"); }
             },
             {
-                title: 'Gestión de datos',
-                section: 'Gestión',
-                detail: 'Pacientes, ambulancias y personal',
+                get title() { return window.HospitalI18n.t("management.gestion_de_datos"); },
+                get section() { return window.HospitalI18n.t("trace_map.gestion"); },
+                get detail() { return window.HospitalI18n.t("universal_search.pacientes_ambulancias_y_personal"); },
                 href: 'management/management.html',
+                requiredRoles: ['admin', 'records_manager', 'dispatcher'],
                 icon: '../../assets/Icons/database-cog.svg',
-                terms: 'administracion administrar pacientes vehiculos medicos'
+                get terms() { return window.HospitalI18n.t("universal_search.administracion_administrar_pacientes_vehiculos_medicos"); }
             },
             {
-                title: 'Configuración',
-                section: 'Cuenta',
-                detail: 'Perfil y preferencias',
+                get title() { return window.HospitalI18n.t("main_menu.configuracion"); },
+                section: window.HospitalI18n.t("shared.cuenta"),
+                get detail() { return window.HospitalI18n.t("universal_search.perfil_y_preferencias"); },
                 href: 'settings.html',
                 icon: '../../assets/Icons/settings-icon.svg',
-                terms: 'ajustes perfil cuenta contraseña tema'
+                get terms() { return window.HospitalI18n.t("universal_search.ajustes_perfil_cuenta_contrasena_tema"); }
             },
             {
-                title: 'Reportes',
-                section: 'Análisis',
-                detail: 'Sección en desarrollo',
+                title: window.HospitalI18n.t("shared.reportes"),
+                get section() { return window.HospitalI18n.t("universal_search.analisis"); },
+                get detail() { return window.HospitalI18n.t("universal_search.seccion_en_desarrollo"); },
                 icon: '../../assets/Icons/analytics-icon.svg',
-                terms: 'analitica estadísticas informes'
+                get terms() { return window.HospitalI18n.t("universal_search.analitica_estadisticas_informes"); }
             },
             {
-                title: 'Calendario',
-                section: 'Agenda',
-                detail: 'Sección en desarrollo',
+                title: window.HospitalI18n.t("shared.calendario"),
+                section: window.HospitalI18n.t("shared.agenda"),
+                get detail() { return window.HospitalI18n.t("universal_search.seccion_en_desarrollo"); },
                 icon: '../../assets/Icons/calendar-icon.svg',
-                terms: 'eventos citas agenda fechas'
+                get terms() { return window.HospitalI18n.t("universal_search.eventos_citas_agenda_fechas"); }
             },
             {
-                title: 'Inicio',
-                section: 'Principal',
-                detail: 'Volver al menú principal',
+                get title() { return window.HospitalI18n.t("main_menu.inicio"); },
+                section: window.HospitalI18n.t("shared.principal"),
+                get detail() { return window.HospitalI18n.t("universal_search.volver_al_menu_principal"); },
                 href: 'main-menu.html',
                 icon: '../../assets/Icons/house-icon.svg',
-                terms: 'menu principal página principal home'
+                get terms() { return window.HospitalI18n.t("universal_search.menu_principal_pagina_principal_home"); }
             }
         ];
         const quickDestinations = [destinations[0], destinations[4], destinations[7], destinations[8]];
@@ -202,8 +204,13 @@
             .replace(/[^a-z0-9]+/g, ' ')
             .trim();
 
+        function allowed(item) {
+            const roles = window.HospitalAuth?.current?.user?.roles;
+            return Boolean(roles) && (!item.requiredRole || roles.includes(item.requiredRole)) &&
+                (!item.requiredRoles || item.requiredRoles.some(role => roles.includes(role)));
+        }
+
         function matchingDestinations(query) {
-            const allowed = item => !item.requiredRole || window.HospitalAuth?.current?.user.roles.includes(item.requiredRole);
             if (!query) return quickDestinations.filter(allowed);
             const words = normalize(query).split(' ').filter(Boolean);
             return destinations
@@ -242,7 +249,7 @@
         function renderResults() {
             const query = normalize(searchInput.value);
             const matches = matchingDestinations(query);
-            searchTitle.textContent = query ? 'Resultados' : 'Accesos rápidos';
+            window.HospitalI18n.bindText(searchTitle, () => query ? window.HospitalI18n.t("shared.resultados") : window.HospitalI18n.t("main_menu.accesos_rapidos"));
             searchList.replaceChildren();
             activeIndex = -1;
             searchInput.removeAttribute('aria-activedescendant');
@@ -250,7 +257,7 @@
             if (!matches.length) {
                 const empty = document.createElement('li');
                 empty.className = 'search-empty';
-                empty.textContent = 'No encontramos una acción con ese nombre.';
+                window.HospitalI18n.bindText(empty, () => window.HospitalI18n.t("universal_search.no_encontramos_una_accion_con_ese_nombre"));
                 searchList.append(empty);
             }
 
@@ -262,35 +269,40 @@
                 option.id = `search-option-${index}`;
                 option.setAttribute('role', 'option');
                 option.setAttribute('aria-selected', 'false');
-                if (item.href) option.href = new URL(item.href, viewsBase).href;
+                if (item.href) {
+                    option.href = new URL(item.href, viewsBase).href;
+                    option.addEventListener('click', event => {
+                        if (!allowed(item)) { event.preventDefault(); showResults(); }
+                    });
+                }
                 else option.setAttribute('aria-disabled', 'true');
 
                 const icon = document.createElement('span');
                 icon.className = 'search-result-icon';
                 const image = document.createElement('img');
                 image.src = new URL(item.icon, viewsBase).href;
-                image.alt = '';
+                window.HospitalI18n.bindAttr(image, "alt", () => '');
                 icon.append(image);
 
                 const copy = document.createElement('span');
                 copy.className = 'search-result-copy';
                 const title = document.createElement('strong');
-                title.textContent = item.title;
+                window.HospitalI18n.bindText(title, () => item.title);
                 const detail = document.createElement('small');
-                detail.textContent = `${item.section} · ${item.detail}`;
+                window.HospitalI18n.bindText(detail, () => `${item.section} · ${item.detail}`);
                 copy.append(title, detail);
 
                 const end = document.createElement('span');
                 end.className = 'search-result-end';
-                end.textContent = item.href ? '↗' : 'Próximamente';
+                window.HospitalI18n.bindText(end, () => item.href ? '↗' : window.HospitalI18n.t("universal_search.proximamente"));
                 option.append(icon, copy, end);
                 row.append(option);
                 searchList.append(row);
             });
 
-            searchStatus.textContent = query
-                ? `${matches.length} ${matches.length === 1 ? 'resultado' : 'resultados'}`
-                : 'Accesos rápidos disponibles';
+            window.HospitalI18n.bindText(searchStatus, () => query
+                ? window.HospitalI18n.t('universal_search.result_count',{count:matches.length})
+                : window.HospitalI18n.t("universal_search.accesos_rapidos_disponibles"));
             return matches.length;
         }
 
@@ -299,7 +311,7 @@
             const showPanel = !localSearchType || !normalize(searchInput.value) || matchCount > 0;
             searchPanel.hidden = !showPanel;
             searchInput.setAttribute('aria-expanded', String(showPanel));
-            if (!showPanel) searchStatus.textContent = '';
+            if (!showPanel) window.HospitalI18n.bindText(searchStatus, () => '');
         }
 
         function scheduleQuickResults() {
@@ -308,7 +320,7 @@
             searchList.replaceChildren();
             searchInput.setAttribute('aria-expanded', 'false');
             searchInput.removeAttribute('aria-activedescendant');
-            searchStatus.textContent = '';
+            window.HospitalI18n.bindText(searchStatus, () => '');
             activeIndex = -1;
             quickResultsTimer = setTimeout(() => {
                 if (topbar.classList.contains('search-active') && !normalize(searchInput.value)) {
@@ -317,12 +329,16 @@
             }, 2000);
         }
 
+        window.addEventListener('hospital:session', () => {
+            if (topbar.classList.contains('search-active') && !searchPanel.hidden) showResults();
+        });
+
         function openSearch() {
             topbar.classList.add('search-active');
             topbar.closest('.settings-header')?.classList.add('search-active');
             searchInput.tabIndex = 0;
             searchBtn.setAttribute('aria-expanded', 'true');
-            searchBtn.setAttribute('aria-label', 'Cerrar búsqueda');
+            window.HospitalI18n.bindAttr(searchBtn, "aria-label", () => window.HospitalI18n.t("universal_search.cerrar_busqueda"));
             scheduleQuickResults();
             searchInput.focus();
         }
@@ -340,7 +356,7 @@
             searchInput.setAttribute('aria-expanded', 'false');
             searchInput.removeAttribute('aria-activedescendant');
             searchBtn.setAttribute('aria-expanded', 'false');
-            searchBtn.setAttribute('aria-label', 'Abrir búsqueda');
+            window.HospitalI18n.bindAttr(searchBtn, "aria-label", () => window.HospitalI18n.t("main_menu.abrir_busqueda"));
             activeIndex = -1;
         }
 
@@ -375,7 +391,7 @@
                 const target = links[activeIndex] || links[0];
                 if (target) {
                     event.preventDefault();
-                    window.location.assign(target.href);
+                    target.click();
                 }
             }
         });

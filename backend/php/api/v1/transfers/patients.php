@@ -7,5 +7,5 @@ use Hospital\Modules\Transfers\TransferInput;
 $service=new Hospital\Modules\Transfers\TransferService($db,$config);
 Request::method('POST'); Hospital\Security\Csrf::verify(); $user=$auth->requireUser(false);
 (new Hospital\Modules\Transfers\TransferAccess($db,$config))->requireDispatch((string)$user['id']);
-if($_GET)throw new Hospital\Http\ApiException(422,'UNEXPECTED_FIELDS','Parámetro no permitido.');
+if($_GET)throw new Hospital\Http\ApiException(422,'UNEXPECTED_FIELDS',\Hospital\I18n::t("errors.parametro_no_permitido"));
 $body=Request::body(['q']); Response::json((new Hospital\Modules\Transfers\TransferCatalog($db))->patients($body['q']??''));

@@ -25,8 +25,8 @@ final class TransferLocations
         }
         if ($selected!==null && !$keepSelected) {
             $s=$this->db->prepare("SELECT * FROM route_templates WHERE id=? AND status='active' AND availability='active'".($lock?' FOR UPDATE':'')); $s->execute([$selected]); $route=$s->fetch();
-            if (!$route) throw new ApiException(422,'ROUTE_UNAVAILABLE','Seleccioná una ruta activa o escribí el recorrido manualmente.');
-            if (isset($fields['route_version']) && (int)$route['version']!==$fields['route_version']) throw new ApiException(409,'VERSION_CONFLICT','La ruta cambió. Volvé a seleccionarla.');
+            if (!$route) throw new ApiException(422,'ROUTE_UNAVAILABLE',\Hospital\I18n::t("errors.selecciona_una_ruta_activa_o_escribi_el_recorrido_manualmente"));
+            if (isset($fields['route_version']) && (int)$route['version']!==$fields['route_version']) throw new ApiException(409,'VERSION_CONFLICT',\Hospital\I18n::t("errors.la_ruta_cambio_volve_a_seleccionarla"));
             $payload=(new \Hospital\Modules\Routes\RouteService($this->db,$this->config))->payload($route);
             $route['route_snapshot']=json_encode(array_intersect_key($payload,array_flip(['id','code','name','category','direction','stops','version'])),JSON_THROW_ON_ERROR);
             $ends=[]; foreach (['origin','destination'] as $key) $ends[$key]=['id'=>$route[$key.'_facility_id'],'name'=>$route[$key.'_name'],'address'=>$route[$key.'_address']];
@@ -43,7 +43,7 @@ final class TransferLocations
                 $ends[$key]=['id'=>$id,'name'=>$existing[$key.'_name'],'address'=>$existing[$key.'_address']];
             } elseif ($id!==null) {
                 $s=$this->db->prepare("SELECT * FROM facilities WHERE id=? AND status='active' AND availability='active'".($lock?' FOR UPDATE':'')); $s->execute([$id]); $center=$s->fetch();
-                if (!$center) throw new ApiException(422,'FACILITY_UNAVAILABLE','Seleccioná un centro activo o escribí una ubicación propia.');
+                if (!$center) throw new ApiException(422,'FACILITY_UNAVAILABLE',\Hospital\I18n::t("errors.selecciona_un_centro_activo_o_escribi_una_ubicacion_propia"));
                 $ends[$key]=$center;
             } else {
                 $ends[$key]=['id'=>null,'name'=>$fields[$key.'_name'],'address'=>$fields[$key.'_address']];

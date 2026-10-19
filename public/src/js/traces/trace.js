@@ -1,7 +1,11 @@
-document.addEventListener('DOMContentLoaded',async()=>{
-  'use strict';
+document.addEventListener('DOMContentLoaded',async ()=>{
+    'use strict';
+    await window.HospitalI18n.ready;
+    await window.HospitalAuth.ready;
+
   const api=window.TraceApi,$=id=>document.getElementById(id);
   if($('transferGrid')){
+    window.addEventListener('hospital:localechange',()=>render());
     const grid=$('transferGrid'),list=$('transferList'),template=$('transferCardTemplate'),pagination=document.querySelector('.pagination');
     let filter='active',page=1,total=0,items=[],loading=false,loaded=false,revision=0,type='all',sort='recent',timer;
     const isList=()=>filter==='all';
@@ -9,14 +13,14 @@ document.addEventListener('DOMContentLoaded',async()=>{
       const card=template.content.firstElementChild.cloneNode(true);
       card.className='transfer-card '+['blue-card','green-card','purple-card'][Number(item.id)%3];
       card.dataset.transferId=item.id;card.dataset.status=item.status;
-      card.querySelector('.card-title h2').textContent=`TRASLADO ${item.id}`;
-      card.querySelector('.card-title p').textContent=`Ambulancia ${item.ambulance.code}`;
-      const status=card.querySelector('.status-label');status.textContent=(item.is_delayed?'Demorado':api.labels[item.status]).toUpperCase();
+      window.HospitalI18n.bindText(card.querySelector('.card-title h2'), () => window.HospitalI18n.t("trace.traslado_value", {value0: item.id}));
+      window.HospitalI18n.bindText(card.querySelector('.card-title p'), () => window.HospitalI18n.t("trace.ambulancia_value", {value0: item.ambulance.code}));
+      const status=card.querySelector('.status-label');window.HospitalI18n.bindText(status, () => (item.is_delayed?window.HospitalI18n.t("trace_map.demorado_2"):api.labels[item.status]).toUpperCase());
       status.className='status-label '+(item.status==='scheduled'?'assigned-label':['completed','cancelled'].includes(item.status)?'completed-label':'progress-label');
-      const values=card.querySelectorAll('.info-value p');[item.crew.driver?.name??'—',item.crew.companion?.name??'—',api.cargo[item.cargo_type]].forEach((text,i)=>{values[i].textContent=text;});
+      const values=card.querySelectorAll('.info-value p');[item.crew.driver?.name??'—',item.crew.companion?.name??'—',api.cargo[item.cargo_type]].forEach((text,i)=>{window.HospitalI18n.bindText(values[i], () => text);});
       const stops=card.querySelectorAll('.route-text > div');
-      stops[0].querySelector('strong').textContent=item.origin.name;stops[0].querySelector('p').textContent=api.dateTime(item.started_at??item.scheduled_at);
-      stops[1].querySelector('strong').textContent=item.destination.name;stops[1].querySelector('p').textContent=api.dateTime(item.arrived_at??item.eta);
+      window.HospitalI18n.bindText(stops[0].querySelector('strong'), () => item.origin.name);window.HospitalI18n.bindText(stops[0].querySelector('p'), () => api.dateTime(item.started_at??item.scheduled_at));
+      window.HospitalI18n.bindText(stops[1].querySelector('strong'), () => item.destination.name);window.HospitalI18n.bindText(stops[1].querySelector('p'), () => api.dateTime(item.arrived_at??item.eta));
       card.querySelector('.details-button').dataset.openTransfer=item.id;return card;
     }
     function makeListRow(item){
@@ -24,7 +28,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
       const identity=document.createElement('div');identity.className='list-row-identity';identity.append(card.querySelector('.ambulance-icon'));
       const copy=document.createElement('div');copy.className='list-row-identity-copy';copy.append(card.querySelector('.card-title'));
       const badges=document.createElement('div');badges.className='list-row-badges';badges.append(card.querySelector('.status-label'));
-      const typeBadge=document.createElement('span');typeBadge.className='list-type-badge';typeBadge.textContent='Elemento: '+api.cargo[item.cargo_type];badges.append(typeBadge);copy.append(badges);identity.append(copy);
+      const typeBadge=document.createElement('span');typeBadge.className='list-type-badge';window.HospitalI18n.bindText(typeBadge, () => window.HospitalI18n.t('trace.cargo_prefix')+api.cargo[item.cargo_type]);badges.append(typeBadge);copy.append(badges);identity.append(copy);
       const route=document.createElement('div');route.className='list-row-route';route.append(card.querySelector('.route-box'));
       const crew=document.createElement('div');crew.className='list-row-crew';const info=card.querySelector('.transfer-information');info.querySelector('.info-group:last-child').remove();crew.append(info);
       const action=document.createElement('div');action.className='list-row-action';action.append(card.querySelector('.details-button'));row.append(identity,route,crew,action);return row;
@@ -34,10 +38,10 @@ document.addEventListener('DOMContentLoaded',async()=>{
       grid.replaceChildren(...(all?[]:items.map(makeCard)));list.replaceChildren(...(all?items.map(makeListRow):[]));list.scrollTop=scroll;
       $('emptyMessage').hidden=all||!loaded||items.length>0;$('listEmptyMessage').hidden=!all||!loaded||items.length>0;
       pagination.hidden=all;pagination.style.display=all?'none':'';grid.setAttribute('aria-busy',String(loading));list.setAttribute('aria-busy',String(loading));
-      $('resultsText').textContent=loaded?(all?`${total} ${total===1?'traslado':'traslados'}`:`Mostrando ${items.length} de ${total} traslados`):loading?'Cargando traslados...':'';
+      window.HospitalI18n.bindText($('resultsText'), () => loaded?(all?window.HospitalI18n.t('trace.transfer_count',{count:total}):window.HospitalI18n.t("trace.mostrando_value_de_value_traslados", {value0: items.length, value1: total})):loading?window.HospitalI18n.t("trace.cargando_traslados"):'');
       const pages=Math.ceil(total/3);$('previousPage').disabled=loading||page<=1;$('nextPage').disabled=loading||page>=pages;$('pageNumbers').replaceChildren();
       if(!all)for(let n=Math.max(1,Math.min(page-1,pages-2));n<=Math.min(pages,Math.max(3,page+1));n++){
-        const b=document.createElement('button');b.type='button';b.className='page-button'+(n===page?' active':'');b.textContent=n;b.dataset.page=n;b.setAttribute('aria-label',`Ir a la página ${n}`);b.disabled=loading;if(n===page)b.setAttribute('aria-current','page');$('pageNumbers').append(b);
+        const b=document.createElement('button');b.type='button';b.className='page-button'+(n===page?' active':'');window.HospitalI18n.bindText(b, () => n);b.dataset.page=n;window.HospitalI18n.bindAttr(b, "aria-label", () => window.HospitalI18n.t("trace.ir_a_la_pagina_value", {value0: n}));b.disabled=loading;if(n===page)b.setAttribute('aria-current','page');$('pageNumbers').append(b);
       }
     }
     async function load(append=false,quiet=false){
@@ -47,7 +51,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
         const result=await api.list({state:filter,page:requested,page_size:isList()?30:3,q:isList()?$('listTransferSearch').value.trim():'',type:isList()?type:'all',sort});
         if(r!==revision)return;total=result.meta.total;page=requested;
         items=append?[...new Map([...items,...result.data].map(item=>[item.id,item])).values()]:result.data;loaded=true;success=true;
-        $('activeCount').textContent=result.meta.counts.active_count;$('completedCount').textContent=result.meta.counts.completed_count;$('allCount').textContent=result.meta.counts.all_count;
+        window.HospitalI18n.bindText($('activeCount'), () => result.meta.counts.active_count);window.HospitalI18n.bindText($('completedCount'), () => result.meta.counts.completed_count);window.HospitalI18n.bindText($('allCount'), () => result.meta.counts.all_count);
         document.querySelector('.primary-action').disabled=!result.meta.can_manage;
         if(!isList()&&page>1&&!items.length&&total){page=Math.ceil(total/3);return load();}
       }catch(error){api.report(error);}finally{if(r===revision){loading=false;render();if(success&&isList()&&items.length<total&&list.scrollHeight<=list.clientHeight+100)requestAnimationFrame(()=>load(true));}}
@@ -73,7 +77,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
     const route=catalog?.routes.find(item=>item.id===$('routeTemplate').value);
     for(const key of ['origin','destination']){ $(key).readOnly=Boolean(route);if(route&&fill)$(key).value=route[`${key}_address`]||route[`${key}_name`]; }
     if(fill)$('routeVersion').value=route?String(route.version):'';
-    $('route-itinerary').textContent=route?[route.origin_name,...route.stops.map(s=>s.name),route.destination_name].join(' → '):'';
+    window.HospitalI18n.bindText($('route-itinerary'), () => route?[route.origin_name,...route.stops.map(s=>s.name),route.destination_name].join(' → '):'');
     $('route-itinerary').hidden=!route;
     if(!$('routeTemplate').value)$('routeVersion').value='';
   }
@@ -81,48 +85,49 @@ document.addEventListener('DOMContentLoaded',async()=>{
   const findCrew=(value,duty)=>catalog.crew.find(item=>crewLabel(item)===value&&(duty==='driver'?item.role_code==='driver':['copilot','doctor'].includes(item.role_code)));
   const validation=text=>api.report(new window.HospitalApi.ApiError(text,422,'VALIDATION_FAILED'));
   function setBusy(value){busy=value;form.querySelectorAll('input,select,textarea,button').forEach(control=>{control.disabled=value;});$('patientSex').disabled=true;form.setAttribute('aria-busy',String(value));}
-  function showPatient(item){patient=item;$('patientCedula').value=item?.national_id??'';$('patientAge').value=item?.age??'';$('patientAge').title=item?.age_is_estimate?`Edad estimada registrada el ${item.age_recorded_on}`:'';$('patientSex').value=({female:'femenino',male:'masculino',other:'otro',unspecified:'no-indica'})[item?.sex]??'';}
+  function showPatient(item){patient=item;$('patientCedula').value=item?.national_id??'';$('patientAge').value=item?.age??'';window.HospitalI18n.bindAttr($('patientAge'), "title", () => item?.age_is_estimate?window.HospitalI18n.t("trace.edad_estimada_registrada_el_value", {value0: item.age_recorded_on}):'');$('patientSex').value=({female:'femenino',male:'masculino',other:'otro',unspecified:'no-indica'})[item?.sex]??'';}
   function patientRequirement(){const needed=$('transferType').value==='patient';$('patientName').required=needed;for(const name of ['patientName','patientCedula','patientAge','patientSex'])$(name).disabled=!needed||busy||name==='patientSex';if(!needed){$('patientName').value='';showPatient(null);form.elements.withFamily.checked=false;form.elements.criticalPatient.checked=false;}}
   $('transferType').addEventListener('change',patientRequirement);
   $('patientName').addEventListener('input',()=>{
     clearTimeout(patientTimer);const r=++patientRevision;showPatient(patientChoices.find(item=>patientLabel(item)===$('patientName').value)??null);
     if(patient||$('patientName').value.trim().length<2){$('patient-options').replaceChildren();return;}
-    patientTimer=setTimeout(async()=>{try{const found=await api.patients($('patientName').value.trim());if(r!==patientRevision)return;patientChoices=found;$('patient-options').replaceChildren(...found.map(item=>new Option(patientLabel(item),patientLabel(item))));showPatient(found.find(item=>patientLabel(item)===$('patientName').value)??null);}catch(error){api.report(error);}},220);
+    patientTimer=setTimeout(async()=>{try{const found=await api.patients($('patientName').value.trim());if(r!==patientRevision)return;patientChoices=found;$('patient-options').replaceChildren(...found.map(item=>window.HospitalI18n.option(() => patientLabel(item), patientLabel(item))));showPatient(found.find(item=>patientLabel(item)===$('patientName').value)??null);}catch(error){api.report(error);}},220);
   });
   $('patientName').addEventListener('change',()=>showPatient(patientChoices.find(item=>patientLabel(item)===$('patientName').value)??patient));
   async function saveDraft(clear=false){
     if(busy)return false;const payload={};for(const control of form.querySelectorAll('input,select,textarea'))if(control.name)payload[control.name]=control.type==='checkbox'?control.checked:control.value;
     payload.patientId=patient?.id??'';payload.createToken=token;
-    setBusy(true);try{const result=await api.saveDraft(clear?{version:draftVersion,clear:true}:{version:draftVersion,payload});draftVersion=result.version;$('formMessage').textContent=clear?'':'Borrador guardado.';return true;}catch(error){api.report(error);$('formMessage').textContent='';return false;}finally{setBusy(false);patientRequirement();}
+    setBusy(true);try{const result=await api.saveDraft(clear?{version:draftVersion,clear:true}:{version:draftVersion,payload});draftVersion=result.version;window.HospitalI18n.bindText($('formMessage'), () => clear?'':window.HospitalI18n.t("trace.borrador_guardado"));return true;}catch(error){api.report(error);window.HospitalI18n.bindText($('formMessage'), () => '');return false;}finally{setBusy(false);patientRequirement();}
   }
   $('saveDraft').addEventListener('click',()=>saveDraft());$('cancelTransfer').addEventListener('click',async()=>{if(await saveDraft(true))location.assign('trace.html');});
   form.addEventListener('submit',async event=>{
     event.preventDefault();if(busy||!form.checkValidity())return;
     const driver=findCrew($('driver').value,'driver'),companion=$('companion').value?findCrew($('companion').value,'companion'):null;
-    if(!driver||($('companion').value&&!companion)||($('transferType').value==='patient'&&(!patient||patientLabel(patient)!==$('patientName').value))){validation('Seleccioná personal y paciente desde sus catálogos.');return;}
+    if(!driver||($('companion').value&&!companion)||($('transferType').value==='patient'&&(!patient||patientLabel(patient)!==$('patientName').value))){validation(window.HospitalI18n.t("trace.selecciona_personal_y_paciente_desde_sus_catalogos"));return;}
     const body={route_template_id:$('routeTemplate').value||null,ambulance_id:$('ambulance').value,driver_id:driver.id,companion_id:companion?.id??null,patient_id:patient?.id??null,...api.locationFields('origin',$('origin').value,catalog.facilities),...api.locationFields('destination',$('destination').value,catalog.facilities),scheduled_at:`${$('startDate').value}T${$('startTime').value}:00-03:00`,cargo_type:$('transferType').value,priority:$('priority').value,reason:$('reason').value,notes:$('notes').value,create_token:token};
     for(const [field,name]of Object.entries({special_equipment:'specialEquipment',with_family:'withFamily',interdepartmental:'interdepartmental',critical_patient:'criticalPatient'}))body[field]=form.elements[name].checked;
     if($('routeTemplate').value&&$('routeVersion').value)body.route_version=Number($('routeVersion').value);
     if(draftVersion)body.draft_version=draftVersion;
-    setBusy(true);$('formMessage').textContent='Guardando traslado...';
-    try{const item=await api.create(body);location.assign(`trace-view.html?id=${encodeURIComponent(item.id)}`);}catch(error){api.report(error);$('formMessage').textContent='';setBusy(false);patientRequirement();}
+    setBusy(true);window.HospitalI18n.bindText($('formMessage'), () => window.HospitalI18n.t("trace.guardando_traslado"));
+    try{const item=await api.create(body);location.assign(`trace-view.html?id=${encodeURIComponent(item.id)}`);}catch(error){api.report(error);window.HospitalI18n.bindText($('formMessage'), () => '');setBusy(false);patientRequirement();}
   });
   setBusy(true);
   try{
     if(!await window.HospitalAuth.ready)return;
     try{localStorage.removeItem('hospitalNewTransferDraft');}catch(_){}
     const result=await Promise.all([api.catalogs(),api.draft(),api.token()]);catalog=result[0];draftVersion=result[1].version;token=result[2].create_token;
-    $('ambulance').replaceChildren(new Option('Buscar ambulancia...',''),...catalog.ambulances.map(item=>new Option(`Ambulancia ${item.code} · ${item.plate}`,item.id)));
-    $('crew-options').replaceChildren(...[...new Map(catalog.crew.map(item=>[item.id,item])).values()].map(item=>new Option(crewLabel(item),crewLabel(item))));
-    $('facility-options').replaceChildren(...catalog.facilities.map(item=>new Option(facilityLabel(item),facilityLabel(item))));
-    $('routeTemplate').replaceChildren(new Option('Escribir recorrido manualmente',''),...catalog.routes.map(item=>new Option(`${item.code} · ${item.name}`,item.id)));
+    $('ambulance').replaceChildren(window.HospitalI18n.option(() => window.HospitalI18n.t("trace_new.buscar_ambulancia"), ''),...catalog.ambulances.map(item=>window.HospitalI18n.option(() => window.HospitalI18n.t("trace.ambulancia_value_value", {value0: item.code, value1: item.plate}), item.id)));
+    $('crew-options').replaceChildren(...[...new Map(catalog.crew.map(item=>[item.id,item])).values()].map(item=>window.HospitalI18n.option(() => crewLabel(item), crewLabel(item))));
+    $('facility-options').replaceChildren(...catalog.facilities.map(item=>window.HospitalI18n.option(() => facilityLabel(item), facilityLabel(item))));
+    $('routeTemplate').replaceChildren(window.HospitalI18n.option(() => window.HospitalI18n.t("trace_view.escribir_recorrido_manualmente"), ''),...catalog.routes.map(item=>window.HospitalI18n.option(() => `${item.code} · ${item.name}`, item.id)));
     const now=api.localParts(Date.now());$('startDate').min=now.date;$('startDate').value=now.date;$('startTime').value=now.time;
     const savedRoute=result[1].payload?.routeTemplate;
-    if(savedRoute&&!catalog.routes.some(r=>r.id===savedRoute))$('routeTemplate').add(new Option('Ruta del borrador (no disponible)',savedRoute));
+    if(savedRoute&&!catalog.routes.some(r=>r.id===savedRoute))$('routeTemplate').add(window.HospitalI18n.option(() => window.HospitalI18n.t("trace.ruta_del_borrador_no_disponible"), savedRoute));
     for(const [name,value]of Object.entries(result[1].payload||{})){const control=form.elements.namedItem(name);if(!control)continue;if(control.type==='checkbox')control.checked=value===true;else control.value=value;}
     applyRoute(false);
     if(/^[a-f0-9]{64}$/.test(result[1].payload?.createToken??''))token=result[1].payload.createToken;
     if(result[1].payload?.patientId&&$('patientCedula').value){patientChoices=await api.patients($('patientCedula').value);showPatient(patientChoices.find(item=>item.id===result[1].payload.patientId)??null);}
     setBusy(false);patientRequirement();
   }catch(error){api.report(error);}
+
 });

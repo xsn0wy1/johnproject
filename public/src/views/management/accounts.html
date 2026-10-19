@@ -3,57 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cuentas | Hospital de Clínicas</title>
+  <title data-i18n="accounts.cuentas_hospital_de_clinicas">Cuentas | Hospital de Clínicas</title>
   <link rel="icon" type="image/x-icon" href="../../../assets/hospital-dark.ico">
   <link rel="stylesheet" href="../../css/main-menu.css?v=20261012-settings">
   <link rel="stylesheet" href="../../css/management/routes.css?v=20261004-controls-design">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inclusive+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-  <script src="../../js/api-client.js" defer></script>
-  <script src="../../js/auth-session.js?v=20261014-audit" defer></script>
-  <script src="../../js/main-menu.js?v=20260927-global" defer></script>
-  <script src="../../js/universal-search.js?v=20261014-surveys" defer></script>
-  <script src="../../js/management/accounts.js?v=20261014-audit" defer></script>
+  <script src="../../js/i18n.js?v=20261019-i18n" defer></script>
+  <script src="../../js/api-client.js?v=20261019-i18n" defer></script>
+  <script src="../../js/auth-session.js?v=20261019-i18n" defer></script>
+  <script src="../../js/main-menu.js?v=20261019-i18n" defer></script>
+  <script src="../../js/universal-search.js?v=20261019-role-shortcuts" defer></script>
+  <script src="../../js/management/accounts.js?v=20261019-i18n" defer></script>
   <link rel="stylesheet" href="../../css/management/accounts.css">
 </head>
 <body class="routes-page">
   <main class="app-shell">
     <aside class="sidebar">
-      <button type="button" class="sidebar-action" aria-label="Abrir menú" aria-expanded="false"><span></span><span></span><span></span></button>
-      <nav class="sidebar-nav" aria-label="Navegación principal">
+      <button type="button" class="sidebar-action" aria-label="Abrir menú" data-i18n-aria-label="main_menu.abrir_menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="sidebar-nav" aria-label="Navegación principal" data-i18n-aria-label="trace_map.navegacion_principal">
         <div class="nav-indicator"></div>
-        <a href="../main-menu.html" class="nav-item"><img src="../../../assets/Icons/house-icon.svg" alt=""><span>Inicio</span></a>
-        <a href="../documents/documents.html" class="nav-item"><img src="../../../assets/Icons/folder-icon.svg" alt=""><span>Documentos</span></a>
-        <a href="../traces/trace.html" class="nav-item"><img src="../../../assets/Icons/location-icon.svg" alt=""><span>Ambulancias</span></a>
-        <a href="../analytics/analytics.html" class="nav-item"><img src="../../../assets/Icons/analytics-icon.svg" alt=""><span>Reportes</span></a>
-        <a href="../calendar/calendar.html" class="nav-item"><img src="../../../assets/Icons/calendar-icon.svg" alt=""><span>Calendario</span></a>
-        <a href="../surveys/survey.html" class="nav-item"><img src="../../../assets/Icons/survey-icon.svg" alt=""><span>Encuestas</span></a>
-        <a href="management.html" class="nav-item active" aria-current="page"><img src="../../../assets/Icons/database-cog.svg" alt=""><span>Gestión</span></a>
+        <a href="../main-menu.html" class="nav-item"><img src="../../../assets/Icons/house-icon.svg" alt=""><span data-i18n="main_menu.inicio">Inicio</span></a>
+        <a href="../documents/documents.html" class="nav-item"><img src="../../../assets/Icons/folder-icon.svg" alt=""><span data-i18n="main_menu.documentos">Documentos</span></a>
+        <a href="../traces/trace.html" class="nav-item"><img src="../../../assets/Icons/location-icon.svg" alt=""><span data-i18n="main_menu.ambulancias">Ambulancias</span></a>
+        <a href="../surveys/survey.html" class="nav-item"><img src="../../../assets/Icons/survey-icon.svg" alt=""><span data-i18n="main_menu.encuestas">Encuestas</span></a>
+        <a href="management.html" class="nav-item active" aria-current="page"><img src="../../../assets/Icons/database-cog.svg" alt=""><span data-i18n="trace_map.gestion">Gestión</span></a>
         <div class="nav-spacer"></div>
-        <a href="../settings.html" class="nav-item"><img src="../../../assets/Icons/settings-icon.svg" alt=""><span>Configuración</span></a>
+        <a href="../settings.html" class="nav-item"><img src="../../../assets/Icons/settings-icon.svg" alt=""><span data-i18n="main_menu.configuracion">Configuración</span></a>
       </nav>
     </aside>
 
     <div class="routes-layout">
       <header class="topbar">
-        <div class="brand"><img src="../../../assets/Icons/hospital-logo.png" alt=""><span>HOSPITAL DE CLINICAS</span></div>
+        <div class="brand"><img src="../../../assets/Icons/hospital-logo.png" alt=""><span data-i18n="main_menu.hospital_de_clinicas_2">HOSPITAL DE CLINICAS</span></div>
         <div class="search-wrapper">
-          <input type="search" class="search-input" placeholder="Buscar una acción o sección..." aria-label="Buscar una acción o sección">
-          <button type="button" class="topbar-action search-action" aria-label="Abrir búsqueda" aria-expanded="false"><img src="../../../assets/Icons/search-icon.svg" alt=""></button>
+          <input type="search" class="search-input" placeholder="Buscar una acción o sección..." data-i18n-placeholder="main_menu.buscar_una_accion_o_seccion" aria-label="Buscar una acción o sección" data-i18n-aria-label="main_menu.buscar_una_accion_o_seccion_2">
+          <button type="button" class="topbar-action search-action" aria-label="Abrir búsqueda" data-i18n-aria-label="main_menu.abrir_busqueda" aria-expanded="false"><img src="../../../assets/Icons/search-icon.svg" alt=""></button>
         </div>
       </header>
 
-      <section class="routes-content" aria-label="Gestión de cuentas">
-        <div class="routes-heading"><a href="management.html" class="routes-back" aria-label="Volver a Gestión">←</a><h1>Cuentas del personal</h1></div>
+      <section class="routes-content" aria-label="Gestión de cuentas" data-i18n-aria-label="accounts.gestion_de_cuentas">
+        <div class="routes-heading"><a href="management.html" class="routes-back" aria-label="Volver a Gestión" data-i18n-aria-label="routes.volver_a_gestion">←</a><h1 data-i18n="accounts.cuentas_del_personal">Cuentas del personal</h1></div>
         <div class="routes-workspace">
-          <section class="route-directory" aria-label="Listado de cuentas">
-            <label class="route-search"><input type="search" id="account-search" aria-label="Buscar cuenta" placeholder="Buscar usuario o email..."></label>
-            <div class="catalog-filters"><select id="account-state" aria-label="Estado de cuenta"><option value="">Todas</option><option value="pending">Pendientes</option><option value="active">Activas</option><option value="disabled">Desactivadas</option></select></div>
+          <section class="route-directory" aria-label="Listado de cuentas" data-i18n-aria-label="accounts.listado_de_cuentas">
+            <label class="route-search"><input type="search" id="account-search" aria-label="Buscar cuenta" data-i18n-aria-label="accounts.buscar_cuenta" placeholder="Buscar usuario o email..." data-i18n-placeholder="accounts.buscar_usuario_o_email"></label>
+            <div class="catalog-filters"><select id="account-state" aria-label="Estado de cuenta" data-i18n-aria-label="accounts.estado_de_cuenta"><option value="" data-i18n="routes.todas">Todas</option><option value="pending" data-i18n="accounts.pendientes">Pendientes</option><option value="active" data-i18n="routes.activas">Activas</option><option value="disabled" data-i18n="accounts.desactivadas">Desactivadas</option></select></div>
             <div class="route-list detail-scroll" id="account-list"></div><p id="account-count" role="status"></p>
           </section>
-          <aside class="route-detail" aria-label="Detalle de cuenta">
-            <div class="detail-scroll" id="account-detail"><h2>Seleccioná una cuenta</h2></div>
+          <aside class="route-detail" aria-label="Detalle de cuenta" data-i18n-aria-label="accounts.detalle_de_cuenta">
+            <div class="detail-scroll" id="account-detail"><h2 data-i18n="accounts.selecciona_una_cuenta">Seleccioná una cuenta</h2></div>
           </aside>
         </div>
       </section>
@@ -61,14 +60,14 @@
   </main>
   <dialog class="route-dialog" id="account-dialog" aria-labelledby="account-title">
     <form id="account-form" novalidate>
-      <div class="dialog-heading"><h2 id="account-title">Administrar cuenta</h2></div>
-      <div class="form-scroll"><p id="account-name"></p><fieldset id="account-roles" class="form-section account-roles"><legend>Permisos de la cuenta</legend>
-        <label><input type="checkbox" name="role" value="staff"> Personal</label>
-        <label><input type="checkbox" name="role" value="records_manager"> Registros clínicos</label>
-        <label><input type="checkbox" name="role" value="dispatcher"> Coordinación de traslados</label>
-        <label><input type="checkbox" name="role" value="admin"> Administración de cuentas</label>
-      </fieldset><label id="password-label" class="form-section" hidden>Nueva contraseña<input type="password" id="account-password" autocomplete="new-password" minlength="12" maxlength="72"></label></div>
-      <div class="dialog-actions"><button class="secondary-button" type="button" id="account-cancel">Cancelar</button><button class="primary-button" type="submit" id="account-save">Guardar</button></div>
+      <div class="dialog-heading"><h2 id="account-title" data-i18n="accounts.administrar_cuenta">Administrar cuenta</h2></div>
+      <div class="form-scroll"><p id="account-name"></p><fieldset id="account-roles" class="form-section account-roles"><legend data-i18n="accounts.permisos_de_la_cuenta">Permisos de la cuenta</legend>
+        <label><input type="checkbox" name="role" value="staff"> <i18n-text data-i18n="trace_view.personal" style="display:contents">Personal</i18n-text></label>
+        <label><input type="checkbox" name="role" value="records_manager"> <i18n-text data-i18n="accounts.registros_clinicos" style="display:contents">Registros clínicos</i18n-text></label>
+        <label><input type="checkbox" name="role" value="dispatcher"> <i18n-text data-i18n="accounts.coordinacion_de_traslados" style="display:contents">Coordinación de traslados</i18n-text></label>
+        <label><input type="checkbox" name="role" value="admin"> <i18n-text data-i18n="accounts.administracion_de_cuentas" style="display:contents">Administración de cuentas</i18n-text></label>
+      </fieldset><label id="password-label" class="form-section" hidden><i18n-text data-i18n="settings.nueva_contrasena" style="display:contents">Nueva contraseña</i18n-text><input type="password" id="account-password" autocomplete="new-password" minlength="12" maxlength="72"></label></div>
+      <div class="dialog-actions"><button class="secondary-button" type="button" id="account-cancel" data-i18n="settings.cancelar">Cancelar</button><button class="primary-button" type="submit" id="account-save" data-i18n="accounts.guardar">Guardar</button></div>
     </form>
   </dialog>
   <p class="route-toast" id="account-status" role="status" hidden></p>

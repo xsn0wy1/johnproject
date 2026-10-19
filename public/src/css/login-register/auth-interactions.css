@@ -1,0 +1,107 @@
+.tarjeta input,
+.tarjeta .password-wrapper,
+.tarjeta .campo {
+    transition:
+        border-color 0.22s ease,
+        background-color 0.22s ease,
+        box-shadow 0.22s ease,
+        transform 0.22s ease;
+}
+
+.tarjeta input:enabled:hover,
+.tarjeta input:enabled:focus {
+    border-color: rgba(171, 186, 234, 0.64);
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.tarjeta input:enabled:focus {
+    box-shadow: 0 0 0 4px rgba(122, 145, 220, 0.08);
+}
+
+.tarjeta > form > input:enabled:hover,
+.tarjeta .password-wrapper:hover,
+.tarjeta .campo:has(input:enabled):hover {
+    transform: translateY(-2px);
+}
+
+.tarjeta > form > input:enabled:focus,
+.tarjeta .password-wrapper:focus-within,
+.tarjeta .campo:focus-within {
+    transform: translateY(-1px);
+}
+
+.tarjeta button,
+.tarjeta a {
+    transition:
+        color 0.22s ease,
+        background-color 0.22s ease,
+        border-color 0.22s ease,
+        box-shadow 0.22s ease,
+        filter 0.22s ease,
+        transform 0.22s ease;
+}
+
+.tarjeta button:enabled:not(.btn-toggle-eye):hover {
+    filter: brightness(1.1);
+    border-color: rgba(238, 238, 238, 0.62);
+    box-shadow: 0 16px 30px rgba(5, 16, 62, 0.34);
+    transform: translateY(-3px);
+}
+
+.tarjeta button:enabled:not(.btn-toggle-eye):active {
+    transform: translateY(0) scale(0.985);
+}
+
+.tarjeta a:not(.volver) {
+    display: inline-block;
+}
+
+.tarjeta a:hover {
+    color: #ffffff;
+}
+
+.tarjeta a:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.tarjeta button:focus-visible,
+.tarjeta a:focus-visible {
+    outline: 2px solid #abbaea;
+    outline-offset: 4px;
+}
+
+.tarjeta button:disabled {
+    cursor: default;
+}
+
+.tarjeta .password-wrapper button.btn-toggle-eye {
+    filter: none;
+}
+
+.tarjeta .btn-toggle-eye img {
+    filter: brightness(0) invert(1);
+    transition: filter 0.22s ease;
+}
+
+.tarjeta .password-wrapper button.btn-toggle-eye:hover {
+    transform: translateY(calc(-50% - 2px));
+}
+
+.tarjeta .btn-toggle-eye:hover img {
+    filter: brightness(0) saturate(100%) invert(77%) sepia(11%) saturate(1478%) hue-rotate(189deg) brightness(97%);
+}
+
+.tarjeta .password-wrapper button.btn-toggle-eye:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tarjeta input,
+    .tarjeta .password-wrapper,
+    .tarjeta .campo,
+    .tarjeta button,
+    .tarjeta a,
+    .tarjeta .btn-toggle-eye img {
+        transition-duration: 0.01ms;
+    }
+}

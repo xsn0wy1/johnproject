@@ -3,9 +3,9 @@
   const api = window.HospitalApi;
   const path = name => `documents/${name}.php`;
   const idQuery = id => new URLSearchParams({ id });
-  const size = bytes => bytes < 1024 ? `${bytes} B` : bytes < 1048576 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1048576).toFixed(1)} MB`;
-  const date = value => value ? new Intl.DateTimeFormat("es-UY", { timeZone: "America/Montevideo", dateStyle: "short" }).format(new Date(value.includes("T") ? value : value + "T12:00:00Z")) : "";
-  const time = value => new Intl.DateTimeFormat("es-UY", { timeZone: "America/Montevideo", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
+  const size = bytes => bytes < 1024 ? window.HospitalI18n.t("document_api.value_b", {value0: bytes}) : bytes < 1048576 ? window.HospitalI18n.t("document_api.value_kb", {value0: (bytes / 1024).toFixed(1)}) : window.HospitalI18n.t("document_api.value_mb", {value0: (bytes / 1048576).toFixed(1)});
+  const date = value => value ? new Intl.DateTimeFormat(window.HospitalI18n.locale, { timeZone: "America/Montevideo", dateStyle: "short" }).format(new Date(value.includes("T") ? value : value + "T12:00:00Z")) : "";
+  const time = value => new Intl.DateTimeFormat(window.HospitalI18n.locale, { timeZone: "America/Montevideo", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
   async function save(fields, file, create = false) {
     if (!file) return api.post(path("update"), fields);
     const body = new FormData();

@@ -13,12 +13,12 @@ final class SurveyService
     private function actor(string $actor): void
     {
         $u=$this->users->byId($actor,true);
-        if (!$u||$u['status']!=='active'||$u['staff_status']!=='active'||(int)$u['auth_version']!==(int)($_SESSION['auth_version']??0))throw new ApiException(401,'SESSION_EXPIRED','La sesión venció.');
+        if (!$u||$u['status']!=='active'||$u['staff_status']!=='active'||(int)$u['auth_version']!==(int)($_SESSION['auth_version']??0))throw new ApiException(401,'SESSION_EXPIRED',\Hospital\I18n::t("errors.la_sesion_vencio"));
     }
     private function row(string $actor,string $id,bool $lock=false): array
     {
         $r=$this->query('SELECT s.*,COALESCE(NULLIF(st.full_name,\'\'),u.username) AS owner_name FROM surveys s JOIN users u ON u.id=s.owner_id LEFT JOIN staff st ON st.id=u.staff_id WHERE s.id=?'.($lock?' FOR UPDATE':''),[$id])->fetch();
-        if (!$r||((string)$r['owner_id']!==$actor&&!$this->admin($actor)))throw new ApiException(404,'SURVEY_NOT_FOUND','No se encontró la encuesta.');return $r;
+        if (!$r||((string)$r['owner_id']!==$actor&&!$this->admin($actor)))throw new ApiException(404,'SURVEY_NOT_FOUND',\Hospital\I18n::t("errors.no_se_encontro_la_encuesta"));return $r;
     }
     private function items(string $id): array
     {
@@ -69,37 +69,37 @@ final class SurveyService
             if ($id===null) {
                 $names=array_keys($fields);$this->query('INSERT INTO surveys (owner_id,'.implode(',',$names).') VALUES (?'.str_repeat(',?',count($names)).')',array_merge([$actor],array_values($fields)));$id=$this->db->lastInsertId();$this->putItems($id,$items);
             } else {
-                $r=$this->row($actor,$id,true);$this->version($r,$input['version']??null);if ($r['archived_at'])throw new ApiException(409,'SURVEY_ARCHIVED','Restaurá la encuesta antes de editarla.');
+                $r=$this->row($actor,$id,true);$this->version($r,$input['version']??null);if ($r['archived_at'])throw new ApiException(409,'SURVEY_ARCHIVED',\Hospital\I18n::t("errors.restaura_la_encuesta_antes_de_editarla"));
                 if ($r['published_at']) {
-                    foreach (['form_title','form_description','color','audience','access_mode','identity_mode'] as $key)if ($fields[$key]!==$r[$key])throw new ApiException(409,'FORM_PUBLISHED','Duplicá la encuesta para cambiar el formulario publicado.');
-                    if ($items!==$this->items($id))throw new ApiException(409,'FORM_PUBLISHED','Las preguntas publicadas no se pueden cambiar.');
+                    foreach (['form_title','form_description','color','audience','access_mode','identity_mode'] as $key)if ($fields[$key]!==$r[$key])throw new ApiException(409,'FORM_PUBLISHED',\Hospital\I18n::t("errors.duplica_la_encuesta_para_cambiar_el_formulario_publicado"));
+                    if ($items!==$this->items($id))throw new ApiException(409,'FORM_PUBLISHED',\Hospital\I18n::t("errors.las_preguntas_publicadas_no_se_pueden_cambiar"));
                 } else $this->putItems($id,$items);
-                if ($fields['response_limit']!==null&&$fields['response_limit']<$this->count($id))SurveyInput::fail('El cupo no puede ser menor a las respuestas recibidas.');
+                if ($fields['response_limit']!==null&&$fields['response_limit']<$this->count($id))SurveyInput::fail(\Hospital\I18n::t("errors.el_cupo_no_puede_ser_menor_a_las_respuestas_recibidas"));
                 $this->query('UPDATE surveys SET '.implode(',',array_map(static fn($key)=>$key.'=?',array_keys($fields))).',version=version+1 WHERE id=?',array_merge(array_values($fields),[$id]));
             }
             $this->users->audit($actor,'survey.saved',$id,$GLOBALS['request_id']);$this->db->commit();return $this->get($actor,$id);
         } catch (\Throwable $e) { if ($this->db->inTransaction())$this->db->rollBack();throw $e; }
     }
-    private function version(array $r,$given): void { if (SurveyInput::integer($given,1,2147483647)!==(int)$r['version'])throw new ApiException(409,'VERSION_CONFLICT','La encuesta cambió. Volvé a abrirla.'); }
+    private function version(array $r,$given): void { if (SurveyInput::integer($given,1,2147483647)!==(int)$r['version'])throw new ApiException(409,'VERSION_CONFLICT',\Hospital\I18n::t("errors.la_encuesta_cambio_volve_a_abrirla")); }
     public function transition(string $actor,string $id,$version,string $action): array
     {
         $this->db->beginTransaction();try {
             $this->actor($actor);$r=$this->row($actor,$id,true);$this->version($r,$version);
-            if ($action==='restore') { if (!$r['archived_at'])throw new ApiException(409,'INVALID_STATE','La encuesta no está archivada.');$this->query('UPDATE surveys SET archived_at=NULL,version=version+1 WHERE id=?',[$id]); }
+            if ($action==='restore') { if (!$r['archived_at'])throw new ApiException(409,'INVALID_STATE',\Hospital\I18n::t("errors.la_encuesta_no_esta_archivada"));$this->query('UPDATE surveys SET archived_at=NULL,version=version+1 WHERE id=?',[$id]); }
             elseif ($action==='archive')$this->query('UPDATE surveys SET archived_at=UTC_TIMESTAMP(),version=version+1 WHERE id=?',[$id]);
             else {
-                if ($r['archived_at'])throw new ApiException(409,'SURVEY_ARCHIVED','La encuesta está archivada.');
+                if ($r['archived_at'])throw new ApiException(409,'SURVEY_ARCHIVED',\Hospital\I18n::t("errors.la_encuesta_esta_archivada"));
                 if ($action==='publish') {
-                    if ($r['status']!=='draft')throw new ApiException(409,'INVALID_STATE','La encuesta ya fue publicada.');
+                    if ($r['status']!=='draft')throw new ApiException(409,'INVALID_STATE',\Hospital\I18n::t("errors.la_encuesta_ya_fue_publicada"));
                     $record=$this->serialize($r);SurveyInput::fields(['title'=>$r['title'],'description'=>$r['description'],'category'=>$r['category'],'area'=>$r['area'],'notes'=>$r['notes'],'form_title'=>$r['form_title'],'form_description'=>$r['form_description'],'color'=>$r['color'],'config'=>$record['config'],'items'=>$record['questions']],true);
-                    if ($r['closes_at']&&$r['closes_at']<=gmdate('Y-m-d H:i:s'))SurveyInput::fail('La fecha de cierre ya pasó.');
+                    if ($r['closes_at']&&$r['closes_at']<=gmdate('Y-m-d H:i:s'))SurveyInput::fail(\Hospital\I18n::t("errors.la_fecha_de_cierre_ya_paso"));
                     $this->query("UPDATE surveys SET status='published',published_at=UTC_TIMESTAMP(),version=version+1 WHERE id=?",[$id]);
                     if ($r['access_mode']==='shared_link')$this->newLink($id,false);
                 } elseif ($action==='close'&&$r['status']==='published')$this->query("UPDATE surveys SET status='closed',version=version+1 WHERE id=?",[$id]);
                 elseif ($action==='reopen'&&$r['status']==='closed') {
-                    if (($r['closes_at']&&$r['closes_at']<=gmdate('Y-m-d H:i:s'))||($r['response_limit']!==null&&$this->count($id)>=(int)$r['response_limit']))SurveyInput::fail('Ampliá el plazo o cupo antes de reabrir.');
+                    if (($r['closes_at']&&$r['closes_at']<=gmdate('Y-m-d H:i:s'))||($r['response_limit']!==null&&$this->count($id)>=(int)$r['response_limit']))SurveyInput::fail(\Hospital\I18n::t("errors.amplia_el_plazo_o_cupo_antes_de_reabrir"));
                     $this->query("UPDATE surveys SET status='published',version=version+1 WHERE id=?",[$id]);
-                } else throw new ApiException(409,'INVALID_STATE','Cambio de estado no válido.');
+                } else throw new ApiException(409,'INVALID_STATE',\Hospital\I18n::t("errors.cambio_de_estado_no_valido"));
             }
             $this->users->audit($actor,'survey.'.$action,$id,$GLOBALS['request_id']);$this->db->commit();return $this->get($actor,$id);
         } catch (\Throwable $e) { if ($this->db->inTransaction())$this->db->rollBack();throw $e; }
@@ -118,23 +118,23 @@ final class SurveyService
     {
         $this->db->beginTransaction();try {
             $this->actor($actor);$r=$this->row($actor,$id,true);$this->version($r,$version);
-            if (!$r['published_at']||$r['archived_at'])throw new ApiException(409,'INVALID_STATE','Publicá la encuesta antes de generar enlaces.');
-            if ($linkId!==null) { $l=$this->query('SELECT * FROM survey_links WHERE id=? AND survey_id=? FOR UPDATE',[$linkId,$id])->fetch();if (!$l)throw new ApiException(404,'LINK_NOT_FOUND','No se encontró la invitación.');$this->query('UPDATE survey_links SET revoked_at=UTC_TIMESTAMP() WHERE id=?',[$linkId]);if (!$l['single_use'])$this->newLink($id,false); }
+            if (!$r['published_at']||$r['archived_at'])throw new ApiException(409,'INVALID_STATE',\Hospital\I18n::t("errors.publica_la_encuesta_antes_de_generar_enlaces"));
+            if ($linkId!==null) { $l=$this->query('SELECT * FROM survey_links WHERE id=? AND survey_id=? FOR UPDATE',[$linkId,$id])->fetch();if (!$l)throw new ApiException(404,'LINK_NOT_FOUND',\Hospital\I18n::t("errors.no_se_encontro_la_invitacion"));$this->query('UPDATE survey_links SET revoked_at=UTC_TIMESTAMP() WHERE id=?',[$linkId]);if (!$l['single_use'])$this->newLink($id,false); }
             elseif ($r['access_mode']==='individual_link')$this->newLink($id,true);
-            else throw new ApiException(409,'SHARED_LINK_EXISTS','El enlace compartido ya existe.');
+            else throw new ApiException(409,'SHARED_LINK_EXISTS',\Hospital\I18n::t("errors.el_enlace_compartido_ya_existe"));
             $this->query('UPDATE surveys SET version=version+1 WHERE id=?',[$id]);$this->users->audit($actor,$linkId?'survey.link_revoked':'survey.link_created',$id,$GLOBALS['request_id']);$this->db->commit();return ['survey'=>$this->get($actor,$id),'links'=>$this->links($actor,$id)];
         } catch (\Throwable $e) { if ($this->db->inTransaction())$this->db->rollBack();throw $e; }
     }
     private function link(string $token): array
     {
-        if (!preg_match('/^[a-f0-9]{64}$/',$token))throw new ApiException(404,'SURVEY_NOT_FOUND','No se encontró la encuesta.');
-        $l=$this->query('SELECT * FROM survey_links WHERE token_hash=?',[hash('sha256',$token)])->fetch();if (!$l)throw new ApiException(404,'SURVEY_NOT_FOUND','No se encontró la encuesta.');return $l;
+        if (!preg_match('/^[a-f0-9]{64}$/',$token))throw new ApiException(404,'SURVEY_NOT_FOUND',\Hospital\I18n::t("errors.no_se_encontro_la_encuesta"));
+        $l=$this->query('SELECT * FROM survey_links WHERE token_hash=?',[hash('sha256',$token)])->fetch();if (!$l)throw new ApiException(404,'SURVEY_NOT_FOUND',\Hospital\I18n::t("errors.no_se_encontro_la_encuesta"));return $l;
     }
     private function available(array $s,array $l): void
     {
-        if ($s['archived_at']||$l['revoked_at'])throw new ApiException(404,'SURVEY_NOT_FOUND','No se encontró la encuesta.');
-        if ($s['status']!=='published'||($s['opens_at']&&$s['opens_at']>gmdate('Y-m-d H:i:s'))||($s['closes_at']&&$s['closes_at']<=gmdate('Y-m-d H:i:s'))||($s['response_limit']!==null&&$this->count((string)$s['id'])>=(int)$s['response_limit']))throw new ApiException(409,'SURVEY_UNAVAILABLE','La encuesta no está recibiendo respuestas.');
-        if ($l['single_use']&&$l['used_at'])throw new ApiException(409,'INVITATION_USED','Esta invitación ya fue respondida.');
+        if ($s['archived_at']||$l['revoked_at'])throw new ApiException(404,'SURVEY_NOT_FOUND',\Hospital\I18n::t("errors.no_se_encontro_la_encuesta"));
+        if ($s['status']!=='published'||($s['opens_at']&&$s['opens_at']>gmdate('Y-m-d H:i:s'))||($s['closes_at']&&$s['closes_at']<=gmdate('Y-m-d H:i:s'))||($s['response_limit']!==null&&$this->count((string)$s['id'])>=(int)$s['response_limit']))throw new ApiException(409,'SURVEY_UNAVAILABLE',\Hospital\I18n::t("errors.la_encuesta_no_esta_recibiendo_respuestas"));
+        if ($l['single_use']&&$l['used_at'])throw new ApiException(409,'INVITATION_USED',\Hospital\I18n::t("errors.esta_invitacion_ya_fue_respondida"));
     }
     public function publicGet(string $token): array
     {
@@ -148,11 +148,13 @@ final class SurveyService
         $l=$this->link($token);$this->db->beginTransaction();try {
             $s=$this->query('SELECT * FROM surveys WHERE id=? FOR UPDATE',[$l['survey_id']])->fetch();$l=$this->query('SELECT * FROM survey_links WHERE id=? FOR UPDATE',[$l['id']])->fetch();
             $version=SurveyInput::integer($input['version']??null,1,2147483647);$submit=$input['submit_token']??'';
-            if (!is_string($submit)||!preg_match('/^([a-f0-9]{48})\.([a-f0-9]{64})$/',$submit,$match)||!hash_equals(hash_hmac('sha256',$l['token_hash'].':'.$version.':'.$match[1],$this->config['app_key']),$match[2]))throw new ApiException(403,'INVALID_SUBMISSION','Volvé a abrir la encuesta.');
+            if (!is_string($submit)||!preg_match('/^([a-f0-9]{48})\.([a-f0-9]{64})$/',$submit,$match)||!hash_equals(hash_hmac('sha256',$l['token_hash'].':'.$version.':'.$match[1],$this->config['app_key']),$match[2]))throw new ApiException(403,'INVALID_SUBMISSION',\Hospital\I18n::t("errors.volve_a_abrir_la_encuesta"));
             [$answers,$name]=SurveyInput::answers($this->items((string)$s['id']),$input['answers']??null,$input['participant_name']??'',$s['identity_mode']);$payload=hash('sha256',json_encode([$answers,$name],JSON_THROW_ON_ERROR));$hash=hash('sha256',$submit);
             $prior=$this->query('SELECT * FROM survey_responses WHERE submit_hash=?',[$hash])->fetch();
-            if ($prior) { if ($prior['payload_hash']!==$payload)throw new ApiException(409,'SUBMISSION_CHANGED','Estas respuestas ya fueron enviadas.');$this->db->commit();return ['accepted'=>true,'completion_message'=>$s['completion_message'],'replayed'=>true]; }
-            $this->available($s,$l);$this->version($s,$version);
+            if ($prior) { if ($prior['payload_hash']!==$payload)throw new ApiException(409,'SUBMISSION_CHANGED',\Hospital\I18n::t("errors.estas_respuestas_ya_fueron_enviadas"));$this->db->commit();return ['accepted'=>true,'completion_message'=>$s['completion_message'],'replayed'=>true]; }
+            // Published participant fields/items are frozen. The signed version records
+            // the issued snapshot; invitation/metadata edits must not invalidate it.
+            $this->available($s,$l);
             $this->query('INSERT INTO survey_responses (survey_id,link_id,submit_hash,payload_hash,survey_version,participant_name) VALUES (?,?,?,?,?,?)',[$s['id'],$l['id'],$hash,$payload,$version,$name]);$rid=$this->db->lastInsertId();
             foreach ($answers as $key=>$answer)$this->query('INSERT INTO survey_answers (response_id,item_id,answer) SELECT ?,id,? FROM survey_items WHERE survey_id=? AND item_key=?',[$rid,json_encode($answer,JSON_THROW_ON_ERROR),$s['id'],$key]);
             if ($l['single_use'])$this->query('UPDATE survey_links SET used_at=UTC_TIMESTAMP() WHERE id=?',[$l['id']]);
@@ -176,9 +178,9 @@ final class SurveyService
     }
     public function entries(string $actor,string $id,string $key,string $search,int $page,int $size): array
     {
-        $this->row($actor,$id);$q=$this->query('SELECT * FROM survey_items WHERE survey_id=? AND item_key=?',[$id,$key])->fetch();if (!$q)throw new ApiException(404,'QUESTION_NOT_FOUND','No se encontró la pregunta.');
+        $this->row($actor,$id);$q=$this->query('SELECT * FROM survey_items WHERE survey_id=? AND item_key=?',[$id,$key])->fetch();if (!$q)throw new ApiException(404,'QUESTION_NOT_FOUND',\Hospital\I18n::t("errors.no_se_encontro_la_pregunta"));
         $choice=in_array($q['type'],['single_choice','multiple_choice'],true);$expression=$choice?"JSON_UNQUOTE(JSON_EXTRACT(a.answer,'$.other_text'))":"JSON_UNQUOTE(a.answer)";
-        if (!in_array($q['type'],['short_text','long_text','date','single_choice','multiple_choice'],true))SurveyInput::fail('Esta pregunta no tiene respuestas escritas.');
+        if (!in_array($q['type'],['short_text','long_text','date','single_choice','multiple_choice'],true))SurveyInput::fail(\Hospital\I18n::t("errors.esta_pregunta_no_tiene_respuestas_escritas"));
         $where='a.item_id=?';$params=[$q['id']];if ($choice)$where.=' AND '.$expression."<>''";
         if ($search!==''){$where.=' AND '.$expression." LIKE ? ESCAPE '!'";$params[]='%'.strtr($search,['!'=>'!!','%'=>'!%','_'=>'!_']).'%';}
         $total=(int)$this->query('SELECT COUNT(*) FROM survey_answers a WHERE '.$where,$params)->fetchColumn();

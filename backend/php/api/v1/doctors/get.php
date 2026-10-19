@@ -7,5 +7,5 @@ use Hospital\Modules\Doctors\DoctorInput;
 use Hospital\Modules\Patients\PatientInput;
 $service = new Hospital\Modules\Doctors\DoctorService($db, $config);
 Request::method('GET'); $user=$auth->requireUser(false); $actor=(string)$user['id']; $service->access($actor);
-if (array_diff(array_keys($_GET), ['id'])) throw new Hospital\Http\ApiException(422,'UNEXPECTED_FIELDS','Filtro no permitido.');
+if (array_diff(array_keys($_GET), ['id'])) throw new Hospital\Http\ApiException(422,'UNEXPECTED_FIELDS',\Hospital\I18n::t("errors.filtro_no_permitido"));
 Response::json($service->get($actor,Request::id($_GET['id']??null)));

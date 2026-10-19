@@ -83,7 +83,7 @@ body {
 
 
 
-.tarjeta button:hover {
+.tarjeta button:enabled:hover {
 
     background-color: #1d4ed8;
 
