@@ -50,10 +50,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const on = settings[button.dataset.preference]; button.classList.toggle('is-on', on); button.setAttribute('aria-checked', String(on));
         });
         document.querySelectorAll('[data-theme-option]').forEach(button => {
-            const active = button.dataset.themeOption === settings.theme;
+            const active = button.dataset.themeOption === window.HospitalTheme.current;
             button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active));
         });
-        document.querySelector('.theme-switch').dataset.theme = settings.theme;
+        document.querySelector('.theme-switch').dataset.theme = window.HospitalTheme.current;
         document.querySelectorAll('.specialty-chip[data-specialty-id]').forEach(chip => chip.remove());
         const add = document.querySelector('.specialty-add');
         settings.specialties.forEach(specialty => {
@@ -118,7 +118,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (success || state) render(state);
         button.disabled = false;
     }));
-    document.querySelector('[data-theme-option="light"]').disabled = true;
+    document.querySelectorAll('[data-theme-option]').forEach(button => button.addEventListener('click', async () => {
+        if (!state || button.disabled || button.dataset.themeOption === window.HospitalTheme.current) return;
+        const theme = button.dataset.themeOption;
+        const choice = window.HospitalTheme.preview(theme);
+        dirty.set('theme', theme); render(state);
+        await save('settings/preferences-update.php', {theme});
+        if (dirty.get('theme') === theme) dirty.delete('theme');
+        window.HospitalTheme.settle(choice); render(state);
+    }));
 
     document.querySelector('.reset-password').addEventListener('click', () => {
         const url = new URL(api.page('src/views/register-restore/restore-password.html'));

@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded',async ()=>{
       routeMarker=L.marker(route.currentPosition,{interactive:false,keyboard:false,icon:L.divIcon({className:'route-preview-marker',iconSize:[22,22],iconAnchor:[11,11],html:`<span class="route-preview-vehicle" style="--route-color:${route.color}"></span>`})}).addTo(routeMap);
     }
     if(key!==routeGeometry){
-      routeLine.setLatLngs(route.coordinates);routeStops.clearLayers();[route.coordinates[0],route.coordinates.at(-1)].forEach(point=>L.circleMarker(point,{radius:4,color:route.color,weight:2,fillColor:'#101732',fillOpacity:1,interactive:false}).addTo(routeStops));routeGeometry=key;
+      routeLine.setLatLngs(route.coordinates);routeStops.clearLayers();[route.coordinates[0],route.coordinates.at(-1)].forEach(point=>L.circleMarker(point,{radius:4,color:route.color,weight:2,fillColor:window.HospitalTheme.current==='light'?'#f3f5fa':'#101732',fillOpacity:1,interactive:false}).addTo(routeStops));routeGeometry=key;
       routeMap.fitBounds(route.coordinates,{padding:[14,14],maxZoom:15,animate:false});
     }
     routeMarker.setLatLng(route.currentPosition);routeMarker.getElement()?.setAttribute('data-position-id',route.positionId??'');routeMap.invalidateSize({pan:false});
@@ -178,5 +178,6 @@ document.addEventListener('DOMContentLoaded',async ()=>{
   }catch(error){api.report(error);window.HospitalI18n.bindText($('transfer-title'), () => '');$('map-preview-status').hidden=true;}
   window.addEventListener('pagehide',()=>{clearInterval(pollTimer);clearTimeout(patientTimer);});
   window.addEventListener('hospital:localechange',()=>{if(transfer)render();});
+  window.addEventListener('hospital:themechange',()=>{routeStops?.eachLayer(layer=>layer.setStyle({fillColor:window.HospitalTheme.current==='light'?'#f3f5fa':'#101732'}));});
 
 });

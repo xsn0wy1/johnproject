@@ -51,7 +51,7 @@
         });
         document.querySelectorAll('[data-current-user-national-id]').forEach(el => { window.HospitalI18n.bindText(el, () => user.national_id); });
         document.querySelectorAll('[data-current-user-role]').forEach(el => { window.HospitalI18n.bindText(el, () => window.HospitalI18n.t("auth_session.cargo_value", {value0: user.roles.map(window.HospitalI18n.role).join(', ')})); });
-        document.documentElement.dataset.theme = payload.settings.theme;
+        window.HospitalTheme.accountTheme(payload.settings.theme, payload.user.id);
         window.HospitalI18n?.accountLocale(payload.settings.locale);
         document.querySelectorAll('[data-required-role]').forEach(el => { el.hidden = !user.roles.includes(el.dataset.requiredRole); });
         window.dispatchEvent(new CustomEvent('hospital:session', { detail: payload }));

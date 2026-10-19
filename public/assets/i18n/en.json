@@ -1829,5 +1829,6 @@
     "one": "{count} transfer",
     "other": "{count} transfers"
   },
-  "documents.grid_result_summary": "{count} {result}. Page {page} of {pages}."
+  "documents.grid_result_summary": "{count} {result}. Page {page} of {pages}.",
+  "theme.appearance": "Appearance"
 }

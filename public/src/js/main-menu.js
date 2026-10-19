@@ -1,7 +1,3 @@
-(() => {
-    document.documentElement.dataset.theme = 'dark'; // Auth applies the account's server-owned preference.
-})();
-
 document.addEventListener('DOMContentLoaded', () => {
 
     const profileWrapper = document.querySelector('.profile-wrapper');

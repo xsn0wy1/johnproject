@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark" data-theme-styles="log-reg auth-interactions">
 
 <head>
+  <script src="src/js/theme.js?v=20261019-light"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title data-i18n="login.inicio_de_sesion">Inicio de Sesion</title>
@@ -10,10 +11,12 @@
   <link rel="icon" type="image/x-icon" href="assets/hospital-gradient.ico">
   <script src="src/js/i18n.js?v=20261019-i18n" defer></script>
   <script src="src/js/api-client.js?v=20261019-i18n" defer></script>
-  <script src="src/js/auth-session.js?v=20261019-i18n" defer></script>
+  <script src="src/js/auth-session.js?v=20261019-light" defer></script>
+  <link rel="stylesheet" href="src/css/theme.css?v=20261019-auth-background">
 </head>
 
 <body>
+  <div class="appearance-switch" role="group" aria-label="Apariencia" data-i18n-aria-label="theme.appearance"><button type="button" data-public-theme="dark" aria-pressed="true" aria-label="Tema oscuro" data-i18n-aria-label="settings.tema_oscuro" title="Tema oscuro" data-i18n-title="settings.tema_oscuro"><img src="assets/Icons/moon-icon.svg" alt=""></button><button type="button" data-public-theme="light" aria-pressed="false" aria-label="Tema claro" data-i18n-aria-label="settings.tema_claro" title="Tema claro" data-i18n-title="settings.tema_claro"><img src="assets/Icons/sun-icon.svg" alt=""></button></div>
   <div class="tarjeta">
     <h1 data-i18n="login.inicio_de_sesion">Inicio de Sesion</h1>
 

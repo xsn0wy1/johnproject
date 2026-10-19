@@ -9,14 +9,21 @@
       maxZoom: 19, attribution: osmAttribution, className: 'osm-dark-tiles', keepBuffer: 2
     });
     const useCarto = Boolean(key) && !config.tileUrl;
+    const cartoUrl = () => `https://basemaps.cartocdn.com/rastertiles/${window.HospitalTheme.current === 'light' ? 'light_all' : 'dark_all'}/{z}/{x}/{y}{r}.png?key=${encodeURIComponent(key)}`;
     let layer = config.tileUrl ? L.tileLayer(config.tileUrl, {
       maxZoom: 19, attribution: config.attribution || osmAttribution,
       className: config.tileClassName || ''
-    }) : useCarto ? L.tileLayer(`https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?key=${encodeURIComponent(key)}`, {
+    }) : useCarto ? L.tileLayer(cartoUrl(), {
       maxZoom: 20, attribution: `${window.HospitalI18n.mark("trace_map_shared.value_copy", {value0: osmAttribution})} <a href="https://carto.com/attribution/" target="_blank" rel="noopener">${window.HospitalI18n.mark("trace_map_shared.carto")}</a>`
     }) : osm();
     let failures = 0;
     let loadedTiles = 0;
+    let fallback = false;
+    function updateTheme() {
+      if (useCarto && !fallback) { failures = 0; loadedTiles = 0; layer.setUrl(cartoUrl()); }
+    }
+    window.addEventListener('hospital:themechange', updateTheme);
+    map.once('unload', () => window.removeEventListener('hospital:themechange', updateTheme));
     function monitor(currentLayer, canFallback) {
       currentLayer.on('tileload', () => {
         loadedTiles += 1;
@@ -27,6 +34,7 @@
         if (canFallback && failures >= 3 && map.hasLayer(currentLayer)) {
           map.removeLayer(currentLayer);
           layer = osm();
+          fallback = true;
           failures = 0;
           monitor(layer, false);
           layer.addTo(map);

@@ -2,7 +2,7 @@
 
 Prepared: 12 October 2026. Companion analysis: [backend-analysis.md](backend-analysis.md).
 
-This roadmap preserves the original target architecture and phase plan. Current implementation (19 October 2026) includes identity/account administration, settings, documents, transfers/simulation, the six management catalogs and surveys (schema 001–011). Complete JSON-based Spanish/English interface translation is integrated using the existing SQL locale preference, shared browser/PHP dictionaries and the current API contracts. Calendar/appointment management, reports, light theme and email recovery remain deferred; appointment counts are read-only. AGENTS.md and api-contracts.md take precedence for completed behavior and deliberate changes to the original plan, including console-only errors and administrator-assisted password recovery.
+This roadmap preserves the original target architecture and phase plan. Current implementation (19 October 2026) includes identity/account administration, settings, documents, transfers/simulation, the six management catalogs and surveys (schema 001–011). Complete JSON-based Spanish/English interface translation is integrated using the existing SQL locale preference, shared browser/PHP dictionaries and the current API contracts. Both light/dark appearance modes are implemented using the existing SQL theme preference. Calendar/appointment management, reports and email recovery remain deferred; appointment counts are read-only. AGENTS.md and api-contracts.md take precedence for completed behavior and deliberate changes to the original plan, including console-only errors and administrator-assisted password recovery.
 
 ## Target and working decisions
 

@@ -1829,5 +1829,6 @@
     "one": "{count} traslado",
     "other": "{count} traslados"
   },
-  "documents.grid_result_summary": "{count} {result}. Página {page} de {pages}."
+  "documents.grid_result_summary": "{count} {result}. Página {page} de {pages}.",
+  "theme.appearance": "Apariencia"
 }

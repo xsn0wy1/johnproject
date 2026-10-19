@@ -85,9 +85,16 @@
             window.HospitalI18n.bindText(hint, () => `${current().type === 'multiple_choice' ? window.HospitalI18n.t("survey_patient.podes_marcar_mas_de_una_opcion") : window.HospitalI18n.t("survey_patient.elegi_una_opcion")}${count ? window.HospitalI18n.t('survey_patient.selected_count',{count}) : ''}`);
         }
     }
-    function renderIntroduction() {
-        const accent={blue:['182,177,246','#b6b1f6'],green:['119,210,171','#a0e2c2'],cyan:['111,202,222','#a2deeb'],amber:['224,188,118','#efd49e'],rose:['224,146,175','#edb3cc'],slate:['159,179,212','#bfcfe8']}[survey?.color];
+    function applyAccent() {
+        const colors=window.HospitalTheme.current==='light'
+            ? {blue:['83,83,157','#53539d'],green:['36,108,80','#246c50'],cyan:['33,105,121','#216979'],amber:['128,93,21','#805d15'],rose:['153,54,91','#99365b'],slate:['74,91,119','#4a5b77']}
+            : {blue:['182,177,246','#b6b1f6'],green:['119,210,171','#a0e2c2'],cyan:['111,202,222','#a2deeb'],amber:['224,188,118','#efd49e'],rose:['224,146,175','#edb3cc'],slate:['159,179,212','#bfcfe8']};
+        const accent=survey?.color ? colors[survey.color] : window.HospitalTheme.current==='light' ? colors.blue : ['151,145,234','#b6b1f6'];
         if(accent){document.documentElement.style.setProperty('--patient-accent-rgb',accent[0]);document.documentElement.style.setProperty('--patient-accent',accent[1]);}
+    }
+    window.addEventListener('hospital:themechange',applyAccent);
+    function renderIntroduction() {
+        applyAccent();
         window.HospitalI18n.bindText($('patient-survey-title'), () => survey?.title || window.HospitalI18n.t("survey_patient.encuestas_del_hospital"));
         window.HospitalI18n.bindText($('patient-survey-introduction'), () => survey?.description || window.HospitalI18n.t("survey_patient.tu_opinion_nos_ayuda_a_mejorar_la_atencion"));
         window.HospitalI18n.bindText($('full-public-introduction'), () => survey?.description || '');

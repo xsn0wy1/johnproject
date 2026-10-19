@@ -109,7 +109,7 @@ final class SettingsService
     {
         if (count($input) < 2) throw new ApiException(422, 'EMPTY_UPDATE', \Hospital\I18n::t("errors.no_se_indicaron_cambios"));
         $fields = [];
-        foreach (['locale' => ['es-UY', 'en'], 'theme' => ['dark']] as $key => $values) {
+        foreach (['locale' => ['es-UY', 'en'], 'theme' => ['dark', 'light']] as $key => $values) {
             if (array_key_exists($key, $input)) {
                 if (!in_array($input[$key], $values, true)) throw new ApiException(422, 'VALIDATION_FAILED', \Hospital\I18n::t("errors.preferencia_no_valida"));
                 $fields[$key] = $input[$key];
