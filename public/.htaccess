@@ -1,0 +1,9 @@
+Options -Indexes
+AddType application/javascript .mjs
+AddType application/wasm .wasm
+RewriteEngine On
+# Only this isolated participant page is public; staff survey pages stay guarded.
+RewriteRule ^src/views/surveys/user-view/survey-user\.html$ - [END]
+# API is an Apache Alias to backend/php/api/v1; no PHP source lives in public.
+# Relative substitution also supports a correctly configured /hospital/ mount.
+RewriteRule ^src/views/(?!register-restore/)(.+\.html)$ api/v1/auth/page.php?view=$1 [END,QSA]

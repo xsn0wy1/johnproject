@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es-UY">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <meta name="referrer" content="no-referrer">
+  <title>Encuestas | Hospital de Clínicas</title>
+  <link rel="icon" type="image/x-icon" href="../../../../assets/hospital-gradient.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inclusive+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="survey-user.css?v=20261015-icons">
+  <script src="survey-user.js?v=20261015-backend" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#patient-form">Ir a la encuesta</a>
+  <div class="patient-shell">
+    <header class="patient-topbar">
+      <div class="hospital-brand"><span class="hospital-mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="currentColor"><path d="M16 4h8a2 2 0 0 1 2 2v8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-8H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h8V6a2 2 0 0 1 2-2Z"/></svg></span><span class="hospital-name">Hospital de Clínicas</span></div>
+      <span class="header-purpose"><img src="../../../../assets/Icons/lock-icon.svg" alt="">Tu opinión nos ayuda a mejorar</span>
+      <div class="reading-controls">
+        <div class="language-control"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 6.5h14M5 17.5h14"/></svg><select aria-label="Idioma de la encuesta" lang="es"><option value="es">Español</option></select><i aria-hidden="true"></i></div>
+        <div class="text-size-controls" role="group" aria-label="Tamaño del texto"><button type="button" class="reading-button" data-text-smaller aria-label="Reducir tamaño del texto">A<span aria-hidden="true">−</span></button><button type="button" class="reading-button" data-text-larger aria-label="Aumentar tamaño del texto">A<span aria-hidden="true">+</span></button></div>
+        <button type="button" class="reading-button accessibility-button" data-open-accessibility aria-label="Opciones de accesibilidad" title="Opciones de accesibilidad"><img src="../../../../assets/Icons/accessibility-icon.svg" alt=""></button>
+      </div>
+    </header>
+
+    <main class="patient-layout">
+      <form class="patient-survey" id="patient-form" aria-labelledby="patient-survey-title" novalidate>
+        <div class="survey-introduction"><span class="survey-eyebrow">TU EXPERIENCIA IMPORTA</span><h1 id="patient-survey-title">Encuestas del hospital</h1><p id="patient-survey-introduction">Tu opinión nos ayuda a mejorar la atención.</p><div class="survey-facts" id="survey-facts" hidden></div></div>
+        <div class="survey-progress" id="survey-progress" hidden><div class="progress-copy"><span id="progress-position" role="status">Pregunta</span><span id="progress-answers"></span></div><progress id="answer-progress" max="1" value="0" aria-label="Preguntas respondidas"></progress></div>
+        <div class="question-stage" id="question-stage"><div class="survey-access-empty"><span class="large-survey-icon"><img src="../../../../assets/Icons/survey-icon.svg" alt=""></span><h2>Accedé a tu encuesta</h2><p>Usá el enlace o escaneá el código QR que te entregó el hospital para abrir la encuesta que vas a responder.</p></div></div>
+        <footer class="survey-navigation" id="survey-navigation" hidden><button type="button" class="patient-button secondary" id="previous-question"><img src="../../../../assets/Icons/arrow-left.svg" alt=""><span>Anterior</span></button><span class="navigation-note" id="navigation-note">Podés volver a las preguntas anteriores.</span><button type="button" class="patient-button primary" id="next-question"><span>Siguiente</span><i class="next-arrow" aria-hidden="true"></i></button><button type="button" class="patient-button primary" id="submit-answers" disabled hidden><span>Enviar respuestas</span><img src="../../../../assets/Icons/share-icon.svg" alt=""></button></footer>
+      </form>
+
+      <aside class="patient-support" aria-label="Ayuda e información">
+        <details class="support-card" id="patient-help" open><summary><span class="support-icon"><img src="../../../../assets/Icons/support-icon.svg" alt=""></span><h2>¿Necesitás ayuda?</h2><i aria-hidden="true"></i></summary><div class="support-content"><p>Podés pedir asistencia al personal del hospital para completar la encuesta.</p><button type="button" class="patient-button secondary" data-open-help>Cómo responder <span aria-hidden="true">↗</span></button></div></details>
+        <details class="support-card privacy-card" id="patient-privacy" open><summary><span class="support-icon green"><img src="../../../../assets/Icons/lock-icon.svg" alt=""></span><h2>Sobre tus respuestas</h2><i aria-hidden="true"></i></summary><div class="support-content"><p id="patient-privacy-caption">Revisá tus respuestas antes de finalizar.</p></div></details>
+      </aside>
+    </main>
+
+    <footer class="patient-footer"><span>Hospital de Clínicas <i aria-hidden="true">·</i> Encuestas de atención</span><div><button type="button" data-open-privacy>Sobre tus respuestas</button><span aria-hidden="true">|</span><button type="button" data-open-accessibility>Accesibilidad</button></div></footer>
+  </div>
+
+  <dialog class="patient-dialog" id="help-dialog" aria-labelledby="help-title"><div class="patient-dialog-heading"><div><span class="survey-eyebrow">PASO A PASO</span><h2 id="help-title">Cómo responder</h2></div><button type="button" class="reading-button" data-close-dialog aria-label="Cerrar ayuda"><img src="../../../../assets/Icons/cross-icon.svg" alt=""></button></div><div class="patient-dialog-content"><ol class="help-steps"><li><span>1</span><div><h3>Leé cada pregunta</h3><p>Elegí una opción, marcá varias o escribí tu respuesta, según lo que se indique.</p></div></li><li><span>2</span><div><h3>Avanzá a tu ritmo</h3><p>Usá “Siguiente” para continuar y “Anterior” para volver. Las preguntas opcionales se pueden omitir.</p></div></li><li><span>3</span><div><h3>Revisá tus respuestas</h3><p>Antes del envío, podés volver a cualquier pregunta y cambiar lo que necesites.</p></div></li></ol><p class="dialog-note">Si necesitás asistencia, podés pedir ayuda al personal del hospital.</p></div><div class="patient-dialog-footer"><button type="button" class="patient-button secondary" data-close-dialog>Entendido</button></div></dialog>
+
+  <dialog class="patient-dialog" id="privacy-dialog" aria-labelledby="privacy-title"><div class="patient-dialog-heading"><div><span class="survey-eyebrow">INFORMACIÓN DE LA ENCUESTA</span><h2 id="privacy-title">Sobre tus respuestas</h2></div><button type="button" class="reading-button" data-close-dialog aria-label="Cerrar información"><img src="../../../../assets/Icons/cross-icon.svg" alt=""></button></div><div class="patient-dialog-content"><p id="survey-public-notice">Consultá con el personal del hospital si querés saber cómo se utilizarán tus respuestas.</p><div class="survey-public-description" id="survey-public-description" hidden><h3>Sobre esta encuesta</h3><p id="full-public-introduction"></p></div></div><div class="patient-dialog-footer"><button type="button" class="patient-button secondary" data-close-dialog>Cerrar</button></div></dialog>
+
+  <dialog class="patient-dialog accessibility-dialog" id="accessibility-dialog" aria-labelledby="accessibility-title"><div class="patient-dialog-heading"><div><span class="survey-eyebrow">COMODIDAD DE LECTURA</span><h2 id="accessibility-title">Accesibilidad</h2></div><button type="button" class="reading-button" data-close-dialog aria-label="Cerrar accesibilidad"><img src="../../../../assets/Icons/cross-icon.svg" alt=""></button></div><div class="patient-dialog-content"><fieldset class="text-size-options"><legend>Tamaño del texto</legend><div><label><input type="radio" name="text-size" value="0" checked><span>Normal</span></label><label><input type="radio" name="text-size" value="1"><span>Grande</span></label><label><input type="radio" name="text-size" value="2"><span>Más grande</span></label></div></fieldset><label class="accessibility-toggle"><span><strong>Mayor contraste</strong><small>Aumenta la diferencia entre el fondo, el texto y los bordes.</small></span><input type="checkbox" id="high-contrast"><i aria-hidden="true"></i></label><p class="dialog-note">También podés usar Tab para recorrer los controles, las flechas para elegir una opción y la barra espaciadora para marcarla.</p></div><div class="patient-dialog-footer"><button type="button" class="patient-button secondary" id="reset-accessibility">Restablecer</button><button type="button" class="patient-button primary" data-close-dialog>Listo</button></div></dialog>
+</body>
+</html>

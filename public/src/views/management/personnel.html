@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal | Hospital de Clínicas</title>
+  <link rel="icon" type="image/x-icon" href="../../../assets/hospital-dark.ico">
+  <link rel="stylesheet" href="../../css/main-menu.css?v=20261012-settings">
+  <link rel="stylesheet" href="../../css/management/personnel.css?v=20261014-database">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inclusive+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <script src="../../js/api-client.js" defer></script>
+  <script src="../../js/auth-session.js?v=20261014-audit" defer></script>
+  <script src="../../js/main-menu.js?v=20260927-global" defer></script>
+  <script src="../../js/universal-search.js?v=20261014-surveys" defer></script>
+  <script src="../../js/management/personnel.js?v=20261014-database" defer></script>
+</head>
+
+<body class="personnel-page">
+  <main class="app-shell">
+    <aside class="sidebar">
+      <button type="button" class="sidebar-action" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="sidebar-nav" aria-label="Navegación principal">
+        <div class="nav-indicator"></div>
+        <a href="../main-menu.html" class="nav-item"><img src="../../../assets/Icons/house-icon.svg" alt=""><span>Inicio</span></a>
+        <a href="../documents/documents.html" class="nav-item"><img src="../../../assets/Icons/folder-icon.svg" alt=""><span>Documentos</span></a>
+        <a href="../traces/trace.html" class="nav-item"><img src="../../../assets/Icons/location-icon.svg" alt=""><span>Ambulancias</span></a>
+        <a href="../analytics/analytics.html" class="nav-item"><img src="../../../assets/Icons/analytics-icon.svg" alt=""><span>Reportes</span></a>
+        <a href="../calendar/calendar.html" class="nav-item"><img src="../../../assets/Icons/calendar-icon.svg" alt=""><span>Calendario</span></a>
+        <a href="../surveys/survey.html" class="nav-item"><img src="../../../assets/Icons/survey-icon.svg" alt=""><span>Encuestas</span></a>
+        <a href="management.html" class="nav-item active" aria-current="page"><img src="../../../assets/Icons/database-cog.svg" alt=""><span>Gestión</span></a>
+        <div class="nav-spacer"></div>
+        <a href="../settings.html" class="nav-item"><img src="../../../assets/Icons/settings-icon.svg" alt=""><span>Configuración</span></a>
+      </nav>
+    </aside>
+
+    <div class="personnel-layout">
+    <header class="topbar">
+      <div class="brand">
+        <img src="../../../assets/Icons/hospital-logo.png" alt="">
+        <span>HOSPITAL DE CLINICAS</span>
+      </div>
+      <div class="search-wrapper">
+        <input type="search" class="search-input" placeholder="Buscar una acción o sección..." aria-label="Buscar una acción o sección">
+        <button type="button" class="topbar-action search-action" aria-label="Abrir búsqueda" aria-expanded="false">
+          <img src="../../../assets/Icons/search-icon.svg" alt="">
+        </button>
+      </div>
+    </header>
+
+    <section class="personnel-content" aria-label="Gestión de personal">
+      <div class="personnel-toolbar">
+        <div class="toolbar-left">
+          <a class="personnel-back" href="management.html" aria-label="Volver a Gestión" title="Volver a Gestión">
+            <img src="../../../assets/Icons/arrow-left.svg" alt="" aria-hidden="true">
+          </a>
+          <div class="role-tabs" role="tablist" aria-label="Tipo de personal">
+            <button type="button" class="role-tab is-active" id="tab-chofer" role="tab" aria-selected="true" aria-controls="personnel-list" data-role="Chofer">
+              <img src="../../../assets/Icons/steering-wheel.svg" alt=""><span>Choferes</span>
+            </button>
+            <button type="button" class="role-tab" id="tab-copiloto" role="tab" aria-selected="false" aria-controls="personnel-list" data-role="Copiloto">
+              <img src="../../../assets/Icons/person-icon.svg" alt=""><span>Copilotos</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="toolbar-right">
+          <label class="list-search">
+            <img src="../../../assets/Icons/search-icon.svg" alt="">
+            <input id="personnel-search" type="search" autocomplete="off" placeholder="Buscar por nombre, DNI o teléfono..." aria-label="Buscar por nombre, DNI o teléfono">
+          </label>
+        </div>
+      </div>
+
+      <div class="personnel-grid">
+        <section class="personnel-card list-card" id="personnel-list" role="tabpanel" aria-labelledby="tab-chofer">
+          <div class="card-heading">
+            <h1 id="list-title">Listado de choferes</h1>
+            <p id="list-count">Cargando personal…</p>
+            <button type="button" id="personnel-archive-toggle" class="cancel-button" aria-pressed="false">Ver archivados</button>
+          </div>
+
+          <div class="table-scroll">
+            <table class="personnel-table">
+              <thead>
+                <tr><th scope="col">Nombre</th><th scope="col">Rol</th><th scope="col">Teléfono</th><th scope="col">Licencia / ID</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr>
+              </thead>
+              <tbody id="personnel-rows"></tbody>
+            </table>
+          </div>
+          <p class="empty-state" id="empty-state" hidden>No se encontraron resultados.</p>
+
+          <div class="table-footer">
+            <span id="results-summary">Cargando personal…</span>
+            <nav class="pagination" aria-label="Páginas del listado">
+              <button type="button" id="page-prev" aria-label="Página anterior" disabled><span aria-hidden="true">‹</span></button>
+              <span class="page-number" id="page-number" aria-current="page">1</span>
+              <button type="button" id="page-next" aria-label="Página siguiente" disabled><span aria-hidden="true">›</span></button>
+            </nav>
+          </div>
+        </section>
+
+        <section class="personnel-card form-card" aria-labelledby="form-title">
+          <div class="card-heading">
+            <h2 id="form-title">Agregar personal</h2>
+            <p id="form-subtitle">Completa la información del personal.</p>
+          </div>
+
+          <form id="personnel-form" novalidate>
+            <div class="form-field">
+              <label for="person-name">Nombre completo</label>
+              <div class="field-control">
+                <img src="../../../assets/Icons/person-icon.svg" alt="">
+                <input id="person-name" name="name" type="text" placeholder="Ej. Juan Pérez" autocomplete="name" maxlength="100" required>
+              </div>
+            </div>
+
+            <div class="form-pair">
+              <div class="form-field">
+                <label for="person-role">Rol</label>
+                <div class="field-control select-control">
+                  <img id="role-icon" src="../../../assets/Icons/steering-wheel.svg" alt="">
+                  <select id="person-role" name="role">
+                    <option value="Chofer">Chofer</option>
+                    <option value="Copiloto">Copiloto</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="person-phone">Teléfono</label>
+                <div class="field-control">
+                  <img src="../../../assets/Icons/phone-icon.svg" alt="">
+                  <input id="person-phone" name="phone" type="tel" inputmode="tel" placeholder="Ej. 099 123 456" autocomplete="tel" maxlength="25" required>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-pair">
+              <div class="form-field">
+                <label for="person-document">Documento (C.I.)</label>
+                <div class="field-control">
+                  <img src="../../../assets/Icons/id-badge.svg" alt="">
+                  <input id="person-document" name="document" type="text" placeholder="Ej. 4.567.890-1" maxlength="25" required>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="person-license">Licencia de conducir</label>
+                <div class="field-control">
+                  <img src="../../../assets/Icons/driver-badge.svg" alt="">
+                  <input id="person-license" name="license" type="text" placeholder="Ej. A1234567" maxlength="30">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-field status-field">
+              <label for="person-status">Estado</label>
+              <div class="field-control select-control status-control">
+                <span class="status-dot" id="form-status-dot" aria-hidden="true"></span>
+                <select id="person-status" name="status">
+                  <option value="Activo">Activo</option>
+                  <option value="Inactivo">Inactivo</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" id="form-cancel" class="cancel-button">Cancelar</button>
+              <button type="submit" class="save-button"><img src="../../../assets/Icons/save-floppy.svg" alt=""><span>Guardar</span></button>
+            </div>
+          </form>
+          <p class="form-feedback" id="form-feedback" role="status" aria-live="polite"></p>
+        </section>
+      </div>
+    </section>
+    </div>
+  </main>
+
+  <dialog class="person-dialog" id="person-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-heading">
+      <h2 id="dialog-title">Detalle del personal</h2>
+      <button type="button" id="dialog-close" aria-label="Cerrar detalle">×</button>
+    </div>
+    <dl id="dialog-details"></dl>
+  </dialog>
+</body>
+
+</html>

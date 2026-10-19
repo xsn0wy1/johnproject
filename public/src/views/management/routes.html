@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rutas | Hospital de Clínicas</title>
+  <link rel="icon" type="image/x-icon" href="../../../assets/hospital-dark.ico">
+  <link rel="stylesheet" href="../../css/main-menu.css?v=20261012-settings">
+  <link rel="stylesheet" href="../../css/management/routes.css?v=20261004-controls-design">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inclusive+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <script src="../../js/api-client.js" defer></script>
+  <script src="../../js/auth-session.js?v=20261014-audit" defer></script>
+  <script src="../../js/main-menu.js?v=20260927-global" defer></script>
+  <script src="../../js/universal-search.js?v=20261014-surveys" defer></script>
+  <script src="../../js/management/routes.js?v=20261014-routes" defer></script>
+</head>
+<body class="routes-page">
+  <main class="app-shell">
+    <aside class="sidebar">
+      <button type="button" class="sidebar-action" aria-label="Abrir menú" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="sidebar-nav" aria-label="Navegación principal">
+        <div class="nav-indicator"></div>
+        <a href="../main-menu.html" class="nav-item"><img src="../../../assets/Icons/house-icon.svg" alt=""><span>Inicio</span></a>
+        <a href="../documents/documents.html" class="nav-item"><img src="../../../assets/Icons/folder-icon.svg" alt=""><span>Documentos</span></a>
+        <a href="../traces/trace.html" class="nav-item"><img src="../../../assets/Icons/location-icon.svg" alt=""><span>Ambulancias</span></a>
+        <a href="../analytics/analytics.html" class="nav-item"><img src="../../../assets/Icons/analytics-icon.svg" alt=""><span>Reportes</span></a>
+        <a href="../calendar/calendar.html" class="nav-item"><img src="../../../assets/Icons/calendar-icon.svg" alt=""><span>Calendario</span></a>
+        <a href="../surveys/survey.html" class="nav-item"><img src="../../../assets/Icons/survey-icon.svg" alt=""><span>Encuestas</span></a>
+        <a href="management.html" class="nav-item active" aria-current="page"><img src="../../../assets/Icons/database-cog.svg" alt=""><span>Gestión</span></a>
+        <div class="nav-spacer"></div>
+        <a href="../settings.html" class="nav-item"><img src="../../../assets/Icons/settings-icon.svg" alt=""><span>Configuración</span></a>
+      </nav>
+    </aside>
+
+    <div class="routes-layout">
+      <header class="topbar">
+        <div class="brand"><img src="../../../assets/Icons/hospital-logo.png" alt=""><span>HOSPITAL DE CLINICAS</span></div>
+        <div class="search-wrapper">
+          <input type="search" class="search-input" placeholder="Buscar una acción o sección..." aria-label="Buscar una acción o sección">
+          <button type="button" class="topbar-action search-action" aria-label="Abrir búsqueda" aria-expanded="false"><img src="../../../assets/Icons/search-icon.svg" alt=""></button>
+        </div>
+      </header>
+
+      <section class="routes-content" aria-label="Gestión de rutas">
+        <div class="routes-heading">
+          <a href="management.html" class="routes-back" aria-label="Volver a Gestión"><img src="../../../assets/Icons/arrow-left.svg" alt=""></a>
+          <div class="route-summary" aria-label="Resumen de rutas">
+            <div><strong id="total-routes">0</strong><span>Registradas</span></div>
+            <div><strong id="active-routes" class="active-total">0</strong><span>Activas</span></div>
+            <div><strong id="inactive-routes" class="inactive-total">0</strong><span>Inactivas</span></div>
+          </div>
+        </div>
+
+        <div class="routes-workspace">
+          <section class="route-directory" aria-labelledby="catalog-title">
+            <div class="panel-heading"><div><h1 id="catalog-title">Catálogo de rutas</h1><p>Selecciona un recorrido para ver sus detalles.</p></div><button type="button" class="primary-button" id="new-route"><img src="../../../assets/Icons/plus-icon.svg" alt="">Nueva ruta</button></div>
+            <label class="route-search"><img src="../../../assets/Icons/search-icon.svg" alt=""><input id="route-search" type="search" autocomplete="off" placeholder="Buscar ruta, origen, destino o parada..." aria-label="Buscar ruta, origen, destino o parada"></label>
+            <div class="catalog-filters">
+              <div class="status-filters" role="group" aria-label="Filtrar rutas por estado">
+                <button type="button" class="filter-button is-active" data-filter="Todas" aria-pressed="true">Todas</button>
+                <button type="button" class="filter-button" data-filter="Activa" aria-pressed="false">Activas</button>
+                <button type="button" class="filter-button" data-filter="Inactiva" aria-pressed="false">Inactivas</button>
+              </div>
+              <label class="sort-control"><span class="visually-hidden">Ordenar rutas</span><select id="route-sort"><option value="code">Por código</option><option value="name">Por nombre</option><option value="duration">Menor duración</option></select></label>
+            </div>
+            <div class="route-list" id="route-list"></div>
+            <div class="catalog-empty" id="catalog-empty" hidden><span class="empty-icon"><img src="../../../assets/Icons/map-icon.svg" alt=""></span><h3>Sin rutas para mostrar</h3><p id="empty-description">Prueba con otra búsqueda o cambia el filtro.</p><button type="button" class="secondary-button" id="clear-filters">Limpiar filtros</button></div>
+            <footer class="directory-footer"><span id="results-summary" role="status" aria-live="polite"></span><nav class="pagination" id="route-pagination" aria-label="Páginas de rutas"></nav></footer>
+          </section>
+
+          <aside class="route-detail" aria-labelledby="detail-panel-title">
+            <div class="detail-panel-heading"><span class="eyebrow" id="detail-panel-title">VISTA DEL RECORRIDO</span><img src="../../../assets/Icons/map-icon.svg" alt=""></div>
+            <div class="detail-scroll" id="route-detail-content"></div>
+            <div class="detail-actions" id="detail-actions"><button type="button" class="danger-button" id="delete-route"><img src="../../../assets/Icons/trash-icon.svg" alt="">Eliminar</button><button type="button" class="save-button" id="edit-route"><img src="../../../assets/Icons/pencil-icon.svg" alt="">Editar ruta</button></div>
+          </aside>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <dialog class="route-dialog" id="route-dialog" aria-labelledby="form-title">
+    <form id="route-form" novalidate>
+      <div class="dialog-heading"><div><p class="eyebrow">CATÁLOGO DE RUTAS</p><h2 id="form-title">Nueva ruta</h2><p id="form-description">Define un recorrido para reutilizarlo en tus traslados.</p></div><button type="button" class="icon-button" data-close-form aria-label="Cerrar formulario"><img src="../../../assets/Icons/cross-icon.svg" alt=""></button></div>
+      <div class="form-scroll">
+        <fieldset class="form-section"><legend><span>01</span>Información general</legend><div class="form-grid">
+          <label class="full-width">Nombre de la ruta<input id="route-name" name="name" type="text" maxlength="80" placeholder="Ej. Clínicas → Hospital Maciel" required></label>
+          <label>Tipo de traslado<select name="category" id="route-category"><option>Interhospitalario</option><option>Consulta</option><option>Tratamiento</option><option>Alta</option></select></label>
+          <label>Sentido<select name="direction" id="route-direction"><option value="Solo ida">Solo ida</option><option value="Ida y vuelta">Ida y vuelta</option></select></label>
+        </div></fieldset>
+        <fieldset class="form-section"><legend><span>02</span>Itinerario</legend>
+          <div class="endpoint-fields origin-fields"><span class="stop-marker">A</span><div class="form-grid"><label>Origen<input id="route-origin" name="originName" type="text" maxlength="100" placeholder="Institución o punto de salida" required></label><label>Dirección de origen<input name="originAddress" type="text" maxlength="160" placeholder="Calle y número" required></label></div></div>
+          <div class="stop-editor" id="stop-editor"></div>
+          <button type="button" class="add-stop-button" id="add-stop"><img src="../../../assets/Icons/plus-icon.svg" alt="">Añadir parada intermedia <span id="stop-limit">0 / 6</span></button>
+          <div class="endpoint-fields destination-fields"><span class="stop-marker">B</span><div class="form-grid"><label>Destino<input id="route-destination" name="destinationName" type="text" maxlength="100" placeholder="Institución o punto de llegada" required></label><label>Dirección de destino<input name="destinationAddress" type="text" maxlength="160" placeholder="Calle y número" required></label></div></div>
+        </fieldset>
+        <fieldset class="form-section"><legend><span>03</span>Características del recorrido</legend><div class="form-grid three-columns">
+          <label>Distancia estimada (km)<input name="distance" type="number" min="0.1" max="2000" step="0.1" placeholder="Ej. 8.5" required></label>
+          <label>Duración estimada (min)<input name="duration" type="number" min="1" max="2880" step="1" placeholder="Ej. 25" required></label>
+          <label>Estado<select name="status" id="route-status"><option>Activa</option><option>Inactiva</option></select></label>
+        </div><p class="field-hint">Distancia y duración por tramo de ida. Considera las paradas intermedias.</p><label class="notes-label">Indicaciones <span>Opcional</span><textarea name="notes" rows="2" maxlength="500" placeholder="Accesos, punto de encuentro o indicaciones para el equipo..."></textarea></label></fieldset>
+      </div>
+      <p class="form-error" id="form-error" role="alert" hidden></p>
+      <div class="dialog-actions"><span class="required-hint">Solo las indicaciones son opcionales.</span><button type="button" class="secondary-button" data-close-form>Cancelar</button><button type="submit" class="save-button"><img src="../../../assets/Icons/save-floppy.svg" alt=""><span id="save-label">Guardar ruta</span></button></div>
+    </form>
+  </dialog>
+
+  <dialog class="route-dialog delete-dialog" id="delete-dialog" aria-labelledby="delete-title" aria-describedby="delete-description">
+    <div class="delete-content"><span class="delete-symbol"><img src="../../../assets/Icons/trash-icon.svg" alt=""></span><h2 id="delete-title">¿Archivar esta ruta?</h2><p id="delete-description"></p><p class="delete-warning">Se quitará del catálogo de rutas. Los traslados existentes conservarán su recorrido. Podés restaurarla desde Inactivas.</p><div class="dialog-actions"><button type="button" class="secondary-button" data-close-delete autofocus>Cancelar</button><button type="button" class="danger-button" id="confirm-delete">Eliminar ruta</button></div></div>
+  </dialog>
+  <div class="route-toast" id="route-toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

@@ -1,0 +1,26 @@
+-- Clinical doctor records share staff identities; they do not create login accounts.
+CREATE TABLE IF NOT EXISTS doctor_profiles (
+    staff_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
+    title VARCHAR(8) NOT NULL,
+    license VARCHAR(30) NOT NULL,
+    specialty_id BIGINT UNSIGNED NOT NULL,
+    department_id BIGINT UNSIGNED NOT NULL,
+    office VARCHAR(80) NOT NULL DEFAULT '',
+    phone VARCHAR(25) NOT NULL,
+    email VARCHAR(120) NOT NULL DEFAULT '',
+    availability VARCHAR(16) NOT NULL DEFAULT 'available',
+    shift VARCHAR(16) NOT NULL DEFAULT 'morning',
+    days VARCHAR(40) NOT NULL,
+    start_time TIME NULL,
+    end_time TIME NULL,
+    notes VARCHAR(500) NOT NULL DEFAULT '',
+    status VARCHAR(16) NOT NULL DEFAULT 'active',
+    version INT UNSIGNED NOT NULL DEFAULT 1,
+    archived_at DATETIME NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_doctor_license (license),
+    CONSTRAINT fk_doctor_staff FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_doctor_specialty FOREIGN KEY (specialty_id) REFERENCES specialties(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_doctor_department FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE RESTRICT
+) ENGINE=InnoDB;

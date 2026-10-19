@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio de Sesion</title>
+  <link rel="stylesheet" href="src/css/login-register/log-reg.css">
+  <link rel="icon" type="image/x-icon" href="assets/hospital-gradient.ico">
+  <script src="src/js/api-client.js" defer></script>
+  <script src="src/js/auth-session.js?v=20261014-audit" defer></script>
+</head>
+
+<body>
+  <div class="tarjeta">
+    <h1>Inicio de Sesion</h1>
+
+    <form id="loginForm" method="POST" action="api/v1/auth/login.php">
+      <input type="text" name="username" autocomplete="username" maxlength="50" placeholder="Usuario" required>
+
+      <div class="password-wrapper">
+        <input type="password" id="loginContraseña" name="password" autocomplete="current-password" placeholder="Contraseña" required>
+        <button type="button" id="toggleLoginPasswordBtn" class="btn-toggle-eye">
+          <img src="assets/Icons/eye.svg" id="loginEyeIcon" alt="Mostrar u ocultar contraseña">
+        </button>
+      </div>
+
+      <p id="loginMessage" role="status" aria-live="polite"></p>
+
+      <p>
+        ¿Olvidaste tu contraseña?
+        <a href="src/views/register-restore/restore-password.html">Recuperar Contraseña</a>
+      </p>
+      <button type="submit">Inicio sesion</button>
+    </form>
+
+    <p>
+      ¿No tienes cuenta?
+      <a href="src/views/register-restore/register.html">Registrate</a>
+    </p>
+  </div>
+
+  <script src="src/js/login-register/login.js"></script>
+</body>
+
+</html>

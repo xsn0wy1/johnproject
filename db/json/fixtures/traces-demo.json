@@ -1,0 +1,22 @@
+{
+  "facilities": [
+    {"name":"Centro Ficticio Norte","address":"Dirección de prueba Norte","latitude":-34.891,"longitude":-56.1524},
+    {"name":"Centro Ficticio Sur","address":"Dirección de prueba Sur","latitude":-34.8754,"longitude":-56.1878},
+    {"name":"Centro Ficticio Este","address":"Dirección de prueba Este","latitude":-34.8943,"longitude":-56.1635}
+  ],
+  "ambulances": [
+    {"code":"TEST-A","plate":"TEST001","model":"Unidad ficticia"},
+    {"code":"TEST-B","plate":"TEST002","model":"Unidad ficticia"},
+    {"code":"TEST-C","plate":"TEST003","model":"Unidad ficticia"}
+  ],
+  "crew": [
+    {"national_id":"99000101","full_name":"Conductor Ficticio Uno","responsibilities":["driver"]},
+    {"national_id":"99000102","full_name":"Conductor Ficticio Dos","responsibilities":["driver"]},
+    {"national_id":"99000103","full_name":"Conductor Ficticio Tres","responsibilities":["driver"]},
+    {"national_id":"99000104","full_name":"Copiloto Ficticio Uno","responsibilities":["copilot"]}
+  ],
+  "routes": [
+    {"code":"TEST-NS","name":"Ruta ficticia Norte Sur","origin":"Centro Ficticio Norte","destination":"Centro Ficticio Sur","duration_seconds":600,"geometry":[{"latitude":-34.891,"longitude":-56.1524},{"latitude":-34.8885,"longitude":-56.1535},{"latitude":-34.8845,"longitude":-56.1598},{"latitude":-34.881,"longitude":-56.169},{"latitude":-34.8774,"longitude":-56.1788},{"latitude":-34.8754,"longitude":-56.1878}]},
+    {"code":"TEST-EN","name":"Ruta ficticia Este Norte","origin":"Centro Ficticio Este","destination":"Centro Ficticio Norte","duration_seconds":480,"geometry":[{"latitude":-34.8943,"longitude":-56.1635},{"latitude":-34.8932,"longitude":-56.1568},{"latitude":-34.891,"longitude":-56.1524}]}
+  ]
+}

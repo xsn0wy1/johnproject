@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Médicos | Hospital de Clínicas</title>
+  <link rel="icon" type="image/x-icon" href="../../../assets/hospital-dark.ico">
+  <link rel="stylesheet" href="../../css/main-menu.css?v=20261012-settings">
+  <link rel="stylesheet" href="../../css/management/doctors.css?v=20261004-directory-design">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&amp;display=swap" rel="stylesheet">
+  <script src="../../js/api-client.js" defer></script>
+  <script src="../../js/auth-session.js?v=20261014-audit" defer></script>
+  <script src="../../js/main-menu.js?v=20260927-global" defer></script>
+  <script src="../../js/universal-search.js?v=20261001-doctors" defer></script>
+  <script src="../../js/management/doctors.js?v=20261013-database" defer></script>
+</head>
+<body class="doctors-page">
+  <main class="app-shell">
+    <aside class="sidebar">
+      <button type="button" class="sidebar-action" aria-label="Abrir menú" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="sidebar-nav" aria-label="Navegación principal">
+        <div class="nav-indicator"></div>
+        <a href="../main-menu.html" class="nav-item"><img src="../../../assets/Icons/house-icon.svg" alt=""><span>Inicio</span></a>
+        <a href="../documents/documents.html" class="nav-item"><img src="../../../assets/Icons/folder-icon.svg" alt=""><span>Documentos</span></a>
+        <a href="../traces/trace.html" class="nav-item"><img src="../../../assets/Icons/location-icon.svg" alt=""><span>Ambulancias</span></a>
+        <a href="../analytics/analytics.html" class="nav-item"><img src="../../../assets/Icons/analytics-icon.svg" alt=""><span>Reportes</span></a>
+        <a href="../calendar/calendar.html" class="nav-item"><img src="../../../assets/Icons/calendar-icon.svg" alt=""><span>Calendario</span></a>
+        <a href="../surveys/survey.html" class="nav-item"><img src="../../../assets/Icons/survey-icon.svg" alt=""><span>Encuestas</span></a>
+        <a href="management.html" class="nav-item active" aria-current="page"><img src="../../../assets/Icons/database-cog.svg" alt=""><span>Gestión</span></a>
+        <div class="nav-spacer"></div>
+        <a href="../settings.html" class="nav-item"><img src="../../../assets/Icons/settings-icon.svg" alt=""><span>Configuración</span></a>
+      </nav>
+    </aside>
+
+    <header class="topbar">
+      <div class="brand"><img src="../../../assets/Icons/hospital-logo.png" alt="Hospital de Clínicas"><span>HOSPITAL DE CLINICAS</span></div>
+      <div class="search-wrapper">
+        <input type="search" class="search-input" placeholder="Buscar una acción o sección..." aria-label="Buscar una acción o sección">
+        <button type="button" class="topbar-action search-action" aria-label="Abrir búsqueda" aria-expanded="false"><img src="../../../assets/Icons/search-icon.svg" alt=""></button>
+      </div>
+    </header>
+
+    <section class="doctors-content" aria-label="Gestión de médicos">
+      <div class="doctor-summary-row">
+        <a class="doctor-back" href="management.html" aria-label="Volver a Gestión" title="Volver a Gestión"><img src="../../../assets/Icons/arrow-left.svg" alt=""></a>
+        <section class="doctor-metrics" aria-label="Resumen de médicos">
+          <article class="doctor-metric"><span class="metric-icon"><img src="../../../assets/Icons/doctor-icon.svg" alt=""></span><div><strong id="metric-total">12</strong><span>Médicos registrados</span><small>Directorio del equipo médico.</small></div></article>
+          <article class="doctor-metric"><span class="metric-icon"><img src="../../../assets/Icons/available-icon.svg" alt=""></span><div><strong id="metric-available">4</strong><span>Disponibles</span><small>Disponibilidad para atención.</small></div></article>
+          <article class="doctor-metric"><span class="metric-icon"><img src="../../../assets/Icons/guard-icon.svg" alt=""></span><div><strong id="metric-on-call">3</strong><span>De guardia</span><small>Asignados a una guardia.</small></div></article>
+          <article class="doctor-metric"><span class="metric-icon"><img src="../../../assets/Icons/specialty-icon.svg" alt=""></span><div><strong id="metric-specialties">9</strong><span>Especialidades</span><small>Áreas de atención médica.</small></div></article>
+        </section>
+      </div>
+
+      <div class="doctor-workspace">
+        <section class="doctor-directory" aria-labelledby="directory-title">
+          <div class="directory-heading">
+            <div><h1 id="directory-title">Listado de médicos</h1><p>Consulta el equipo médico, sus especialidades y su disponibilidad.</p></div>
+            <button type="button" class="new-doctor-button" id="new-doctor-button"><span class="plus-circle"><img src="../../../assets/Icons/plus-icon.svg" alt=""></span>Nuevo médico</button>
+          </div>
+          <div class="doctor-controls">
+            <label class="doctor-search"><img src="../../../assets/Icons/search-icon.svg" alt=""><input id="doctor-search" type="search" autocomplete="off" placeholder="Buscar por nombre, registro o teléfono..." aria-label="Buscar por nombre, registro o teléfono"></label>
+            <label class="specialty-filter"><img src="../../../assets/Icons/specialty-icon.svg" alt=""><select id="specialty-filter" aria-label="Filtrar por especialidad"><option value="">Todas las especialidades</option></select></label>
+            <div class="doctor-status-filters" role="group" aria-label="Filtrar médicos por disponibilidad">
+              <button type="button" class="filter-button is-active" data-status="Todos" aria-pressed="true">Todos</button>
+              <button type="button" class="filter-button" data-status="Disponible" aria-pressed="false">Disponibles</button>
+              <button type="button" class="filter-button" data-status="En consulta" aria-pressed="false">En consulta</button>
+              <button type="button" class="filter-button" data-status="De guardia" aria-pressed="false">De guardia</button>
+              <button type="button" class="filter-button" data-status="Inactivo" aria-pressed="false">Inactivos</button>
+            </div>
+          </div>
+
+          <div class="doctor-table-container">
+            <table class="doctor-table" aria-label="Listado de médicos">
+              <tbody id="doctor-rows"></tbody>
+            </table>
+            <div class="doctor-empty" id="doctor-empty" hidden>
+              <span class="empty-icon"><img src="../../../assets/Icons/search-icon.svg" alt=""></span>
+              <h2>No se encontraron médicos</h2><p id="empty-description">Prueba con otro nombre o ajusta los filtros.</p>
+              <button type="button" class="secondary-button" id="clear-filters">Limpiar filtros</button>
+            </div>
+          </div>
+          <footer class="directory-footer">
+            <span id="results-summary" role="status" aria-live="polite"></span>
+            <nav class="doctor-pagination" id="doctor-pagination" aria-label="Páginas de médicos"></nav>
+          </footer>
+        </section>
+        <button class="detail-scrim" id="detail-scrim" type="button" aria-label="Cerrar detalle del médico" tabindex="-1" hidden></button>
+        <aside class="doctor-detail" id="doctor-detail" role="dialog" aria-modal="true" aria-labelledby="detail-title" aria-hidden="true" inert>
+          <header class="detail-heading"><div><h2 id="detail-title">Detalle del médico</h2><p>Perfil profesional y datos de contacto.</p></div><button type="button" class="icon-button" id="close-detail" aria-label="Cerrar detalle"><img src="../../../assets/Icons/cross-icon.svg" alt=""></button></header>
+          <div class="detail-content" id="detail-content"></div>
+          <div class="detail-actions"><button type="button" class="danger-button" id="delete-from-detail"><img src="../../../assets/Icons/trash-icon.svg" alt="">Eliminar</button><button type="button" class="primary-button" id="edit-from-detail"><img src="../../../assets/Icons/pencil-icon.svg" alt="">Editar médico</button></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="doctor-dialog" id="doctor-dialog" aria-labelledby="form-title">
+    <form id="doctor-form" novalidate>
+      <header class="dialog-heading"><div><h2 id="form-title">Nuevo médico</h2><p id="form-subtitle">Completa la información para agregar un médico al directorio.</p></div><button type="button" class="icon-button" data-close-form aria-label="Cerrar formulario"><img src="../../../assets/Icons/cross-icon.svg" alt=""></button></header>
+      <div class="doctor-form-fields">
+        <fieldset><legend><img src="../../../assets/Icons/person-icon.svg" alt="">Información personal</legend>
+          <div class="form-grid personal-fields">
+            <label>Tratamiento<span class="field-control"><select name="title" aria-label="Tratamiento"><option>Dr.</option><option>Dra.</option></select></span></label>
+            <label class="name-field">Nombre completo *<span class="field-control"><img src="../../../assets/Icons/person-icon.svg" alt=""><input name="name" type="text" placeholder="Ej. Carlos Méndez" autocomplete="name" maxlength="100" required></span></label>
+            <label>Documento (C.I.) *<span class="field-control"><img src="../../../assets/Icons/id-badge.svg" alt=""><input name="document" type="text" placeholder="Ej. 4.567.890-1" maxlength="25" required></span></label>
+            <label>Teléfono *<span class="field-control"><img src="../../../assets/Icons/phone-icon.svg" alt=""><input name="phone" type="tel" placeholder="Ej. 099 123 456" autocomplete="tel" maxlength="25" required></span></label>
+            <label>Correo electrónico<span class="field-control"><input name="email" type="email" placeholder="nombre@ejemplo.com" autocomplete="email" maxlength="120"></span></label>
+          </div>
+        </fieldset>
+        <fieldset><legend><img src="../../../assets/Icons/doctor-icon.svg" alt="">Información profesional</legend>
+          <div class="form-grid">
+            <label>Registro MSP *<span class="field-control"><img src="../../../assets/Icons/driver-badge.svg" alt=""><input name="license" type="text" placeholder="Ej. MSP-10482" maxlength="30" required></span></label>
+            <label>Especialidad *<span class="field-control"><img src="../../../assets/Icons/specialty-icon.svg" alt=""><input name="specialty" type="text" list="specialty-options" placeholder="Ej. Cardiología" maxlength="80" required></span></label>
+            <label>Servicio *<span class="field-control"><img src="../../../assets/Icons/ambulatory-icon.svg" alt=""><input name="service" type="text" list="service-options" placeholder="Ej. Consultorios Externos" maxlength="80" required></span></label>
+            <label>Consultorio / Área<span class="field-control"><img src="../../../assets/Icons/location-icon.svg" alt=""><input name="office" type="text" placeholder="Ej. Consultorio 12" maxlength="80"></span></label>
+          </div>
+        </fieldset>
+        <fieldset><legend><img src="../../../assets/Icons/calendar-icon.svg" alt="">Turno y disponibilidad</legend>
+          <div class="form-grid">
+            <label>Disponibilidad<span class="field-control"><span class="status-dot" id="form-status-dot" aria-hidden="true"></span><select name="status"><option>Disponible</option><option>En consulta</option><option>De guardia</option><option>Inactivo</option></select></span></label>
+            <label>Turno<span class="field-control"><img src="../../../assets/Icons/time-icon.svg" alt=""><select name="shift"><option>Mañana</option><option>Tarde</option><option>Noche</option><option>Rotativo</option></select></span></label>
+            <label>Días de atención<span class="field-control"><select name="days"><option>Lunes a viernes</option><option>Lunes, miércoles y viernes</option><option>Martes y jueves</option><option>Fines de semana</option><option>Rotativo</option></select></span></label>
+            <div class="time-fields"><label>Desde<span class="field-control"><input name="startTime" type="time" aria-label="Hora de inicio"></span></label><label>Hasta<span class="field-control"><input name="endTime" type="time" aria-label="Hora de fin"></span></label></div>
+            <label class="full-width">Observaciones<textarea name="notes" rows="2" placeholder="Información adicional del médico..." maxlength="500"></textarea></label>
+          </div>
+        </fieldset>
+      </div>
+      <p class="form-error" id="form-error" role="alert" hidden></p>
+      <footer class="dialog-actions"><button type="button" class="secondary-button" data-close-form>Cancelar</button><button type="submit" class="primary-button"><img src="../../../assets/Icons/save-floppy.svg" alt=""><span id="save-label">Guardar médico</span></button></footer>
+    </form>
+  </dialog>
+  <datalist id="specialty-options"></datalist>
+  <datalist id="service-options"></datalist>
+
+  <dialog class="doctor-dialog delete-dialog" id="delete-dialog" aria-labelledby="delete-title" aria-describedby="delete-description">
+    <div class="delete-content">
+      <header class="dialog-heading"><div><span class="delete-symbol"><img src="../../../assets/Icons/trash-icon.svg" alt=""></span><h2 id="delete-title">¿Eliminar este médico?</h2></div><button type="button" class="icon-button" data-close-delete aria-label="Cerrar confirmación"><img src="../../../assets/Icons/cross-icon.svg" alt=""></button></header>
+      <p id="delete-description"></p><p class="delete-note">Se conservará en Inactivos y en el historial de los pacientes.</p>
+      <footer class="dialog-actions"><button type="button" class="secondary-button" data-close-delete autofocus>Cancelar</button><button type="button" class="danger-button" id="confirm-delete">Eliminar médico</button></footer>
+    </div>
+  </dialog>
+  <div class="doctor-toast" id="doctor-toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

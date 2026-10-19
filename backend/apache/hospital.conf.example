@@ -1,0 +1,29 @@
+# Include from XAMPP's httpd.conf after replacing /ABSOLUTE/PATH/johnproject.
+# No application PHP, configuration, SQL or uploads are under DocumentRoot.
+<VirtualHost *:80>
+    ServerName hospital.localhost
+    DocumentRoot "/ABSOLUTE/PATH/johnproject/public"
+    Alias "/api/v1/" "/ABSOLUTE/PATH/johnproject/backend/php/api/v1/"
+    <Directory "/ABSOLUTE/PATH/johnproject/public">
+        Options -Indexes +FollowSymLinks
+        AllowOverride FileInfo Options
+        Require all granted
+        <IfModule headers_module>
+            <FilesMatch "\.(css|js)$">
+                Header set Cache-Control "no-cache"
+            </FilesMatch>
+        </IfModule>
+    </Directory>
+    <Directory "/ABSOLUTE/PATH/johnproject/backend/php/api/v1">
+        Options -Indexes
+        AllowOverride None
+        Require all granted
+        <IfModule php_module>
+            php_value upload_max_filesize 10M
+            php_value post_max_size 11M
+        </IfModule>
+    </Directory>
+    <Location "/api/v1/">
+        ErrorDocument 404 /api/v1/errors/not-found.php
+    </Location>
+</VirtualHost>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentos</title>
+  <link rel="stylesheet" href="../../css/main-menu.css?v=20261012-settings">
+  <link rel="stylesheet" href="../../css/documents/documents.css?v=20261012-documents">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&family=Krub:ital,wght@0,200;0,300;0,400;0,500;1,400;1,500&display=swap"
+    rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="../../../assets/hospital-dark.ico">
+  <script src="../../js/api-client.js" defer></script>
+  <script src="../../js/auth-session.js?v=20261014-audit" defer></script>
+  <script src="../../js/main-menu.js?v=20260927-global" defer></script>
+  <script src="../../js/universal-search.js?v=20261014-surveys" defer></script>
+  <script src="../../js/documents/document-api.js?v=20261012-documents" defer></script>
+  <script src="../../js/documents/documents.js?v=20261014-audit" defer></script>
+</head>
+
+<body>
+  <div class="page-background"></div>
+  <div class="page-glow"></div>
+
+  <main class="app-shell">
+    <aside class="sidebar">
+      <button type="button" class="sidebar-action" aria-label="Abrir menú">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav class="sidebar-nav">
+        <div class="nav-indicator"></div>
+
+        <a href="../main-menu.html" class="nav-item">
+          <img src="../../../assets/Icons/house-icon.svg" alt="Inicio">
+          <span>Inicio</span>
+        </a>
+        <a href="#" class="nav-item active">
+          <img src="../../../assets/Icons/folder-icon.svg" alt="Documentos">
+          <span>Documentos</span>
+        </a>
+        <a href="../traces/trace.html" class="nav-item">
+          <img src="../../../assets/Icons/location-icon.svg" alt="Ambulancias">
+          <span>Ambulancias</span>
+        </a>
+        <a href="../surveys/survey.html" class="nav-item">
+          <img src="../../../assets/Icons/survey-icon.svg" alt="Encuestas">
+          <span>Encuestas</span>
+        </a>
+        <a href="../management/management.html" class="nav-item">
+          <img src="../../../assets/Icons/database-cog.svg" alt="Gestion">
+          <span>Gestion</span>
+        </a>
+
+        <div class="nav-spacer"></div>
+
+        <a href="../settings.html" class="nav-item">
+          <img src="../../../assets/Icons/settings-icon.svg" alt="Configuración">
+          <span>Configuración</span>
+        </a>
+      </nav>
+    </aside>
+
+    <header class="topbar">
+      <div class="brand">
+        <img src="../../../assets/Icons/hospital-logo.png" alt="Hospital de Clínicas">
+        <span>HOSPITAL DE CLINICAS</span>
+      </div>
+
+      <div class="search-wrapper">
+        <input type="text" class="search-input" placeholder="Buscar documento...">
+        <button type="button" class="topbar-action search-action" aria-label="Buscar">
+          <img src="../../../assets/Icons/search-icon.svg" alt="" aria-hidden="true">
+        </button>
+      </div>
+    </header>
+
+    <section class="hero-panel documents-panel">
+
+      <div class="documents-layout">
+        <aside class="document-surface staff-card">
+          <img class="staff-avatar" src="../../../assets/Icons/pfp-default.png" alt="Funcionario 1" data-current-user-avatar>
+          <h2 data-current-user-name>FUNCIONARIO1</h2>
+          <p data-current-user-national-id></p>
+          <p data-current-user-role></p>
+
+          <div class="staff-divider"></div>
+
+          <a href="documents-upload.html" class="staff-action" style="text-decoration: none;">
+            <img src="../../../assets/Icons/folders-icon.png" alt="">
+            <span>CARGAR NUEVO DOCUMENTO</span>
+          </a>
+
+          <button type="button" class="staff-action" id="editDocumentButton" aria-pressed="false" aria-controls="documentsGrid documentSelectionBar">
+            <img src="../../../assets/Icons/edit-icon.svg" alt="">
+            <span>EDITAR DOCUMENTO</span>
+          </button>
+        </aside>
+
+        <div class="documents-column">
+          <section class="document-surface recent-documents" aria-labelledby="recent-title">
+            <h2 id="recent-title" class="visually-hidden">Documentos</h2>
+            <div class="documents-heading">
+              <div class="documents-heading-left">
+                <div class="documents-view-switch" role="group" aria-label="Cambiar vista de documentos">
+                  <button type="button" class="view-toggle active" id="gridView" aria-label="Vista de cuadrícula"
+                    aria-pressed="true" title="Vista de cuadrícula">
+                    <img src="../../../assets/Icons/grid-icon.svg" alt="" aria-hidden="true">
+                  </button>
+                  <button type="button" class="view-toggle" id="listView" aria-label="Vista de lista"
+                    aria-pressed="false" title="Vista de lista">
+                    <img src="../../../assets/Icons/list-icon.svg" alt="" aria-hidden="true">
+                  </button>
+                </div>
+
+                <button type="button" class="filter-trigger" id="documentsArchiveToggle" aria-pressed="false">Ver archivados</button>
+                <div class="documents-list-filters" id="documentListFilters" hidden>
+                  <div class="document-filter">
+                    <button type="button" class="filter-trigger" id="documentTypeButton" aria-haspopup="true"
+                      aria-expanded="false" aria-controls="documentTypeMenu">
+                      <span id="documentTypeLabel">Tipo: Todos</span><span class="filter-chevron" aria-hidden="true"></span>
+                    </button>
+                    <div class="filter-menu" id="documentTypeMenu" aria-label="Filtrar por tipo" hidden>
+                      <button type="button" data-type="" aria-pressed="true">Todos</button>
+                      <button type="button" data-type="pdf" aria-pressed="false">PDF</button>
+                      <button type="button" data-type="docx" aria-pressed="false">DOCX</button>
+                      <button type="button" data-type="png" aria-pressed="false">PNG</button>
+                      <button type="button" data-type="jpg" aria-pressed="false">JPG</button>
+                    </div>
+                  </div>
+                  <div class="document-filter">
+                    <button type="button" class="filter-trigger" id="documentDateButton" aria-haspopup="true"
+                      aria-expanded="false" aria-controls="documentDateMenu">
+                      <span id="documentDateLabel">Fecha</span><span class="filter-chevron" aria-hidden="true"></span>
+                    </button>
+                    <div class="filter-menu" id="documentDateMenu" aria-label="Ordenar por fecha" hidden>
+                      <button type="button" data-date="" aria-pressed="true">Sin ordenar</button>
+                      <button type="button" data-date="recent" aria-pressed="false">Más recientes</button>
+                      <button type="button" data-date="oldest" aria-pressed="false">Más antiguos</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="documents-list-search" id="documentListSearch" role="search" hidden>
+                <label class="visually-hidden" for="documentSearchInput">Buscar documentos por nombre o palabras clave</label>
+                <input type="search" id="documentSearchInput" placeholder="Nombre o palabras clave..." autocomplete="off">
+                <button type="button" id="documentSearchButton" aria-label="Buscar en documentos" title="Buscar en documentos">
+                  <img src="../../../assets/Icons/search-icon.svg" alt="" aria-hidden="true">
+                </button>
+              </div>
+
+              <div class="documents-pagination">
+                <button type="button" class="page-arrow" id="prevDocs" aria-label="Anterior" disabled>
+                  <img src="../../../assets/Icons/arrowhead-icon.svg" alt="" aria-hidden="true">
+                </button>
+                <button type="button" class="page-arrow" id="nextDocs" aria-label="Siguiente">
+                  <img src="../../../assets/Icons/arrowhead-icon.svg" alt="" aria-hidden="true">
+                </button>
+              </div>
+            </div>
+
+            <p class="visually-hidden" id="documentResultsStatus" role="status" aria-live="polite"></p>
+            <div class="documents-grid" id="documentsGrid" aria-busy="true"></div>
+          </section>
+
+          <section class="document-selection-bar" id="documentSelectionBar" aria-labelledby="documentSelectionTitle" hidden>
+            <div class="document-selection-summary visually-hidden">
+              <h3 id="documentSelectionTitle">Seleccionar documentos</h3>
+              <p id="documentSelectionStatus" role="status" aria-live="polite" aria-atomic="true"></p>
+            </div>
+            <div class="document-selection-actions" role="group" aria-label="Acciones de selección">
+              <button type="button" class="selection-action" id="selectAllDocuments">Seleccionar todos</button>
+              <button type="button" class="selection-action selection-edit" id="editSelectedDocument" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 5 5-12 12-6 1 1-6L16 3ZM14 5l5 5"/></svg>
+                <span>Editar</span>
+              </button>
+              <button type="button" class="selection-action selection-delete" id="deleteSelectedDocuments" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg>
+                <span>Eliminar</span>
+              </button>
+              <button type="button" class="selection-action selection-cancel" id="cancelDocumentSelection">Cancelar</button>
+            </div>
+          </section>
+          <p class="document-action-status" id="documentActionStatus" role="status" aria-live="polite" aria-atomic="true" hidden></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+</body>
+
+</html>

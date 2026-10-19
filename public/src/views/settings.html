@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&family=Krub:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../assets/hospital-dark.ico">
+    <link rel="stylesheet" href="../css/main-menu.css?v=20261012-settings">
+    <link rel="stylesheet" href="../css/settings.css?v=20261012-settings">
+  <script src="../js/api-client.js" defer></script>
+  <script src="../js/auth-session.js?v=20261014-audit" defer></script>
+  <script src="../js/main-menu.js?v=20260927-global" defer></script>
+  <script src="../js/settings.js?v=20261014-audit" defer></script>
+</head>
+
+<body>
+    <div class="page-background"></div>
+    <div class="page-glow"></div>
+
+    <main class="app-shell">
+
+        <aside class="sidebar">
+            <button type="button" class="sidebar-action" aria-label="Abrir menú">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <nav class="sidebar-nav">
+                <div class="nav-indicator"></div>
+
+                <a href="main-menu.html" class="nav-item">
+                    <img src="../../assets/Icons/house-icon.svg" alt="Inicio">
+                    <span>Inicio</span>
+                </a>
+
+                <a href="documents/documents.html" class="nav-item">
+                    <img src="../../assets/Icons/folder-icon.svg" alt="Documentos">
+                    <span>Documentos</span>
+                </a>
+
+                <a href="traces/trace.html" class="nav-item">
+                    <img src="../../assets/Icons/location-icon.svg" alt="Ambulancias">
+                    <span>Ambulancias</span>
+                </a>
+
+                <a href="surveys/survey.html" class="nav-item">
+                    <img src="../../assets/Icons/survey-icon.svg" alt="Encuestas">
+                    <span>Encuestas</span>
+                </a>
+
+                <a href="management/management.html" class="nav-item">
+                    <img src="../../assets/Icons/database-cog.svg" alt="Gestion">
+                    <span>Gestion</span>
+                </a>
+
+                <div class="nav-spacer"></div>
+
+                <a href="#" class="nav-item active">
+                    <img src="../../assets/Icons/settings-icon.svg" alt="Configuración">
+                    <span>Configuración</span>
+                </a>
+            </nav>
+        </aside>
+
+        <section class="content-card">
+            <section class="bg-panel">
+                <header class="settings-header">
+                    <div class="settings-heading">
+                        <h1>Configuración</h1>
+
+                        <div class="settings-tabs" role="tablist" aria-label="Secciones de configuración">
+                            <button type="button" class="settings-tab active" id="general-tab" role="tab"
+                                aria-selected="true" aria-controls="general-panel" data-tab="general-panel">
+                                Información General
+                            </button>
+                            <button type="button" class="settings-tab" id="privacy-tab" role="tab" aria-selected="false"
+                                aria-controls="privacy-panel" data-tab="privacy-panel">
+                                Privacidad
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="button" class="user-control" aria-label="Abrir opciones de usuario">
+                        <span class="user-avatar" aria-hidden="true">
+                            <img src="../../assets/Icons/person-icon.svg" alt="Usuario">
+                        </span>
+                        <span class="user-name">Usuario</span>
+                        <span class="user-arrows" aria-hidden="true">
+                            <span>▲</span>
+                            <span>▼</span>
+                        </span>
+                    </button>
+                </header>
+
+                <div class="settings-panels">
+                    <section class="settings-panel general-panel" id="general-panel" role="tabpanel"
+                        aria-labelledby="general-tab">
+
+                        <div class="general-details">
+                            <div class="settings-field">
+                                <label for="settings-name">Nombre</label>
+                                <input id="settings-name" type="text" maxlength="150" autocomplete="name">
+                            </div>
+
+                            <div class="settings-field">
+                                <label for="settings-email">Email</label>
+                                <input id="settings-email" type="email" maxlength="254" autocomplete="email" required>
+                            </div>
+
+                            <div class="settings-field">
+                                <label for="settings-center">Centro</label>
+                                <select id="settings-center"><option value=""></option></select>
+                            </div>
+
+                            <div class="specialties-group">
+                                <p>Especializaciones</p>
+                                <div class="specialty-list">
+                                    <button type="button" class="specialty-add"
+                                        aria-label="Agregar especialización">+</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="general-divider" aria-hidden="true"></div>
+
+                        <div class="profile-settings">
+                            <p class="section-label">Foto de Perfil</p>
+
+                            <button type="button" class="upload-box" aria-label="Subir foto de perfil">
+                                <span class="upload-icon" aria-hidden="true">
+                                    <img src="../../assets/Icons/camera-icon.svg" alt="Subir Imagen">
+                                </span>
+                                <span>SUBIR IMAGEN</span>
+                            </button>
+                            <input id="settings-photo" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+                            <button type="button" class="specialty-chip" data-photo-delete hidden>Quitar foto</button>
+
+                            <div class="visibility-setting">
+                                <p>Visibilidad de Foto</p>
+                                <div class="toggle-line">
+                                    <button type="button" class="toggle is-on" role="switch" aria-checked="true"
+                                        aria-label="Visibilidad de la foto para funcionarios" data-preference="photo_visible_to_staff">
+                                        <span class="toggle-knob"></span>
+                                    </button>
+                                    <span>Visible para otros funcionarios</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="settings-panel privacy-panel" id="privacy-panel" role="tabpanel"
+                        aria-labelledby="privacy-tab" hidden>
+
+                        <div class="privacy-options">
+                            <div class="privacy-setting">
+                                <p>Análisis de Rendimiento</p>
+                                <button type="button" class="toggle is-on" role="switch" aria-checked="true"
+                                    aria-label="Análisis de rendimiento" data-preference="optional_diagnostics" title="Métricas locales opcionales del tiempo de carga. No se envían a terceros.">
+                                    <span class="toggle-knob"></span>
+                                </button>
+                            </div>
+
+                            <div class="privacy-setting">
+                                <p>Notificaciones de Seguridad</p>
+                                <button type="button" class="toggle" role="switch" aria-checked="false"
+                                    aria-label="Notificaciones de seguridad" data-preference="security_notifications">
+                                    <span class="toggle-knob"></span>
+                                </button>
+                            </div>
+
+                            <div class="privacy-setting">
+                                <p>Cerrar Sesión Automáticamente</p>
+                                <button type="button" class="toggle" role="switch" aria-checked="false"
+                                    aria-label="Cerrar sesión automáticamente" data-preference="automatic_logout" title="Activado: 5 minutos sin actividad. Desactivado: límite obligatorio del servidor (30 minutos por defecto).">
+                                    <span class="toggle-knob"></span>
+                                </button>
+                            </div>
+
+                            <div class="select-setting">
+                                <label for="settings-language">Idioma</label>
+                                <select id="settings-language">
+                                    <option value="es-UY" selected>Español</option>
+                                    <option value="en">English</option>
+                                </select>
+                            </div>
+
+                            <div class="theme-setting">
+                                <p>Estilo de Interfaz</p>
+                                <div class="theme-switch" data-theme="dark">
+                                    <span class="theme-highlight" aria-hidden="true"></span>
+                                    <button type="button" class="theme-option active" data-theme-option="dark"
+                                        aria-label="Tema oscuro">
+                                        <img src="../../assets/Icons/moon-icon.svg" alt="Tema oscuro">
+                                    </button>
+                                    <button type="button" class="theme-option" data-theme-option="light" disabled
+                                        aria-label="Tema claro" title="Disponible en una próxima etapa.">
+                                        <img src="../../assets/Icons/sun-icon.svg" alt="Tema claro">
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="password-setting">
+                            <p>¿Olvidaste tu Contraseña?</p>
+                            <button type="button" class="reset-password">Cambiar contraseña</button>
+                        </div>
+                    </section>
+                </div>
+            </section>
+        </section>
+    </main>
+    <dialog id="password-dialog" class="settings-dialog" aria-labelledby="password-title">
+      <form id="password-form" novalidate>
+        <h2 id="password-title">Cambiar contraseña</h2>
+        <label for="password-current">Contraseña actual</label><input id="password-current" type="password" name="current_password" autocomplete="current-password" required maxlength="72">
+        <label for="password-new">Nueva contraseña</label><input id="password-new" type="password" name="new_password" autocomplete="new-password" required minlength="12" maxlength="72">
+        <p>Al guardar, cerrarán tus sesiones. Volvé a ingresar con la nueva contraseña.</p>
+        <button type="submit">Guardar contraseña</button><button type="button" data-close-dialog>Cancelar</button>
+      </form>
+    </dialog>
+    <dialog id="specialty-dialog" class="settings-dialog">
+        <form id="specialty-form" novalidate>
+            <label for="specialty-name">Especialización</label>
+            <input id="specialty-name" name="specialty" maxlength="80" list="specialty-options" required autocomplete="off">
+            <datalist id="specialty-options"></datalist>
+            <button type="submit">Agregar</button>
+            <button type="button" data-close-dialog>Cancelar</button>
+        </form>
+    </dialog>
+    <dialog id="account-dialog" class="settings-dialog">
+        <h2>Notificaciones de seguridad</h2>
+        <ul id="security-notifications"></ul>
+        <button type="button" data-logout>Cerrar sesión</button>
+        <button type="button" data-close-dialog>Cerrar</button>
+    </dialog>
+</body>
+
+</html>

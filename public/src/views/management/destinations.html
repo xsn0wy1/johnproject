@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Destinos | Hospital de Clínicas</title>
+  <link rel="icon" type="image/x-icon" href="../../../assets/hospital-dark.ico">
+  <link rel="stylesheet" href="../../css/main-menu.css?v=20261012-settings">
+  <link rel="stylesheet" href="../../css/management/destinations.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inclusive+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <script src="../../js/api-client.js" defer></script>
+  <script src="../../js/auth-session.js?v=20261014-audit" defer></script>
+  <script src="../../js/main-menu.js?v=20260927-global" defer></script>
+  <script src="../../js/universal-search.js?v=20261014-surveys" defer></script>
+  <script src="../../js/management/destinations.js?v=20261014-database" defer></script>
+</head>
+
+<body class="destinations-page">
+  <main class="app-shell">
+    <aside class="sidebar">
+      <button type="button" class="sidebar-action" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="sidebar-nav" aria-label="Navegación principal">
+        <div class="nav-indicator"></div>
+        <a href="../main-menu.html" class="nav-item"><img src="../../../assets/Icons/house-icon.svg" alt=""><span>Inicio</span></a>
+        <a href="../documents/documents.html" class="nav-item"><img src="../../../assets/Icons/folder-icon.svg" alt=""><span>Documentos</span></a>
+        <a href="../traces/trace.html" class="nav-item"><img src="../../../assets/Icons/location-icon.svg" alt=""><span>Ambulancias</span></a>
+        <a href="../analytics/analytics.html" class="nav-item"><img src="../../../assets/Icons/analytics-icon.svg" alt=""><span>Reportes</span></a>
+        <a href="../calendar/calendar.html" class="nav-item"><img src="../../../assets/Icons/calendar-icon.svg" alt=""><span>Calendario</span></a>
+        <a href="../surveys/survey.html" class="nav-item"><img src="../../../assets/Icons/survey-icon.svg" alt=""><span>Encuestas</span></a>
+        <a href="management.html" class="nav-item active" aria-current="page"><img src="../../../assets/Icons/database-cog.svg" alt=""><span>Gestión</span></a>
+        <div class="nav-spacer"></div>
+        <a href="../settings.html" class="nav-item"><img src="../../../assets/Icons/settings-icon.svg" alt=""><span>Configuración</span></a>
+      </nav>
+    </aside>
+
+    <div class="destinations-layout">
+      <header class="topbar">
+        <div class="brand">
+          <img src="../../../assets/Icons/hospital-logo.png" alt="">
+          <span>HOSPITAL DE CLINICAS</span>
+        </div>
+        <div class="search-wrapper">
+          <input type="search" class="search-input" placeholder="Buscar una acción o sección..." aria-label="Buscar una acción o sección">
+          <button type="button" class="topbar-action search-action" aria-label="Abrir búsqueda" aria-expanded="false">
+            <img src="../../../assets/Icons/search-icon.svg" alt="">
+          </button>
+        </div>
+      </header>
+
+      <section class="destinations-content" aria-label="Gestión de destinos">
+        <div class="destinations-toolbar">
+          <div class="toolbar-left">
+            <a class="destinations-back" href="management.html" aria-label="Volver a Gestión" title="Volver a Gestión">
+              <img src="../../../assets/Icons/arrow-left.svg" alt="">
+            </a>
+            <div class="status-filters" role="group" aria-label="Filtrar destinos por estado">
+              <button type="button" class="filter-button is-active" data-filter="Activo" aria-pressed="true" aria-controls="destinations-list">
+                <span class="status-dot" aria-hidden="true"></span><span>Activos</span>
+              </button>
+              <button type="button" class="filter-button" data-filter="Inactivo" aria-pressed="false" aria-controls="destinations-list">
+                <span class="status-dot is-inactive" aria-hidden="true"></span><span>Inactivos</span>
+              </button>
+            </div>
+          </div>
+          <div class="toolbar-right">
+            <label class="list-search">
+              <img src="../../../assets/Icons/search-icon.svg" alt="">
+              <input id="destinations-search" type="search" autocomplete="off" placeholder="Buscar por nombre, dirección o localidad..." aria-label="Buscar por nombre, dirección o localidad">
+            </label>
+          </div>
+        </div>
+
+        <div class="destinations-grid">
+          <section class="destinations-card list-card" id="destinations-list" aria-labelledby="list-title">
+            <div class="card-heading">
+              <h1 id="list-title">Destinos activos</h1>
+              <p id="list-count" aria-live="polite"></p>
+            </div>
+            <div class="table-container">
+              <table class="destinations-table">
+                <thead>
+                  <tr><th scope="col">Destino</th><th scope="col">Dirección</th><th scope="col">Localidad</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr>
+                </thead>
+                <tbody id="destinations-rows"></tbody>
+              </table>
+            </div>
+            <div class="empty-state" id="empty-state" hidden>
+              <span class="empty-icon"><img src="../../../assets/Icons/location-icon.svg" alt=""></span>
+              <h2 id="empty-title">No se encontraron destinos</h2>
+              <p id="empty-description">Prueba con otro nombre, dirección o localidad.</p>
+              <button type="button" id="empty-action" class="cancel-button">Limpiar búsqueda</button>
+            </div>
+            <div class="table-footer">
+              <span id="results-summary" role="status" aria-live="polite"></span>
+              <nav class="pagination" aria-label="Páginas del listado">
+                <button type="button" id="page-prev" aria-label="Página anterior" disabled><span aria-hidden="true">‹</span></button>
+                <span class="page-number" id="page-number" aria-current="page">1</span>
+                <button type="button" id="page-next" aria-label="Página siguiente" disabled><span aria-hidden="true">›</span></button>
+              </nav>
+            </div>
+          </section>
+
+          <section class="destinations-card form-card" aria-labelledby="form-title">
+            <div class="card-heading">
+              <h2 id="form-title">Agregar destino</h2>
+              <p id="form-subtitle">Completa la información del destino.</p>
+            </div>
+            <form id="destinations-form" novalidate>
+              <div class="form-field">
+                <label for="destination-name">Nombre del destino</label>
+                <div class="field-control">
+                  <img src="../../../assets/Icons/location-icon.svg" alt="">
+                  <input id="destination-name" name="name" type="text" placeholder="Ej. Hospital de Clínicas" maxlength="100" required>
+                </div>
+              </div>
+              <div class="form-pair">
+                <div class="form-field">
+                  <label for="destination-address">Dirección</label>
+                  <div class="field-control">
+                    <img src="../../../assets/Icons/map-icon.svg" alt="">
+                    <input id="destination-address" name="address" type="text" placeholder="Ej. Av. Italia 2870" autocomplete="street-address" maxlength="180" required>
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label for="destination-locality">Localidad</label>
+                  <div class="field-control">
+                    <img src="../../../assets/Icons/location-icon.svg" alt="">
+                    <input id="destination-locality" name="locality" type="text" placeholder="Ej. Montevideo" autocomplete="address-level2" maxlength="80" required>
+                  </div>
+                </div>
+              </div>
+              <div class="form-pair">
+                <div class="form-field">
+                  <label for="destination-type">Tipo de destino</label>
+                  <div class="field-control select-control">
+                    <img src="../../../assets/Icons/medkit-icon.png" alt="">
+                    <select id="destination-type" name="type">
+                      <option value="Hospital">Hospital</option>
+                      <option value="Sanatorio">Sanatorio</option>
+                      <option value="Centro de salud">Centro de salud</option>
+                      <option value="Otro">Otro</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label for="destination-phone">Teléfono <span>(opcional)</span></label>
+                  <div class="field-control">
+                    <img src="../../../assets/Icons/phone-icon.svg" alt="">
+                    <input id="destination-phone" name="phone" type="tel" placeholder="Ej. 2487 1515" autocomplete="tel" maxlength="25">
+                  </div>
+                </div>
+              </div>
+              <div class="form-pair">
+                <div class="form-field">
+                  <label for="destination-status">Estado</label>
+                  <div class="field-control select-control status-control">
+                    <span class="status-dot" id="form-status-dot" aria-hidden="true"></span>
+                    <select id="destination-status" name="status">
+                      <option value="Activo">Activo</option>
+                      <option value="Inactivo">Inactivo</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label for="destination-notes">Referencia <span>(opcional)</span></label>
+                  <div class="field-control textarea-control">
+                    <textarea id="destination-notes" name="notes" rows="1" maxlength="400" placeholder="Ej. Entrada lateral"></textarea>
+                  </div>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="button" id="form-cancel" class="cancel-button">Cancelar</button>
+                <button type="submit" class="save-button"><img src="../../../assets/Icons/save-floppy.svg" alt=""><span id="save-label">Guardar</span></button>
+              </div>
+            </form>
+            <p class="form-feedback" id="form-feedback" role="status" aria-live="polite"></p>
+          </section>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <dialog class="destination-dialog" id="destination-dialog" aria-labelledby="detail-title">
+    <div class="dialog-heading">
+      <h2 id="detail-title">Detalle del destino</h2>
+      <button type="button" id="detail-close" class="dialog-close" aria-label="Cerrar detalle">×</button>
+    </div>
+    <dl id="dialog-details"></dl>
+    <div class="dialog-actions">
+      <button type="button" id="detail-edit" class="save-button"><img src="../../../assets/Icons/pencil-icon.svg" alt=""><span>Editar destino</span></button>
+    </div>
+  </dialog>
+
+  <dialog class="destination-dialog delete-dialog" id="delete-dialog" aria-labelledby="delete-title" aria-describedby="delete-description">
+    <div class="dialog-heading">
+      <h2 id="delete-title">Eliminar destino</h2>
+      <button type="button" id="delete-close" class="dialog-close" aria-label="Cerrar confirmación">×</button>
+    </div>
+    <p id="delete-description"></p>
+    <div class="dialog-actions">
+      <button type="button" id="delete-cancel" class="cancel-button" autofocus>Cancelar</button>
+      <button type="button" id="delete-confirm" class="delete-button"><img src="../../../assets/Icons/trash-icon.svg" alt=""><span>Eliminar destino</span></button>
+    </div>
+  </dialog>
+</body>
+
+</html>

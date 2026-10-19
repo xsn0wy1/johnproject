@@ -1,0 +1,296 @@
+:root {
+  --management-surface: rgba(8, 12, 28, 0.34);
+  --management-surface-strong: #0c1325;
+  --management-border: rgba(238, 238, 238, 0.13);
+  --management-muted: rgba(238, 238, 238, 0.55);
+  --management-accent: #abbaea;
+}
+
+.app-shell {
+  gap: 20px;
+  padding-bottom: 32px;
+}
+
+.management-panel {
+  width: calc(100% - 108px);
+  margin-left: 108px;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(18px, 2.4vh, 24px);
+  transition:
+    width 0.6s cubic-bezier(0.34, 1.35, 0.64, 1),
+    margin-left 0.6s cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+
+.app-shell.menu-open .management-panel {
+  width: calc(100% - 280px);
+  margin-left: 280px;
+}
+
+.management-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 4px;
+}
+
+.management-eyebrow {
+  margin: 0 0 5px;
+  color: var(--management-accent);
+  font-family: "Krub", "Inclusive Sans", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.management-heading h1 {
+  margin: 0;
+  color: #eeeeee;
+  font-size: clamp(1.7rem, 2.2vw, 2.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+
+.management-heading > p {
+  max-width: 520px;
+  margin: 0 0 2px;
+  color: var(--management-muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  text-align: right;
+}
+
+.management-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(18px, 1.8vw, 28px);
+}
+
+.management-card {
+  --management-icon-size: clamp(66px, 5.7vw, 88px);
+  --management-arrow-size: clamp(40px, 3.3vw, 50px);
+  position: relative;
+  min-width: 0;
+  min-height: clamp(176px, 26.25vh, 230px);
+  padding: clamp(20px, 2vw, 32px);
+  border: 1px solid var(--management-border);
+  border-radius: clamp(20px, 2vw, 30px);
+  background: var(--management-surface);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+  color: #eeeeee;
+  font: inherit;
+  text-align: left;
+  display: grid;
+  grid-template-columns: var(--management-icon-size) minmax(0, 1fr) var(--management-arrow-size);
+  align-items: center;
+  gap: clamp(16px, 1.5vw, 24px);
+  transition:
+    transform 0.24s ease,
+    border-color 0.24s ease,
+    background 0.24s ease,
+    box-shadow 0.24s ease;
+}
+
+.management-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(238, 238, 238, 0.22);
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+}
+
+.management-card__icon {
+  width: var(--management-icon-size);
+  height: var(--management-icon-size);
+  border: 1px solid var(--management-border);
+  border-radius: 50%;
+  background: var(--management-surface-strong);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+}
+
+.management-card__icon img {
+  width: 46%;
+  height: 46%;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.82;
+}
+
+.management-card--ambulances .management-card__icon img {
+  width: 57%;
+  height: 57%;
+}
+
+.management-card--doctors .management-card__icon img {
+  width: 53%;
+  height: 53%;
+}
+
+.management-card__copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2.6vh, 24px);
+}
+
+.management-card__copy strong {
+  color: #eeeeee;
+  font-family: "Krub", "Inclusive Sans", sans-serif;
+  font-size: clamp(1rem, 1.15vw, 1.25rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.management-card__copy > span {
+  max-width: 300px;
+  color: var(--management-muted);
+  font-size: clamp(0.84rem, 1vw, 1.02rem);
+  line-height: 1.45;
+}
+
+.management-card__arrow {
+  width: var(--management-arrow-size);
+  height: var(--management-arrow-size);
+  padding: 0;
+  border: 1px solid var(--management-border);
+  border-radius: 50%;
+  background: var(--management-surface-strong);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition:
+    transform 0.24s ease,
+    background 0.24s ease,
+    border-color 0.24s ease,
+    box-shadow 0.24s ease;
+}
+
+.management-card__arrow img {
+  width: 29%;
+  height: 29%;
+  display: block;
+  opacity: 0.48;
+  pointer-events: none;
+  filter: brightness(0) invert(1);
+  transform: rotate(90deg);
+  transition:
+    filter 0.24s ease,
+    opacity 0.24s ease;
+}
+
+.management-card__arrow:hover {
+  transform: translateY(-2px);
+  border-color: rgba(171, 186, 234, 0.55);
+  background: rgba(171, 186, 234, 0.1);
+  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.18);
+}
+
+.management-card__arrow:hover img,
+.management-card__arrow:focus-visible img {
+  opacity: 1;
+  filter: brightness(0) saturate(100%) invert(77%) sepia(11%) saturate(1478%) hue-rotate(189deg) brightness(97%)
+    contrast(96%);
+}
+
+.management-card__arrow:focus-visible {
+  outline: 3px solid rgba(171, 186, 234, 0.65);
+  outline-offset: 3px;
+  border-color: rgba(171, 186, 234, 0.55);
+  background: rgba(171, 186, 234, 0.1);
+}
+
+.management-card__arrow:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 1100px) {
+  .management-panel {
+    width: calc(100% - 96px);
+    margin-left: 96px;
+  }
+
+  .app-shell.menu-open .management-panel {
+    width: calc(100% - 260px);
+    margin-left: 260px;
+  }
+
+  .management-card {
+    --management-icon-size: 62px;
+    --management-arrow-size: 38px;
+    min-height: 168px;
+  }
+}
+
+@media (max-width: 1050px) {
+  .management-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .management-card {
+    min-height: 180px;
+  }
+}
+
+@media (min-width: 1051px) and (max-width: 1180px) {
+  .app-shell.menu-open .management-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 880px) {
+  .management-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 770px) {
+  .management-panel,
+  .app-shell.menu-open .management-panel {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 500px) {
+  .management-panel {
+    gap: 16px;
+  }
+
+  .management-grid {
+    gap: 18px;
+  }
+
+  .management-card {
+    --management-icon-size: 64px;
+    --management-arrow-size: 38px;
+    min-height: 0;
+    padding: 24px 20px;
+    border-radius: 24px;
+    gap: 16px;
+  }
+
+  .management-card__copy {
+    gap: 10px;
+  }
+
+  .management-card__copy > span {
+    font-size: 0.84rem;
+    line-height: 1.4;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .management-panel,
+  .management-card,
+  .management-card__arrow {
+    transition: none;
+  }
+}
+
+.management-card[data-required-role][hidden] { display: none; }

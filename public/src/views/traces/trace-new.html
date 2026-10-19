@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Traslado</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&family=Krub:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../../assets/hospital-dark.ico">
+    <link rel="stylesheet" href="../../css/main-menu.css?v=20261012-settings">
+    <link rel="stylesheet" href="../../css/traces/trace-new.css?v=20261007-back-hover-icons">
+  <script src="../../js/api-client.js" defer></script>
+  <script src="../../js/auth-session.js?v=20261014-audit" defer></script>
+  <script src="../../js/traces/trace-api.js?v=20261014-routes" defer></script>
+  <script src="../../js/main-menu.js?v=20260927-global" defer></script>
+  <script src="../../js/universal-search.js?v=20261014-surveys" defer></script>
+  <script src="../../js/traces/trace.js?v=20261014-routes" defer></script>
+</head>
+
+<body>
+    <div class="page-background"></div>
+    <div class="page-glow"></div>
+
+    <main class="app-shell">
+        
+        <aside class="sidebar">
+            <button type="button" class="sidebar-action" aria-label="Abrir menú">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <nav class="sidebar-nav">
+                <div class="nav-indicator"></div>
+
+                <a href="../main-menu.html" class="nav-item">
+                    <img src="../../../assets/Icons/house-icon.svg" alt="Inicio">
+                    <span>Inicio</span>
+                </a>
+
+                <a href="../documents/documents.html" class="nav-item">
+                    <img src="../../../assets/Icons/folder-icon.svg" alt="Documentos">
+                    <span>Documentos</span>
+                </a>
+
+                <a href="trace.html" class="nav-item active">
+                    <img src="../../../assets/Icons/location-icon.svg" alt="Ambulancias">
+                    <span>Ambulancias</span>
+                </a>
+
+                <a href="../analytics/analytics.html" class="nav-item">
+                    <img src="../../../assets/Icons/analytics-icon.svg" alt="Reportes">
+                    <span>Reportes</span>
+                </a>
+
+                <a href="../calendar/calendar.html" class="nav-item">
+                    <img src="../../../assets/Icons/calendar-icon.svg" alt="Calendario">
+                    <span>Calendario</span>
+                </a>
+
+                <a href="../surveys/survey.html" class="nav-item">
+                    <img src="../../../assets/Icons/survey-icon.svg" alt="Encuestas">
+                    <span>Encuestas</span>
+                </a>
+
+                <div class="nav-spacer"></div>
+
+                <a href="../settings.html" class="nav-item">
+                    <img src="../../../assets/Icons/settings-icon.svg" alt="Configuración">
+                    <span>Configuración</span>
+                </a>
+            </nav>
+        </aside>
+
+        
+        <section class="content-card">
+            <header class="topbar">
+                <div class="brand">
+                    <img src="../../../assets/Icons/hospital-logo.png" alt="Hospital de Clínicas">
+                    <span>HOSPITAL DE CLINICAS</span>
+                </div>
+
+                <div class="search-wrapper">
+                    <input type="search" class="search-input" id="transferSearch" placeholder="Escribe algo..."
+                        autocomplete="off">
+                    <button type="button" class="topbar-action search-action" aria-label="Buscar">
+                        <img src="../../../assets/Icons/search-icon.svg" alt="" aria-hidden="true">
+                    </button>
+                </div>
+            </header>
+
+            <section class="new-transfer-panel">
+                <div class="new-transfer-content">
+                    <a href="trace.html" class="back-link">
+                        <span class="new-transfer-icon back-icon" aria-hidden="true"></span>
+                        Volver a traslados
+                    </a>
+
+                    <div class="new-transfer-heading">
+                        <div class="heading-icon">
+                            <span class="new-transfer-icon ambulance-icon" aria-hidden="true"></span>
+                        </div>
+                        <div>
+                            <h1>Nuevo Traslado</h1>
+                            <p>Completa la información para registrar un nuevo traslado de ambulancia</p>
+                        </div>
+                    </div>
+
+                    <form id="newTransferForm" novalidate>
+                        <div class="form-layout">
+                            <div class="form-column">
+                                <section class="form-section general-section">
+                                    <h2>
+                                        <span class="new-transfer-icon information-icon" aria-hidden="true"></span>
+                                        Información General
+                                    </h2>
+
+                                    <div class="field full-field">
+                                        <label for="ambulance">Ambulancia</label>
+                                        <select id="ambulance" name="ambulance" required>
+                                            <option value="">Buscar ambulancia...</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="field full-field">
+                                        <label for="driver">Conductor</label>
+                                        <div class="input-wrapper">
+                                            <input type="text" id="driver" name="driver" list="crew-options"
+                                                placeholder="Buscar conductor..." autocomplete="off" required>
+                                            <span class="new-transfer-icon search-icon field-icon" aria-hidden="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="field full-field">
+                                        <label for="companion">Acompañante <span>(Opcional)</span></label>
+                                        <div class="input-wrapper">
+                                            <input type="text" id="companion" name="companion" list="crew-options"
+                                                placeholder="Buscar acompañante..." autocomplete="off">
+                                            <span class="new-transfer-icon search-icon field-icon" aria-hidden="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="field full-field">
+                                        <label for="startDate">Fecha y Hora de Inicio</label>
+                                        <div class="date-time-fields">
+                                            <input type="date" id="startDate" name="startDate" aria-label="Fecha de inicio"
+                                                required>
+                                            <input type="time" id="startTime" name="startTime" aria-label="Hora de inicio"
+                                                required>
+                                        </div>
+                                    </div>
+
+                                    <div class="field full-field">
+                                        <label for="reason">Motivo del Traslado</label>
+                                        <select id="reason" name="reason" required>
+                                            <option value="">Seleccionar motivo...</option>
+                                            <option value="consulta">Consulta médica</option>
+                                            <option value="estudio">Estudio o tratamiento</option>
+                                            <option value="alta">Alta médica</option>
+                                            <option value="emergencia">Emergencia</option>
+                                            <option value="insumos">Traslado de insumos</option>
+                                        </select>
+                                    </div>
+                                </section>
+
+                                <section class="form-section patient-section">
+                                    <h2>
+                                        <span class="new-transfer-icon patient-icon" aria-hidden="true"></span>
+                                        Paciente
+                                    </h2>
+
+                                    <div class="patient-fields">
+                                        <div class="field">
+                                            <label for="patientName">Nombre del Paciente</label>
+                                            <input type="text" id="patientName" name="patientName" list="patient-options" placeholder="Nombre..."
+                                                autocomplete="off">
+                                        </div>
+
+                                        <div class="field">
+                                            <label for="patientCedula">Cédula del Paciente</label>
+                                            <div class="input-wrapper">
+                                                <input type="text" id="patientCedula" name="patientCedula" readonly inputmode="numeric"
+                                                    placeholder="Ej.: 1.234.567-8" autocomplete="off">
+                                                <span class="new-transfer-icon id-icon field-icon" aria-hidden="true"></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="field">
+                                            <label for="patientAge">Edad</label>
+                                            <input type="number" id="patientAge" name="patientAge" readonly min="0" max="120"
+                                                placeholder="Ej: 45">
+                                        </div>
+
+                                        <div class="field">
+                                            <label for="patientSex">Sexo</label>
+                                            <select id="patientSex" name="patientSex" disabled>
+                                                <option value="">Seleccionar...</option>
+                                                <option value="femenino">Femenino</option>
+                                                <option value="masculino">Masculino</option>
+                                                <option value="otro">Otro</option>
+                                                <option value="no-indica">Prefiere no indicar</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+
+                            <div class="form-column">
+                                <section class="form-section route-section">
+                                    <h2>
+                                        <span class="new-transfer-icon location-icon" aria-hidden="true"></span>
+                                        Origen y Destino
+                                    </h2>
+
+                                    <div class="field full-field">
+                                        <label for="routeTemplate">Ruta predefinida (opcional)</label>
+                                        <div class="input-wrapper select-wrapper">
+                                            <select id="routeTemplate" name="routeTemplate"><option value="">Escribir recorrido manualmente</option></select>
+                                        </div>
+                                        <input type="hidden" id="routeVersion" name="routeVersion" value="">
+                                        <small id="route-itinerary" hidden></small>
+                                    </div>
+
+                                    <div class="field full-field">
+                                        <label for="origin">Origen</label>
+                                        <div class="input-wrapper">
+                                            <input type="text" id="origin" name="origin" list="facility-options"
+                                                placeholder="Elegir centro o escribir dirección..." autocomplete="off" required>
+                                            <span class="new-transfer-icon search-icon field-icon" aria-hidden="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="field full-field">
+                                        <label for="destination">Destino</label>
+                                        <div class="input-wrapper">
+                                            <input type="text" id="destination" name="destination" list="facility-options"
+                                                placeholder="Elegir centro o escribir destino..." autocomplete="off" required>
+                                            <span class="new-transfer-icon search-icon field-icon" aria-hidden="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="two-fields">
+                                        <div class="field">
+                                            <label for="transferType">Tipo de Traslado</label>
+                                            <select id="transferType" name="transferType" required>
+                                                <option value="">Seleccionar tipo...</option>
+                                                <option value="patient">Paciente</option>
+                                                <option value="biological">Biológico</option>
+                                                <option value="equipment">Elemento o equipo</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="field priority-field">
+                                            <label for="priority">Prioridad</label>
+                                            <select id="priority" name="priority" required>
+                                                <option value="">Seleccionar...</option>
+                                                <option value="low">Baja</option>
+                                                <option value="normal">Normal</option>
+                                                <option value="high">Alta</option>
+                                                <option value="critical">Crítica</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="field full-field">
+                                        <label for="notes">Notas Adicionales <span>(Opcional)</span></label>
+                                        <textarea id="notes" name="notes" rows="4" maxlength="1000"
+                                            placeholder="Información relevante..."></textarea>
+                                    </div>
+                                </section>
+
+                                <section class="form-section options-section">
+                                    <h2>
+                                        <span class="new-transfer-icon settings-icon" aria-hidden="true"></span>
+                                        Opciones Adicionales
+                                    </h2>
+
+                                    <div class="option-grid">
+                                        <label class="check-option">
+                                            <input type="checkbox" name="specialEquipment">
+                                            <span>Requiere equipamiento especial</span>
+                                        </label>
+
+                                        <label class="check-option">
+                                            <input type="checkbox" name="withFamily">
+                                            <span>Acompañado por familiar</span>
+                                        </label>
+
+                                        <label class="check-option">
+                                            <input type="checkbox" name="interdepartmental">
+                                            <span>Traslado interdepartamental</span>
+                                        </label>
+
+                                        <label class="check-option critical-option">
+                                            <input type="checkbox" name="criticalPatient">
+                                            <span>Paciente en estado crítico</span>
+                                        </label>
+                                    </div>
+                                </section>
+
+                                <p class="form-message" id="formMessage" aria-live="polite"></p>
+
+                                <div class="form-actions">
+                                    <button type="button" class="cancel-button" id="cancelTransfer">Cancelar</button>
+                                    <button type="button" class="draft-button" id="saveDraft">Guardar Borrador</button>
+                                    <button type="submit" class="create-button">Crear Traslado</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <datalist id="crew-options"></datalist><datalist id="facility-options"></datalist><datalist id="patient-options"></datalist>
+                </div>
+            </section>
+        </section>
+    </main>
+</body>
+
+</html>

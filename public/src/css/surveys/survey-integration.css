@@ -1,0 +1,9 @@
+/* Existing dialog/button design, with bounded content for generated links. */
+.survey-links-dialog { width: min(620px, 94vw); }
+.survey-links-body { padding: 20px; display: grid; gap: 14px; overflow: auto; }
+#survey-invitations { display: grid; gap: 8px; max-height: 150px; overflow: auto; }
+#survey-public-url { width: 100%; color: inherit; background: #0c1228; border: 1px solid #35405d; border-radius: 10px; padding: 10px; }
+#survey-public-qr { width: min(220px, 100%); margin: auto; background: white; }
+#survey-public-qr svg { display: block; width: 100%; height: auto; }
+.survey-links-dialog[open] { display: flex; flex-direction: column; max-height: 90vh; }
+.survey-links-dialog [hidden] { display: none !important; }

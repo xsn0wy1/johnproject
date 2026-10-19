@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión</title>
+  <link rel="stylesheet" href="../../css/main-menu.css?v=20261012-settings">
+  <link rel="stylesheet" href="../../css/management/management.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&amp;family=Krub:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&amp;display=swap"
+    rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="../../../assets/hospital-dark.ico">
+  <script src="../../js/api-client.js" defer></script>
+  <script src="../../js/auth-session.js?v=20261014-audit" defer></script>
+  <script src="../../js/main-menu.js?v=20260927-global" defer></script>
+  <script src="../../js/universal-search.js?v=20261014-surveys" defer></script>
+</head>
+
+<body>
+  <div class="page-background"></div>
+  <div class="page-glow"></div>
+
+  <main class="app-shell">
+
+    <aside class="sidebar">
+      <button type="button" class="sidebar-action" aria-label="Abrir menú">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav class="sidebar-nav">
+
+        <div class="nav-indicator"></div>
+
+        <a href="../main-menu.html" class="nav-item">
+          <img src="../../../assets/Icons/house-icon.svg" alt="Inicio">
+          <span>Inicio</span>
+        </a>
+        <a href="../documents/documents.html" class="nav-item">
+          <img src="../../../assets/Icons/folder-icon.svg" alt="Documentos">
+          <span>Documentos</span>
+        </a>
+        <a href="../traces/trace.html" class="nav-item">
+          <img src="../../../assets/Icons/location-icon.svg" alt="Ambulancias">
+          <span>Ambulancias</span>
+        </a>
+        <a href="../surveys/survey.html" class="nav-item">
+          <img src="../../../assets/Icons/survey-icon.svg" alt="Encuestas">
+          <span>Encuestas</span>
+        </a>
+        <a href="#" class="nav-item active">
+          <img src="../../../assets/Icons/database-cog.svg" alt="Gestión">
+          <span>Gestión</span>
+        </a>
+
+        <div class="nav-spacer"></div>
+
+        <a href="../settings.html" class="nav-item">
+          <img src="../../../assets/Icons/settings-icon.svg" alt="Configuración">
+          <span>Configuración</span>
+        </a>
+      </nav>
+    </aside>
+
+    <header class="topbar">
+      <div class="brand">
+        <img src="../../../assets/Icons/hospital-logo.png" alt="Hospital de Clínicas">
+        <span>HOSPITAL DE CLINICAS</span>
+      </div>
+
+      <div class="search-wrapper">
+        <input type="search" class="search-input" placeholder="Buscar módulo..." aria-label="Buscar módulo de gestión">
+        <button type="button" class="topbar-action search-action" aria-label="Buscar" aria-expanded="false">
+          <img src="../../../assets/Icons/search-icon.svg" alt="" aria-hidden="true">
+        </button>
+      </div>
+    </header>
+
+    <section class="management-panel" aria-labelledby="management-title">
+      <div class="management-heading">
+        <div>
+          <p class="management-eyebrow">Administración</p>
+          <h1 id="management-title">Gestión de datos</h1>
+        </div>
+      </div>
+
+      <div class="management-grid">
+        <article class="management-card management-card--patients" data-required-role="records_manager" hidden>
+          <span class="management-card__icon" aria-hidden="true">
+            <img src="../../../assets/Icons/person-icon.svg" alt="">
+          </span>
+          <span class="management-card__copy">
+            <strong>Pacientes</strong>
+            <span>Gestiona la información de los pacientes del hospital.</span>
+          </span>
+          <a href="patients.html" class="management-card__arrow" aria-label="Abrir gestión de pacientes">
+            <img src="../../../assets/Icons/arrowhead-icon.svg" alt="" aria-hidden="true">
+          </a>
+        </article>
+
+        <article class="management-card management-card--ambulances" data-required-role="dispatcher" hidden>
+          <span class="management-card__icon" aria-hidden="true">
+            <img src="../../../assets/Icons/ambulance-icon.png" alt="">
+          </span>
+          <span class="management-card__copy">
+            <strong>Ambulancias</strong>
+            <span>Registra y administra las ambulancias del sistema.</span>
+          </span>
+          <a href="ambulances.html" class="management-card__arrow" aria-label="Abrir gestión de ambulancias">
+            <img src="../../../assets/Icons/arrowhead-icon.svg" alt="" aria-hidden="true">
+          </a>
+        </article>
+
+        <article class="management-card management-card--doctors" data-required-role="records_manager" hidden>
+          <span class="management-card__icon" aria-hidden="true">
+            <img src="../../../assets/Icons/medkit-icon.png" alt="">
+          </span>
+          <span class="management-card__copy">
+            <strong>Médicos</strong>
+            <span>Gestiona el personal médico y sus especialidades.</span>
+          </span>
+          <a href="doctors.html" class="management-card__arrow" aria-label="Abrir gestión de médicos">
+            <img src="../../../assets/Icons/arrowhead-icon.svg" alt="" aria-hidden="true">
+          </a>
+        </article>
+
+        <article class="management-card management-card--staff" data-required-role="dispatcher" hidden>
+          <span class="management-card__icon" aria-hidden="true">
+            <img src="../../../assets/Icons/steering-wheel.svg" alt="">
+          </span>
+          <span class="management-card__copy">
+            <strong>Personal</strong>
+            <span>Administra el personal del hospital (choferes, administrativos, etc.).</span>
+          </span>
+          <a href="personnel.html" class="management-card__arrow" aria-label="Abrir gestión de personal">
+            <img src="../../../assets/Icons/arrowhead-icon.svg" alt="" aria-hidden="true">
+          </a>
+        </article>
+
+        <article class="management-card management-card--destinations" data-required-role="dispatcher" hidden>
+          <span class="management-card__icon" aria-hidden="true">
+            <img src="../../../assets/Icons/location-icon.svg" alt="">
+          </span>
+          <span class="management-card__copy">
+            <strong>Destinos</strong>
+            <span>Gestiona los destinos utilizados en los traslados.</span>
+          </span>
+          <a href="destinations.html" class="management-card__arrow" aria-label="Abrir gestión de destinos">
+            <img src="../../../assets/Icons/arrowhead-icon.svg" alt="" aria-hidden="true">
+          </a>
+        </article>
+
+        <article class="management-card management-card--routes" data-required-role="dispatcher" hidden>
+          <span class="management-card__icon" aria-hidden="true">
+            <img src="../../../assets/Icons/map-icon.svg" alt="">
+          </span>
+          <span class="management-card__copy">
+            <strong>Rutas</strong>
+            <span>Administra las rutas disponibles y sus características.</span>
+          </span>
+          <a href="routes.html" class="management-card__arrow" aria-label="Abrir gestión de rutas">
+            <img src="../../../assets/Icons/arrowhead-icon.svg" alt="" aria-hidden="true">
+          </a>
+        </article>
+        <article class="management-card management-card--personnel" data-required-role="admin" hidden>
+          <span class="management-card__icon" aria-hidden="true"><img src="../../../assets/Icons/person-icon.svg" alt=""></span>
+          <span class="management-card__copy"><strong>Cuentas</strong><span>Aprueba personal y administra sus permisos.</span></span>
+          <a href="accounts.html" class="management-card__arrow" aria-label="Abrir gestión de cuentas"><img src="../../../assets/Icons/arrowhead-icon.svg" alt=""></a>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+
+</html>

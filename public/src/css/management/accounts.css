@@ -1,0 +1,6 @@
+.account-roles label { display: flex; flex-direction: row; align-items: center; gap: 8px; padding: 6px 0; }
+.account-roles input[type="checkbox"] { width: 18px; height: 18px; min-height: 0; flex: none; }
+#account-detail .detail-actions { flex-wrap: wrap; }
+
+#account-dialog [hidden] { display: none !important; }
+#account-state { color: #edf0f9; background: #18213b; border: 1px solid #38415e; border-radius: 9px; padding: 9px; }

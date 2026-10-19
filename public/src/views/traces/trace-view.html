@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="carto-basemap-key" content="">
+  <title>Traslado · Hospital de Clínicas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&family=Krub:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+  <link rel="icon" href="../../../assets/hospital-dark.ico">
+  <link rel="stylesheet" href="../../../assets/vendor/leaflet/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
+  <link rel="stylesheet" href="../../css/main-menu.css?v=20261012-settings">
+  <link rel="stylesheet" href="../../css/traces/trace-view.css?v=20261008-route-preview">
+  <script src="../../js/api-client.js" defer></script>
+  <script src="../../js/auth-session.js?v=20261014-audit" defer></script>
+  <script src="../../js/traces/trace-api.js?v=20261014-routes" defer></script>
+  <script src="../../js/main-menu.js?v=20260927-global" defer></script>
+  <script src="../../js/universal-search.js?v=20261014-surveys" defer></script>
+  <script src="../../../assets/vendor/leaflet/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous" defer></script>
+  <script src="../../js/traces/trace-map-shared.js?v=20261013-transfers" defer></script>
+  <script src="../../js/traces/trace-view.js?v=20261014-audit" defer></script>
+</head>
+<body>
+  <div class="page-background"></div>
+  <div class="page-glow"></div>
+  <main class="app-shell trace-view-shell">
+    <!-- Shared sidebar and hospital header reused from documents-viewer.html. -->
+    <aside class="sidebar">
+      <button type="button" class="sidebar-action" aria-label="Abrir menú">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav class="sidebar-nav">
+
+        <div class="nav-indicator"></div>
+
+        <a href="../main-menu.html" class="nav-item">
+          <img src="../../../assets/Icons/house-icon.svg" alt="Inicio">
+          <span>Inicio</span>
+        </a>
+        <a href="../documents/documents.html" class="nav-item">
+          <img src="../../../assets/Icons/folder-icon.svg" alt="Documentos">
+          <span>Documentos</span>
+        </a>
+        <a href="trace.html" class="nav-item active" aria-current="page">
+          <img src="../../../assets/Icons/location-icon.svg" alt="Ambulancias">
+          <span>Ambulancias</span>
+        </a>
+        <a href="../analytics/analytics.html" class="nav-item">
+          <img src="../../../assets/Icons/analytics-icon.svg" alt="Reportes">
+          <span>Reportes</span>
+        </a>
+        <a href="../calendar/calendar.html" class="nav-item">
+          <img src="../../../assets/Icons/calendar-icon.svg" alt="Calendario">
+          <span>Calendario</span>
+        </a>
+        <a href="../surveys/survey.html" class="nav-item">
+          <img src="../../../assets/Icons/survey-icon.svg" alt="Encuestas">
+          <span>Encuestas</span>
+        </a>
+        <a href="../management/management.html" class="nav-item">
+          <img src="../../../assets/Icons/database-cog.svg" alt="Gestion">
+          <span>Gestion</span>
+        </a>
+
+        <div class="nav-spacer"></div>
+
+        <a href="../settings.html" class="nav-item">
+          <img src="../../../assets/Icons/settings-icon.svg" alt="Configuración">
+          <span>Configuración</span>
+        </a>
+      </nav>
+    </aside>
+
+    <header class="topbar quick-search-topbar">
+      <div class="brand">
+        <img src="../../../assets/Icons/hospital-logo.png" alt="Hospital de Clínicas">
+        <span>HOSPITAL DE CLINICAS</span>
+      </div>
+
+      <div class="search-wrapper" role="search">
+        <input type="text" id="quick-search" class="search-input" placeholder="Buscar una acción o sección..."
+          aria-label="Buscar una acción o sección" role="combobox" aria-autocomplete="list"
+          aria-controls="search-results-list" aria-expanded="false" autocomplete="off" tabindex="-1">
+        <button type="button" class="topbar-action search-action" aria-label="Abrir búsqueda"
+          aria-controls="quick-search" aria-expanded="false">
+          <img src="../../../assets/Icons/search-icon.svg" alt="" aria-hidden="true">
+        </button>
+      </div>
+
+      <div class="search-results" id="search-results" hidden>
+        <div class="search-results-heading">
+          <span id="search-results-title">Accesos rápidos</span>
+        </div>
+        <ul id="search-results-list" class="search-results-list" role="listbox" aria-label="Resultados de búsqueda"></ul>
+        <p class="search-results-footer">Haz clic en una opción disponible para ir a esa sección.</p>
+      </div>
+      <span id="search-status" class="visually-hidden" role="status" aria-live="polite"></span>
+    </header>
+
+    <section class="hero-panel trace-view-hero" aria-labelledby="transfer-title">
+      <article class="transfer-detail" id="transfer-detail" data-transfer-id="" data-status="scheduled">
+        <header class="transfer-header">
+          <a class="back-link" href="trace.html"><span class="detail-icon color-icon back-icon" aria-hidden="true"></span><span>Volver a Traslados</span></a>
+          <div class="transfer-heading">
+            <div class="transfer-identity">
+              <div class="vehicle-icon"><img src="../../../assets/Icons/ambulance-icon.png" alt=""></div>
+              <div class="transfer-heading-copy">
+                <div class="transfer-title-row"><h1 id="transfer-title">Cargando traslado...</h1><span class="status-badge" data-status-label></span></div>
+                <p>Ambulancia <span data-field="ambulance"></span><span class="identity-divider" aria-hidden="true">·</span><span data-field="plate"></span></p>
+                <p class="created-at"></p>
+              </div>
+            </div>
+            <div class="header-actions">
+              <button class="detail-button" id="edit-transfer" type="button" disabled><img class="detail-icon" src="../../../assets/Icons/edit-icon.svg" alt=""><span>Editar</span></button>
+              <button class="detail-button danger-button" id="cancel-transfer" type="button" disabled><span class="detail-icon color-icon trash-icon" aria-hidden="true"></span><span>Cancelar traslado</span></button>
+            </div>
+          </div>
+        </header>
+
+        <dl class="transfer-summary">
+          <div class="summary-item"><img class="detail-icon" src="../../../assets/Icons/time-icon.svg" alt=""><div><dt>Estado</dt><dd class="status-value" data-status-label></dd></div></div>
+          <div class="summary-item"><img class="detail-icon" src="../../../assets/Icons/calendar-icon.svg" alt=""><div><dt>Fecha y hora de inicio</dt><dd><time id="transfer-start-time"></time></dd></div></div>
+          <div class="summary-item summary-route"><img class="detail-icon" src="../../../assets/Icons/location-icon.svg" alt=""><div><dt>Origen → Destino</dt><dd><span data-field="origin"></span><span class="route-arrow" aria-hidden="true">→</span><span data-field="destination"></span></dd></div></div>
+          <div class="summary-item"><img class="detail-icon" src="../../../assets/Icons/steering-wheel.svg" alt=""><div><dt>Conductor</dt><dd data-field="driver"></dd></div></div>
+        </dl>
+
+        <div class="detail-tabs" role="tablist" aria-label="Información del traslado">
+          <button type="button" role="tab" id="tab-patient" aria-controls="patient-panel" aria-selected="true" data-panel="patient-panel">Paciente</button>
+          <button type="button" role="tab" id="tab-transfer" aria-controls="transfer-panel" aria-selected="false" tabindex="-1" data-panel="transfer-panel">Traslado</button>
+          <button type="button" role="tab" id="tab-route" aria-controls="route-panel" aria-selected="false" tabindex="-1" data-panel="route-panel">Ruta</button>
+          <button type="button" role="tab" id="tab-timeline" aria-controls="timeline-panel" aria-selected="false" tabindex="-1" data-panel="timeline-panel">Actividad</button>
+          <button type="button" role="tab" id="tab-personnel" aria-controls="personnel-panel" aria-selected="false" tabindex="-1" data-panel="personnel-panel">Personal</button>
+        </div>
+
+        <div class="detail-grid">
+          <section class="detail-panel patient-panel is-selected" id="patient-panel" aria-labelledby="patient-heading">
+            <h2 id="patient-heading"><img class="detail-icon" src="../../../assets/Icons/human-icon.svg" alt="">Información del paciente</h2>
+            <dl class="patient-information">
+              <div class="wide-field"><dt>Nombre</dt><dd data-field="patient"></dd></div>
+              <div><dt>Edad</dt><dd><span data-field="age"></span> años</dd></div>
+              <div><dt>Sexo</dt><dd data-field="sex"></dd></div>
+              <div class="wide-field"><dt>Documento / Historia clínica</dt><dd data-field="document"></dd></div>
+              <div class="wide-field"><dt>Acompañante</dt><dd data-field="companion"></dd></div>
+              <div class="wide-field"><dt>Notas</dt><dd data-field="patientNotes"></dd></div>
+            </dl>
+          </section>
+
+          <section class="detail-panel transfer-panel" id="transfer-panel" aria-labelledby="details-heading">
+            <h2 id="details-heading"><img class="detail-icon" src="../../../assets/Icons/list-icon.svg" alt="">Detalles del traslado</h2>
+            <dl class="transfer-information">
+              <div><dt>Motivo del traslado</dt><dd data-field="reason"></dd></div>
+              <div><dt>Tipo de traslado</dt><dd data-field="cargo"></dd></div>
+              <div><dt>Prioridad</dt><dd class="priority-value"><span class="priority-dot" aria-hidden="true"></span><span data-field="priority"></span></dd></div>
+              <div><dt>Acompañado por médico</dt><dd data-field="withDoctor"></dd></div>
+              <div><dt>Equipamiento especial</dt><dd data-field="equipment"></dd></div>
+              <div class="additional-notes"><dt>Notas adicionales</dt><dd data-field="notes"></dd></div>
+            </dl>
+          </section>
+
+          <section class="detail-panel route-panel" id="route-panel" aria-labelledby="route-heading">
+            <h2 id="route-heading"><img class="detail-icon" src="../../../assets/Icons/map-icon.svg" alt="">Ruta del traslado</h2>
+            <div class="map-space">
+              <div class="route-map-canvas" id="ambulance-map" aria-label="Vista previa de la ruta del traslado"></div>
+              <span class="map-preview-status" id="map-preview-status" role="status">Cargando ruta…</span>
+              <a class="map-preview-link" id="route-map-link" href="trace-map.html"
+                aria-label="Abrir el traslado en el mapa"></a>
+            </div>
+            <dl class="route-metrics">
+              <div><img class="detail-icon" src="../../../assets/Icons/location-icon.svg" alt=""><div><dt>Distancia total</dt><dd data-field="distance"></dd></div></div>
+              <div><img class="detail-icon" src="../../../assets/Icons/time-icon.svg" alt=""><div><dt>Tiempo estimado</dt><dd data-field="duration"></dd></div></div>
+              <div><img class="detail-icon" src="../../../assets/Icons/time-icon.svg" alt=""><div><dt>Tiempo transcurrido</dt><dd id="elapsed-time"></dd></div></div>
+            </dl>
+          </section>
+
+          <section class="detail-panel timeline-panel" id="timeline-panel" aria-labelledby="timeline-heading">
+            <h2 id="timeline-heading"><img class="detail-icon" src="../../../assets/Icons/time-icon.svg" alt="">Línea de tiempo</h2>
+            <ol class="transfer-timeline"></ol>
+          </section>
+
+          <section class="detail-panel personnel-panel" id="personnel-panel" aria-labelledby="personnel-heading">
+            <h2 id="personnel-heading"><img class="detail-icon" src="../../../assets/Icons/people-svgrepo-com.svg" alt="">Acompañantes y personal</h2>
+            <dl class="personnel-information">
+              <div><dt><img class="detail-icon" src="../../../assets/Icons/steering-wheel.svg" alt="">Conductor</dt><dd data-field="driver"></dd></div>
+              <div><dt><img class="detail-icon" src="../../../assets/Icons/person-icon.svg" alt="">Acompañante 1</dt><dd data-field="companion"></dd></div>
+              <div><dt><img class="detail-icon" src="../../../assets/Icons/person-icon.svg" alt="">Acompañante 2</dt><dd>—</dd></div>
+              <div><dt><img class="detail-icon" src="../../../assets/Icons/doctor-icon.svg" alt="">Médico a cargo</dt><dd data-field="doctor"></dd></div>
+            </dl>
+          </section>
+          <footer class="transfer-footer">
+            <p class="view-message" id="view-message" role="status" aria-live="polite"></p>
+            <button class="detail-button primary-button" id="update-status" type="button" disabled><img class="detail-icon" src="../../../assets/Icons/reload-icon.svg" alt=""><span>Actualizar estado</span></button>
+          </footer>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <dialog class="transfer-dialog" id="edit-dialog" aria-labelledby="edit-dialog-title">
+    <form id="edit-form" novalidate>
+      <header class="dialog-heading"><h2 id="edit-dialog-title">Editar traslado</h2><button class="icon-button" type="button" data-close-dialog aria-label="Cerrar"><span class="detail-icon color-icon close-icon" aria-hidden="true"></span></button></header>
+      <div class="edit-fields">
+        <label>Ambulancia<input name="ambulance" list="edit-ambulances" required maxlength="255"></label>
+        <label>Conductor<input name="driver" list="edit-crew" required maxlength="255"></label>
+        <label>Ruta predefinida (opcional)<select name="routeTemplate"><option value="">Escribir recorrido manualmente</option></select></label>
+        <label>Origen<input name="origin" list="edit-facilities" required maxlength="255"></label>
+        <label>Destino<input name="destination" list="edit-facilities" required maxlength="255"></label>
+        <label>Paciente<input name="patient" list="edit-patients" required maxlength="255"></label>
+        <label>Acompañante<input name="companion" list="edit-crew" maxlength="255"></label>
+        <label>Motivo<span class="dialog-select"><select name="reason" required></select></span></label>
+        <label>Prioridad<span class="dialog-select"><select name="priority"><option>Normal</option><option>Baja</option><option>Alta</option><option>Crítica</option></select></span></label>
+        <label class="wide-field"><span><input type="checkbox" name="refreshRoute"> Actualizar mapa con el recorrido seleccionado al guardar</span></label>
+        <label class="wide-field">Notas adicionales<textarea name="notes" rows="2" maxlength="1000"></textarea></label>
+      </div>
+      <p class="dialog-message" id="edit-message" role="status"></p>
+      <div class="dialog-actions"><button class="detail-button" type="button" data-close-dialog>Volver</button><button class="detail-button primary-button" type="submit"><img class="detail-icon" src="../../../assets/Icons/save-floppy.svg" alt="">Guardar cambios</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="transfer-dialog compact-dialog" id="status-dialog" aria-labelledby="status-dialog-title">
+    <form id="status-form">
+      <header class="dialog-heading"><h2 id="status-dialog-title">Actualizar estado</h2><button class="icon-button" type="button" data-close-dialog aria-label="Cerrar"><span class="detail-icon color-icon close-icon" aria-hidden="true"></span></button></header>
+      <label>Estado del traslado<span class="dialog-select"><select id="transfer-status" name="status"><option value="in-progress"></option><option value="arrived">En destino</option><option value="completed">Finalizado</option></select></span></label>
+      <div class="dialog-actions"><button class="detail-button" type="button" data-close-dialog>Volver</button><button class="detail-button primary-button" type="submit">Guardar estado</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="transfer-dialog compact-dialog" id="cancel-dialog" aria-labelledby="cancel-dialog-title">
+    <form id="cancel-form">
+      <header class="dialog-heading"><h2 id="cancel-dialog-title">Cancelar traslado</h2><button class="icon-button" type="button" data-close-dialog aria-label="Cerrar"><span class="detail-icon color-icon close-icon" aria-hidden="true"></span></button></header>
+      <p>¿Deseas cancelar este traslado? Esta acción marcará el traslado como cancelado.</p>
+      <div class="dialog-actions"><button class="detail-button" type="button" data-close-dialog>Volver</button><button class="detail-button danger-button" type="submit">Cancelar traslado</button></div>
+    </form>
+  </dialog>
+<datalist id="edit-ambulances"></datalist><datalist id="edit-crew"></datalist><datalist id="edit-facilities"></datalist><datalist id="edit-patients"></datalist>
+</body>
+</html>
