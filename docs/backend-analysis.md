@@ -182,3 +182,7 @@ The later survey frontend and the user’s explicit scope now supply the previou
 ## Localization follow-up (19 October 2026)
 
 The existing 25 pages now share JSON-based Spanish/English interface translation. Spanish wording remains the baseline; staff language persists in the existing SQL settings, while public pages default to Spanish and accept explicit English URLs. PHP messages use the same dictionaries and an explicit request-language header. Record text, uploaded documents and saved survey content retain their original language. Current contracts and focused verification are recorded in api-contracts.md and AGENTS.md.
+
+## Patient document QR follow-up (20 October 2026)
+
+Document QRs now grant a patient access to one selected immutable attachment through a 24-hour, revocable bearer URL. PHP validates SQL link state and streams private bytes; the browser displays PDF/images or downloads DOCX. No patient account or custom patient viewer is introduced. This explicitly extends the earlier internal-only document sharing policy. The staff viewer/metadata and ordinary internal Share links retain staff authorization. Migration 013 adds document_access_links; current contracts, local deployment limits and focused verification are in api-contracts.md and AGENTS.md.

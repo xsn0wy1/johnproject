@@ -3,4 +3,29 @@
 #account-detail .detail-actions { flex-wrap: wrap; }
 
 #account-dialog [hidden] { display: none !important; }
-#account-state { color: #edf0f9; background: #18213b; border: 1px solid #38415e; border-radius: 9px; padding: 9px; }
+.accounts-page .routes-heading h1 { min-width: 0; margin: 0; color: var(--route-text); font-size: clamp(20px, 1.8vw, 26px); font-weight: 600; line-height: 1.25; }
+.accounts-page .routes-back { color: var(--route-text); text-decoration: none; }
+.accounts-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex: none; min-width: 0; }
+.accounts-toolbar .route-search { flex: 1; max-width: 340px; margin: 0; }
+.accounts-toolbar .catalog-filters { flex: none; flex-wrap: nowrap; margin: 0 0 0 auto; }
+/* The filter trigger/menu/chevron come from documents.css, including theme states. */
+#account-state-button { width: clamp(106px, 20vw, 140px); height: 40px; min-width: 0; font-size: 12px; }
+.accounts-page .account-status-filter .filter-trigger.is-filtered { border-color: var(--route-accent); color: var(--route-accent); }
+.account-status-filter .filter-trigger:active { transform: scale(.98); }
+.account-status-filter .filter-menu { left: auto; right: 0; min-width: max(100%, 156px); max-width: calc(100vw - 48px); max-height: min(240px, 50dvh); overflow-y: auto; }
+.accounts-page .route-directory { overflow: visible; }
+#account-list { min-height: 0; padding: 2px; margin: -2px; overflow-y: auto; }
+#account-count { flex: none; margin: 0; padding-top: 14px; color: var(--route-muted); font-size: 12px; }
+#account-detail.is-empty { display: flex; }
+.accounts-placeholder { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px 12px; text-align: center; color: var(--route-muted); }
+.account-empty-icon { width: 56px; height: 56px; margin-bottom: 18px; display: grid; place-items: center; flex: none; border: 1px solid var(--route-line-bright); border-radius: 16px; background: linear-gradient(135deg, rgba(153, 135, 243, .24), rgba(153, 135, 243, .07)); box-shadow: inset 0 1px 0 rgba(153, 135, 243, .12); }
+.accounts-page .account-empty-icon img { width: 26px; height: 26px; opacity: .75; }
+.accounts-page .accounts-placeholder h2 { margin: 0 0 9px; color: var(--route-text); font-size: 16px; line-height: 1.4; font-weight: 500; }
+.accounts-placeholder p { max-width: 260px; margin: 0; font-size: 12px; line-height: 1.8; }
+
+@media (max-width: 770px) {
+  .accounts-page .route-directory { min-height: 280px; }
+  #account-list { flex: 1 1 auto; max-height: 360px; }
+  #account-detail.is-empty { min-height: 260px; }
+  .accounts-toolbar { gap: 9px; }
+}

@@ -10,7 +10,8 @@ final class DocumentService
 {
     private \PDO $db;
     private DocumentFiles $files;
-    public function __construct(\PDO $db, array $config) { $this->db = $db; $this->files = new DocumentFiles($config); }
+    private string $appKey;
+    public function __construct(\PDO $db, array $config) { $this->db = $db; $this->files = new DocumentFiles($config); $this->appKey = $config['app_key']; }
 
     private function manager(string $actor): bool { return in_array('records_manager', (new UserRepository($this->db))->roles($actor), true); }
     private function actor(string $actor): void
@@ -134,6 +135,11 @@ final class DocumentService
             $this->actor($actor); $row = $this->row($actor, $id, true); $this->revision($row, $version);
             if (($row['archived_at'] === null) === $restore) throw new ApiException(409, 'DOCUMENT_STATE_CONFLICT', \Hospital\I18n::t("errors.el_estado_del_documento_ya_cambio"));
             $stmt = $this->db->prepare('UPDATE documents SET archived_at = ' . ($restore ? 'NULL' : 'UTC_TIMESTAMP()') . ', version = version + 1, updated_at = UTC_TIMESTAMP() WHERE id = ?'); $stmt->execute([$id]);
+            if (!$restore) {
+                // Restoring a document must never revive a previously distributed QR.
+                $stmt = $this->db->prepare('UPDATE document_access_links l JOIN document_versions v ON v.id = l.document_version_id SET l.revoked_at = UTC_TIMESTAMP() WHERE v.document_id = ? AND l.revoked_at IS NULL');
+                $stmt->execute([$id]);
+            }
             $this->audit($actor, $restore ? 'document.restored' : 'document.archived', $id); $this->db->commit();
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
         return $this->get($actor, $id);
@@ -193,11 +199,70 @@ final class DocumentService
         $row = $this->row($actor, $id);
         if ($row['archived_at'] !== null) $this->missing();
         $number = $version ?? (string) $row['current_file_version'];
-        $stmt = $this->db->prepare("SELECT v.original_name, v.extension, f.storage_key, f.mime_type, f.byte_size FROM document_versions v JOIN stored_files f ON f.id = v.stored_file_id AND f.state = 'ready' AND f.purpose = 'document' WHERE v.document_id = ? AND v.version_number = ?"); $stmt->execute([$id, $number]); $file = $stmt->fetch();
+        $file = $this->file($id, $number);
+        $response = $this->fileResponse($file);
+        $this->audit($actor, $download ? 'document.downloaded' : 'document.previewed', $id);
+        return $response;
+    }
+
+    private function file(string $id, string $number, bool $readyOnly = true): array
+    {
+        $stmt = $this->db->prepare("SELECT v.id AS document_version_id, v.original_name, v.extension, f.storage_key, f.mime_type, f.byte_size FROM document_versions v JOIN stored_files f ON f.id = v.stored_file_id AND f.purpose = 'document'" . ($readyOnly ? " AND f.state = 'ready'" : '') . ' WHERE v.document_id = ? AND v.version_number = ?');
+        $stmt->execute([$id, $number]); $file = $stmt->fetch();
         if (!$file) $this->missing();
+        return $file;
+    }
+
+    private function fileResponse(array $file): array
+    {
         $path = $this->files->path($file['storage_key']);
         if (!is_file($path) || filesize($path) !== (int) $file['byte_size']) $this->missing();
-        $this->audit($actor, $download ? 'document.downloaded' : 'document.previewed', $id);
         return ['path' => $path, 'name' => $file['original_name'], 'mime' => $file['mime_type'], 'size' => (int) $file['byte_size'], 'extension' => $file['extension']];
+    }
+
+    private function linkToken(array $link): string
+    {
+        return hash_hmac('sha256', 'document-link:' . $link['document_version_id'] . ':' . $link['nonce'], $this->appKey);
+    }
+
+    public function patientLink(string $actor, string $id, $revision, string $fileVersion, ?string $revokeToken = null): array
+    {
+        $this->db->beginTransaction();
+        try {
+            $this->actor($actor); $row = $this->row($actor, $id, true); $this->revision($row, $revision);
+            if ($row['archived_at'] !== null) $this->missing();
+            // Revocation must still work while a file is missing or quarantined.
+            $file = $this->file($id, $fileVersion, $revokeToken === null);
+            if ($revokeToken === null) $this->fileResponse($file);
+            $stmt = $this->db->prepare('SELECT * FROM document_access_links WHERE document_version_id = ? FOR UPDATE');
+            $stmt->execute([$file['document_version_id']]); $link = $stmt->fetch();
+            if ($revokeToken !== null) {
+                if (!$link || !hash_equals($link['token_hash'], hash('sha256', $revokeToken))) throw new ApiException(409, 'DOCUMENT_LINK_CHANGED', \Hospital\I18n::t("errors.document_link_changed"));
+                $stmt = $this->db->prepare('UPDATE document_access_links SET revoked_at = UTC_TIMESTAMP() WHERE document_version_id = ?');
+                $stmt->execute([$file['document_version_id']]);
+                $this->audit($actor, 'document.patient_link_revoked', $id);
+                $result = ['revoked' => true];
+            } else {
+                if (!$link || $link['revoked_at'] !== null || $link['expires_at'] <= gmdate('Y-m-d H:i:s') || !hash_equals($link['token_hash'], hash('sha256', $this->linkToken($link)))) {
+                    $link = ['document_version_id' => $file['document_version_id'], 'nonce' => bin2hex(random_bytes(16)), 'expires_at' => gmdate('Y-m-d H:i:s', time() + 86400)];
+                    $stmt = $this->db->prepare('INSERT INTO document_access_links (document_version_id, nonce, token_hash, created_by_user_id, created_at, expires_at) VALUES (?, ?, ?, ?, UTC_TIMESTAMP(), ?) ON DUPLICATE KEY UPDATE nonce = VALUES(nonce), token_hash = VALUES(token_hash), created_by_user_id = VALUES(created_by_user_id), created_at = VALUES(created_at), expires_at = VALUES(expires_at), revoked_at = NULL');
+                    $stmt->execute([$file['document_version_id'], $link['nonce'], hash('sha256', $this->linkToken($link)), $actor, $link['expires_at']]);
+                    $this->audit($actor, 'document.patient_link_created', $id);
+                }
+                $result = ['token' => $this->linkToken($link), 'expires_at' => UserRepository::date($link['expires_at']), 'file_version' => (int) $fileVersion];
+            }
+            $this->db->commit(); return $result;
+        } catch (\Throwable $error) { if ($this->db->inTransaction()) $this->db->rollBack(); throw $error; }
+    }
+
+    public function patientContent(string $token): array
+    {
+        $file = false;
+        if (preg_match('/^[a-f0-9]{64}$/', $token)) {
+            $stmt = $this->db->prepare("SELECT v.original_name, v.extension, f.storage_key, f.mime_type, f.byte_size FROM document_access_links l JOIN document_versions v ON v.id = l.document_version_id JOIN documents d ON d.id = v.document_id JOIN stored_files f ON f.id = v.stored_file_id AND f.state = 'ready' AND f.purpose = 'document' WHERE l.token_hash = ? AND l.revoked_at IS NULL AND l.expires_at > UTC_TIMESTAMP() AND d.archived_at IS NULL");
+            $stmt->execute([hash('sha256', $token)]); $file = $stmt->fetch();
+        }
+        if (!$file) throw new ApiException(404, 'DOCUMENT_LINK_INVALID', \Hospital\I18n::t("errors.document_link_invalid"));
+        return $this->fileResponse($file);
     }
 }

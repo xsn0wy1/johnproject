@@ -23,6 +23,9 @@
     archive: (id, version) => api.post(path("archive"), { id, version }),
     restore: (id, version) => api.post(path("restore"), { id, version }),
     bulkArchive: documents => api.post(path("bulk-archive"), { documents }),
+    patientLink: (id, version, file_version) => api.post(path("patient-link"), { id, version, file_version, action: "create" }),
+    revokePatientLink: (id, version, file_version, token) => api.post(path("patient-link"), { id, version, file_version, action: "revoke", token }),
+    patientFile: token => api.page(`api/v1/${path("public-file")}?${new URLSearchParams({ token })}`),
     content: (id, version, download = false) => api.page(`api/v1/${path("content")}?${new URLSearchParams({ id, version, download: download ? "1" : "0" })}`)
   });
 })();

@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   let data, file, pdf, pdfjs, image, renderTask, thumbnailObserver, thumbnailBusy = false;
   let thumbnailNext = 1, thumbnailQueue = [], renderRevision = 0, resizeTimer, toastTimer;
   let passwordUpdate, loadingTask;
+  let patientLink = null, qrBusy = false;
   const state = { page: 1, pages: 0, zoom: 100, rotation: 0, thumbnails: true };
   const tools = ["page-input", "toggle-thumbnails", "zoom-out", "zoom-in", "zoom-reset", "rotate-button", "fullscreen-button"];
   const actions = ["download-button", "share-button", "more-button", "print-button", "qr-button", "delete-button"];
@@ -167,6 +168,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     appendThumbnails();
   }
   async function openFile() {
+    patientLink = null; $("patient-qr-url").value = "";
+    if ($("qr-dialog").open) $("qr-dialog").close();
     [...tools].forEach(name => { $(name).disabled = true; });
     $("document-canvas").hidden = true; $("document-image").hidden = true; $("unavailable-preview").hidden = true;
     $("thumbnail-list").replaceChildren(); thumbnailObserver?.disconnect(); ++renderRevision;
@@ -274,15 +277,45 @@ document.addEventListener("DOMContentLoaded", async () => {
   $("copy-link-menu").addEventListener("click", () => { closeMenu(); copyLink(); });
   $("edit-document-menu").addEventListener("click", () => { location.assign(`documents-edit.html?id=${encodeURIComponent(id)}`); });
   $("reset-view-menu").addEventListener("click", () => { closeMenu(); state.zoom = 100; state.rotation = 0; setPage(1); });
-  $("qr-button").addEventListener("click", () => {
+  function qrControls(busy) {
+    qrBusy = busy;
+    $("qr-button").disabled = busy || Boolean(data.archived_at);
+    $("file-version").disabled = busy || Boolean(data.archived_at);
+    $("copy-qr-link").disabled = $("revoke-qr-link").disabled = busy || !patientLink;
+  }
+  $("qr-button").addEventListener("click", async () => {
+    if (qrBusy) return;
+    qrControls(true);
     try {
-      const qr = window.qrcode(0, "M"); qr.addData(shareUrl(), "Byte"); qr.make();
+      patientLink = await api.patientLink(id, data.version, file.version);
+      const url = api.patientFile(patientLink.token);
+      const qr = window.qrcode(0, "M"); qr.addData(url, "Byte"); qr.make();
       const canvas = $("qr-canvas"), context = canvas.getContext("2d"), count = qr.getModuleCount(), cell = Math.floor(264 / (count + 8));
       canvas.width = canvas.height = (count + 8) * cell;
       context.fillStyle = "#fff"; context.fillRect(0, 0, canvas.width, canvas.height); context.fillStyle = "#111827";
       for (let y = 0; y < count; y++) for (let x = 0; x < count; x++) if (qr.isDark(y, x)) context.fillRect((x + 4) * cell, (y + 4) * cell, cell, cell);
+      $("patient-qr-url").value = url;
+      window.HospitalI18n.bindText($("qr-expiry"), () => patientLink ? window.HospitalI18n.t("documents_viewer.patient_link_expires", { date: api.date(patientLink.expires_at), time: api.time(patientLink.expires_at), version: patientLink.file_version }) : '');
       $("qr-dialog").showModal();
+    } catch (error) { patientLink = null; $("patient-qr-url").value = ""; report(error); }
+    finally { qrControls(false); }
+  });
+  $("copy-qr-link").addEventListener("click", async () => {
+    if (qrBusy || !patientLink) return;
+    try {
+      if (Date.parse(patientLink.expires_at) <= Date.now()) throw new Error(window.HospitalI18n.t("errors.document_link_invalid"));
+      await navigator.clipboard.writeText(api.patientFile(patientLink.token));
+    } catch (error) { report(error); $("patient-qr-url").focus(); $("patient-qr-url").select(); }
+  });
+  $("revoke-qr-link").addEventListener("click", async () => {
+    if (qrBusy || !patientLink) return;
+    qrControls(true);
+    try {
+      await api.revokePatientLink(id, data.version, patientLink.file_version, patientLink.token);
+      patientLink = null; $("patient-qr-url").value = ""; $("qr-dialog").close();
+      const canvas = $("qr-canvas"); canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
     } catch (error) { report(error); }
+    finally { qrControls(false); }
   });
   $("delete-button").addEventListener("click", async () => {
     const restore = Boolean(data.archived_at);
@@ -296,7 +329,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     file = data.file_versions.find(item => item.version === Number(event.target.value));
     try { await openFile(); } catch (error) { report(error); } finally { event.target.disabled = false; }
   });
-  $("copy-share-link").addEventListener("click", copyLink); $("copy-qr-link").addEventListener("click", copyLink);
+  $("copy-share-link").addEventListener("click", copyLink);
   $("pdf-password-form").addEventListener("submit", event => {
     event.preventDefault(); const password = $("pdf-password").value; $("pdf-password").value = ""; $("pdf-password-dialog").close(); passwordUpdate?.(password);
   });
@@ -323,7 +356,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       $("file-version").replaceChildren(...data.file_versions.map(item => window.HospitalI18n.option(() => window.HospitalI18n.t("documents_viewer.version_value_value", {value0: item.version, value1: api.date(item.created_at)}), item.version)));
       $("file-version").value = file.version; $("file-version").disabled = true;
       actions.forEach(name => { $(name).disabled = false; });
-      if (data.archived_at) ["download-button", "print-button"].forEach(name => { $(name).disabled = true; });
+      if (data.archived_at) ["download-button", "print-button", "qr-button"].forEach(name => { $(name).disabled = true; });
       await openFile();
       $("file-version").disabled = Boolean(data.archived_at);
     } catch (error) { report(error); if (!file) window.HospitalI18n.bindText($("document-title"), () => ''); }

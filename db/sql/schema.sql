@@ -1,4 +1,4 @@
--- Hospital user system, schema versions 001–012. MySQL 5.7+/MariaDB 10.4 compatible.
+-- Hospital user system, schema versions 001–013. MySQL 5.7+/MariaDB 10.4 compatible.
 -- Fresh installation: import this file with an administrative SQL account.
 -- Run the PHP setup/migration commands for upgrades. Future changes belong in numbered db/sql/migrations files.
 CREATE DATABASE IF NOT EXISTS hospital CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -671,4 +671,18 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
     expires_at DATETIME NOT NULL,
     UNIQUE KEY uq_password_reset_token (token_hash),
     CONSTRAINT fk_password_reset_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- One reusable, expiring patient capability per immutable document file version.
+CREATE TABLE IF NOT EXISTS document_access_links (
+    document_version_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
+    nonce CHAR(32) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    token_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    created_by_user_id BIGINT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL,
+    expires_at DATETIME NOT NULL,
+    revoked_at DATETIME NULL,
+    UNIQUE KEY uq_document_access_token (token_hash),
+    CONSTRAINT fk_document_access_version FOREIGN KEY (document_version_id) REFERENCES document_versions(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_document_access_creator FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;

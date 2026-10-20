@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark" data-theme-styles="main-menu routes accounts">
+<html lang="es" data-theme="dark" data-theme-styles="main-menu routes accounts documents">
 <head>
   <script src="../../js/theme.js?v=20261019-light"></script>
   <meta charset="UTF-8">
@@ -8,6 +8,7 @@
   <link rel="icon" type="image/x-icon" href="../../../assets/hospital-dark.ico">
   <link rel="stylesheet" href="../../css/main-menu.css?v=20261012-settings">
   <link rel="stylesheet" href="../../css/management/routes.css?v=20261004-controls-design">
+  <link rel="stylesheet" href="../../css/documents/documents.css?v=20261012-documents">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inclusive+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
@@ -16,11 +17,11 @@
   <script src="../../js/auth-session.js?v=20261019-light" defer></script>
   <script src="../../js/main-menu.js?v=20261019-light" defer></script>
   <script src="../../js/universal-search.js?v=20261019-role-shortcuts" defer></script>
-  <script src="../../js/management/accounts.js?v=20261019-i18n" defer></script>
-  <link rel="stylesheet" href="../../css/management/accounts.css">
+  <script src="../../js/management/accounts.js?v=20261020-dropdown" defer></script>
+  <link rel="stylesheet" href="../../css/management/accounts.css?v=20261020-dropdown">
   <link rel="stylesheet" href="../../css/theme.css?v=20261019-button-image">
 </head>
-<body class="routes-page">
+<body class="routes-page accounts-page">
   <main class="app-shell">
     <aside class="sidebar">
       <button type="button" class="sidebar-action" aria-label="Abrir menú" data-i18n-aria-label="main_menu.abrir_menu" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -46,15 +47,35 @@
       </header>
 
       <section class="routes-content" aria-label="Gestión de cuentas" data-i18n-aria-label="accounts.gestion_de_cuentas">
-        <div class="routes-heading"><a href="management.html" class="routes-back" aria-label="Volver a Gestión" data-i18n-aria-label="routes.volver_a_gestion">←</a><h1 data-i18n="accounts.cuentas_del_personal">Cuentas del personal</h1></div>
+        <div class="routes-heading"><h1 data-i18n="accounts.cuentas_del_personal">Cuentas del personal</h1><a href="management.html" class="routes-back" aria-label="Volver a Gestión" data-i18n-aria-label="routes.volver_a_gestion"><img src="../../../assets/Icons/arrow-left.svg" alt=""></a></div>
         <div class="routes-workspace">
           <section class="route-directory" aria-label="Listado de cuentas" data-i18n-aria-label="accounts.listado_de_cuentas">
-            <label class="route-search"><input type="search" id="account-search" aria-label="Buscar cuenta" data-i18n-aria-label="accounts.buscar_cuenta" placeholder="Buscar usuario o email..." data-i18n-placeholder="accounts.buscar_usuario_o_email"></label>
-            <div class="catalog-filters"><select id="account-state" aria-label="Estado de cuenta" data-i18n-aria-label="accounts.estado_de_cuenta"><option value="" data-i18n="routes.todas">Todas</option><option value="pending" data-i18n="accounts.pendientes">Pendientes</option><option value="active" data-i18n="routes.activas">Activas</option><option value="disabled" data-i18n="accounts.desactivadas">Desactivadas</option></select></div>
-            <div class="route-list detail-scroll" id="account-list"></div><p id="account-count" role="status"></p>
+            <div class="accounts-toolbar">
+              <label class="route-search"><img src="../../../assets/Icons/search-icon.svg" alt=""><input type="search" id="account-search" aria-label="Buscar cuenta" data-i18n-aria-label="accounts.buscar_cuenta" placeholder="Buscar usuario o email..." data-i18n-placeholder="accounts.buscar_usuario_o_email"></label>
+              <div class="catalog-filters">
+                <div class="document-filter account-status-filter">
+                  <button type="button" class="filter-trigger" id="account-state-button" aria-expanded="false" aria-controls="account-state-menu" aria-label="Estado de cuenta" data-i18n-aria-label="accounts.estado_de_cuenta">
+                    <span id="account-state-label" data-i18n="routes.todas">Todas</span><span class="filter-chevron" aria-hidden="true"></span>
+                  </button>
+                  <div class="filter-menu" id="account-state-menu" role="group" aria-label="Estado de cuenta" data-i18n-aria-label="accounts.estado_de_cuenta" hidden>
+                    <button type="button" data-account-state="" aria-pressed="true" data-i18n="routes.todas">Todas</button>
+                    <button type="button" data-account-state="pending" aria-pressed="false" data-i18n="accounts.pendientes">Pendientes</button>
+                    <button type="button" data-account-state="active" aria-pressed="false" data-i18n="routes.activas">Activas</button>
+                    <button type="button" data-account-state="disabled" aria-pressed="false" data-i18n="accounts.desactivadas">Desactivadas</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="route-list detail-scroll" id="account-list"></div>
+            <div class="accounts-placeholder" id="account-empty" hidden>
+              <span class="account-empty-icon" aria-hidden="true"><img src="../../../assets/Icons/person-icon.svg" alt=""></span>
+              <h2 id="account-empty-title" data-i18n="accounts.no_accounts">Aún no hay usuarios</h2>
+              <p id="account-empty-description" data-i18n="accounts.no_accounts_help">Las solicitudes de registro del personal aparecerán aquí.</p>
+            </div>
+            <p id="account-count" role="status"></p>
           </section>
           <aside class="route-detail" aria-label="Detalle de cuenta" data-i18n-aria-label="accounts.detalle_de_cuenta">
-            <div class="detail-scroll" id="account-detail"><h2 data-i18n="accounts.selecciona_una_cuenta">Seleccioná una cuenta</h2></div>
+            <div class="detail-scroll is-empty" id="account-detail"><div class="accounts-placeholder"><span class="account-empty-icon" aria-hidden="true"><img src="../../../assets/Icons/person-icon.svg" alt=""></span><h2 data-i18n="accounts.select_user_to_begin">Selecciona un usuario para comenzar</h2><p data-i18n="accounts.selection_help">Aquí verás su información y podrás administrar su acceso y sus permisos.</p></div></div>
           </aside>
         </div>
       </section>

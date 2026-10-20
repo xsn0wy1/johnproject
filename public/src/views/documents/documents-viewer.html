@@ -18,10 +18,10 @@
   <script src="../../js/auth-session.js?v=20261019-light" defer></script>
   <script src="../../js/main-menu.js?v=20261019-light" defer></script>
   <script src="../../js/universal-search.js?v=20261019-role-shortcuts" defer></script>
-  <script src="../../js/documents/document-api.js?v=20261019-i18n" defer></script>
+  <script src="../../js/documents/document-api.js?v=20261020-patient-file" defer></script>
   <script src="../../../assets/vendor/qrcode/qrcode.js" defer></script>
   <script src="../../../assets/vendor/qrcode/qrcode_UTF8.js" defer></script>
-  <script src="../../js/documents/documents-viewer.js?v=20261019-i18n" defer></script>
+  <script src="../../js/documents/documents-viewer.js?v=20261020-patient-file" defer></script>
   <link rel="stylesheet" href="../../css/theme.css?v=20261019-button-image">
 </head>
 <body>
@@ -200,9 +200,13 @@
 
   <dialog class="viewer-dialog qr-dialog" id="qr-dialog" aria-labelledby="qr-title">
     <div class="dialog-heading"><h2 id="qr-title" data-i18n="documents_viewer.codigo_qr_del_documento">Código QR del documento</h2><button type="button" class="dialog-close" data-close-dialog aria-label="Cerrar" data-i18n-aria-label="settings.cerrar"><span aria-hidden="true" data-i18n="documents_upload.times">×</span></button></div>
-    <div class="qr-preview"><canvas id="qr-canvas" width="264" height="264" role="img" aria-label="Código QR del enlace interno a este documento" data-i18n-aria-label="documents_viewer.codigo_qr_del_enlace_interno_a_este_documento"></canvas></div>
-    <p><i18n-text data-i18n="documents_viewer.enlace_interno_para" style="display:contents">Enlace interno para</i18n-text> <strong id="qr-document-id"></strong>.</p>
+    <div class="qr-preview"><canvas id="qr-canvas" width="264" height="264" role="img" aria-label="Código QR de acceso al archivo para el paciente" data-i18n-aria-label="documents_viewer.patient_file_qr"></canvas></div>
+    <p><i18n-text data-i18n="documents_viewer.patient_file_access" style="display:contents">Acceso al archivo del documento</i18n-text> <strong id="qr-document-id"></strong>.</p>
+    <p id="qr-expiry"></p>
+    <p data-i18n="documents_viewer.patient_link_notice">Cualquier persona con este enlace puede abrir este archivo sin iniciar sesión.</p>
+    <input id="patient-qr-url" type="text" readonly aria-label="Enlace del archivo para el paciente" data-i18n-aria-label="documents_viewer.patient_file_url">
     <button type="button" class="dialog-primary" id="copy-qr-link"><img class="icon" src="../../../assets/Icons/select-multiple-icon.svg" alt="" aria-hidden="true"><span data-i18n="survey_view.copiar_enlace">Copiar enlace</span></button>
+    <button type="button" class="dialog-primary" id="revoke-qr-link" data-i18n="documents_viewer.revoke_patient_link">Revocar enlace</button>
   </dialog>
 
   <dialog class="viewer-dialog" id="pdf-password-dialog" aria-labelledby="pdf-password-title">

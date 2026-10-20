@@ -4,6 +4,9 @@
     ServerName hospital.localhost
     DocumentRoot "/ABSOLUTE/PATH/johnproject/public"
     Alias "/api/v1/" "/ABSOLUTE/PATH/johnproject/backend/php/api/v1/"
+    # Patient file URLs contain bearer tokens. Log the path, never query strings.
+    LogFormat "%h %l %u %t \"%m %U %H\" %>s %b" hospital_no_query
+    CustomLog "logs/hospital-access.log" hospital_no_query
     <Directory "/ABSOLUTE/PATH/johnproject/public">
         Options -Indexes +FollowSymLinks
         AllowOverride FileInfo Options

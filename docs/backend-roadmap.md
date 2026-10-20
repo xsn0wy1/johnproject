@@ -2,7 +2,7 @@
 
 Prepared: 12 October 2026. Companion analysis: [backend-analysis.md](backend-analysis.md).
 
-This roadmap preserves the original target architecture and phase plan. Current implementation (19 October 2026) includes identity/account administration, email password recovery, settings, documents, transfers/simulation, the six management catalogs and surveys (schema 001–012). Complete JSON-based Spanish/English interface translation is integrated using the existing SQL locale preference, shared browser/PHP dictionaries and the current API contracts. Both light/dark appearance modes use the existing SQL theme preference. Calendar/appointment management and reports remain deferred; appointment counts are read-only. AGENTS.md and api-contracts.md take precedence for completed behavior and deliberate changes to the original plan, including console-only errors. Recovery uses Brevo with a verified sender; the user will configure that provider later. Administrator-assisted recovery remains available.
+This roadmap preserves the original target architecture and phase plan. Current implementation (20 October 2026) includes identity/account administration, email password recovery, settings, documents with patient file QR access, transfers/simulation, the six management catalogs and surveys (schema 001–013). Complete JSON-based Spanish/English interface translation is integrated using the existing SQL locale preference, shared browser/PHP dictionaries and the current API contracts. Both light/dark appearance modes use the existing SQL theme preference. Calendar/appointment management and reports remain deferred; appointment counts are read-only. AGENTS.md and api-contracts.md take precedence for completed behavior and deliberate changes to the original plan, including console-only errors. Recovery uses Brevo with a verified sender; the user will configure that provider later. Administrator-assisted recovery remains available.
 
 ## Target and working decisions
 
@@ -77,7 +77,7 @@ backend/
     dev-router.php         local PHP built-in server alternative
   apache/hospital.conf.example
 db/
-  sql/schema.sql           current snapshot 001–012
+  sql/schema.sql           current snapshot 001–013
   sql/migrations/          numbered changes for later slices
   json/fixtures/           fictional input datasets only
 storage/

@@ -1841,5 +1841,19 @@
   "recovery.save_password": "Save password",
   "recovery.request_another": "Request another link",
   "recovery.password_help": "Use at least 12 characters and no more than 72 UTF-8 bytes.",
-  "recovery.password_mismatch": "The passwords do not match."
+  "recovery.password_mismatch": "The passwords do not match.",
+  "documents_viewer.patient_file_qr": "QR code for patient file access",
+  "documents_viewer.patient_file_access": "File access for document",
+  "documents_viewer.patient_file_url": "Patient file link",
+  "documents_viewer.patient_link_expires": "Version {version} · Expires on {date} at {time} (24 hours after creation).",
+  "documents_viewer.patient_link_notice": "Anyone with this link can open this file without signing in.",
+  "documents_viewer.revoke_patient_link": "Revoke link",
+  "errors.document_link_changed": "The link changed. Open the QR code again before revoking it.",
+  "errors.document_link_invalid": "The file link is unavailable or has expired.",
+  "accounts.select_user_to_begin": "Select a user to get started",
+  "accounts.selection_help": "View their information and manage their access and permissions here.",
+  "accounts.no_accounts": "No users yet",
+  "accounts.no_accounts_help": "Staff registration requests will appear here.",
+  "accounts.no_matches": "No users found",
+  "accounts.no_matches_help": "Try a different name, email or status."
 }

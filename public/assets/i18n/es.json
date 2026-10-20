@@ -1841,5 +1841,19 @@
   "recovery.save_password": "Guardar contraseña",
   "recovery.request_another": "Solicitar otro enlace",
   "recovery.password_help": "Usá al menos 12 caracteres y un máximo de 72 bytes.",
-  "recovery.password_mismatch": "Las contraseñas no coinciden."
+  "recovery.password_mismatch": "Las contraseñas no coinciden.",
+  "documents_viewer.patient_file_qr": "Código QR de acceso al archivo para el paciente",
+  "documents_viewer.patient_file_access": "Acceso al archivo del documento",
+  "documents_viewer.patient_file_url": "Enlace del archivo para el paciente",
+  "documents_viewer.patient_link_expires": "Versión {version} · Vence el {date} a las {time} (24 horas desde su creación).",
+  "documents_viewer.patient_link_notice": "Cualquier persona con este enlace puede abrir este archivo sin iniciar sesión.",
+  "documents_viewer.revoke_patient_link": "Revocar enlace",
+  "errors.document_link_changed": "El enlace cambió. Volvé a abrir el código QR antes de revocarlo.",
+  "errors.document_link_invalid": "El enlace del archivo no está disponible o venció.",
+  "accounts.select_user_to_begin": "Selecciona un usuario para comenzar",
+  "accounts.selection_help": "Aquí verás su información y podrás administrar su acceso y sus permisos.",
+  "accounts.no_accounts": "Aún no hay usuarios",
+  "accounts.no_accounts_help": "Las solicitudes de registro del personal aparecerán aquí.",
+  "accounts.no_matches": "No encontramos usuarios",
+  "accounts.no_matches_help": "Prueba con otro nombre, email o estado."
 }
