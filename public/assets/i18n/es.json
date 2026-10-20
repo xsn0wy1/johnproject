@@ -42,6 +42,7 @@
   "settings.nombre": "Nombre",
   "settings.email": "Email",
   "settings.centro": "Centro",
+  "settings.selecciona_un_centro": "Seleccioná un centro",
   "settings.especializaciones": "Especializaciones",
   "settings.agregar_especializacion": "Agregar especialización",
   "settings.foto_de_perfil": "Foto de Perfil",

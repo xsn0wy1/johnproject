@@ -52,12 +52,16 @@
 .survey-search:active { transform: translateY(0); }
 .survey-search:is(:hover, :focus-within) img { opacity: 1; }
 .surveys-content .survey-search input:focus-visible { outline: none; }
-.survey-select { position: relative; transition: transform .2s; }
-.survey-select:hover { transform: translateY(-2px); }
-.survey-select:active { transform: translateY(0); }
-.survey-select::after { content: ""; position: absolute; right: 14px; top: 50%; width: 7px; height: 7px; border-right: 1.5px solid #a0a8c1; border-bottom: 1.5px solid #a0a8c1; transform: translateY(-70%) rotate(45deg); pointer-events: none; }
-.survey-select:is(:hover, :has(select:open), :has(select:focus-visible:not([data-pointer-focus])))::after { border-color: #d6daeb; }
-.survey-select select { appearance: none; -webkit-appearance: none; width: 100%; height: 43px; border: 1px solid var(--survey-line); border-radius: 11px; padding: 0 36px 0 13px; color: #d6daeb; background: #111a35; font-size: 11px; cursor: pointer; }
+/* Reuse the Documents dropdown surface, choices, chevron and theme states. */
+.survey-select { position: relative; flex: 0 1 160px; min-width: 0; }
+.sort-select { flex-basis: 145px; }
+.survey-select .filter-trigger { width: 100%; min-width: 0; height: 43px; font-size: 11px; border-radius: 11px; }
+.survey-select .filter-trigger > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.surveys-page .survey-select .filter-trigger.is-filtered { color: var(--survey-accent); border-color: var(--survey-accent); }
+.survey-select .filter-trigger:active { transform: scale(.98); }
+.survey-select .filter-menu { min-width: max(100%, 190px); max-width: calc(100vw - 32px); max-height: min(280px, 40dvh); overflow-y: auto; }
+.sort-select .filter-menu, #survey-category-menu { left: auto; right: 0; }
+.survey-toolbar { position: relative; z-index: 5; }
 .view-switch { display: flex; padding: 4px; border: 1px solid var(--survey-line); border-radius: 11px; gap: 3px; background: var(--survey-surface); }
 .view-switch button { width: 34px; height: 33px; display: grid; place-items: center; border: 1px solid transparent; border-radius: 7px; background: none; }
 .view-switch button img { opacity: .55; width: 17px; height: 17px; }
@@ -211,9 +215,6 @@
 .text-button { border-radius: 6px; padding: 8px; }
 .row-menu-content button:is(:hover, :focus-visible) { background-color: rgba(171, 186, 234, .15); }
 .row-menu-content button:active, .text-button:active { transform: translateY(0); }
-.survey-select select { transition: border-color .2s, background-color .2s, box-shadow .2s; }
-.survey-select select:is(:hover, :open, :focus-visible:not([data-pointer-focus])) { border-color: rgba(171, 186, 234, .55); background-color: #192440; box-shadow: 0 0 0 3px rgba(171, 186, 234, .05); }
-.surveys-content .survey-select select[data-pointer-focus]:focus-visible { outline: none; }
 .survey-dialog .icon-button[data-close-dialog]:is(:hover, :focus-visible) { border-color: #d57790; background-color: rgba(221, 102, 132, .13); }
 .survey-dialog .icon-button[data-close-dialog]:is(:hover, :focus-visible) img { filter: brightness(0) saturate(100%) invert(68%) sepia(21%) saturate(1000%) hue-rotate(298deg); }
 @media (min-width: 1650px) {
@@ -247,7 +248,7 @@
   .survey-toolbar { gap: 8px; }
   .survey-select { flex: 0 1 140px; min-width: 0; }
   .sort-select { flex-basis: 120px; }
-  .survey-select select { font-size: 10px; padding-left: 9px; padding-right: 36px; }
+  .survey-select .filter-trigger { font-size: 10px; padding-left: 9px; padding-right: 12px; }
   .surveys-workspace { grid-template-columns: minmax(0, 1fr) 255px; }
   .survey-list-head, .survey-row { grid-template-columns: minmax(100px, 1fr) 75px 55px 25px; }
   .survey-list-head > :nth-child(5), .survey-row > .row-updated { display: none; }
@@ -288,7 +289,7 @@
   .survey-stats .survey-icon { width: 35px; height: 38px; border-radius: 10px; }
   .stat-card strong { font-size: 26px; }
   .stat-card small { font-size: 9px; }
-  .survey-search, .survey-select select { height: 36px; }
+  .survey-search, .survey-select .filter-trigger { height: 36px; min-height: 36px; }
   .view-switch { padding: 3px; }
   .view-switch button { height: 28px; }
   .directory-heading, .detail-heading { padding-top: 12px; padding-bottom: 12px; }
@@ -331,7 +332,7 @@
   .survey-toolbar { flex-wrap: wrap; gap: 7px; }
   .survey-search { flex-basis: 100%; height: 36px; }
   .survey-select { flex: 1 1 calc(50% - 7px); }
-  .survey-select select { height: 36px; }
+  .survey-select .filter-trigger { height: 36px; min-height: 36px; }
   .sort-select { flex: 1 1 calc(100% - 90px); }
   .view-switch { margin-left: auto; }
   .view-switch button { height: 27px; }

@@ -42,6 +42,7 @@
   "settings.nombre": "Name",
   "settings.email": "Email",
   "settings.centro": "Facility",
+  "settings.selecciona_un_centro": "Select a facility",
   "settings.especializaciones": "Specialties",
   "settings.agregar_especializacion": "Add specialty",
   "settings.foto_de_perfil": "Profile Photo",

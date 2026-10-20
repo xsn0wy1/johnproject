@@ -336,6 +336,48 @@ transition:
     opacity: 1;
 }
 
+/* Shared Documents dropdown, fitted to the original 54px Settings field. */
+#settings-center-button {
+    width: 100%;
+    min-width: 0;
+    height: 54px;
+    min-height: 0;
+    padding: 0 28px;
+    border-width: 2px;
+    border-radius: 14px;
+    font-size: 1.05rem;
+}
+
+#settings-center-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.settings-center-dropdown .filter-trigger:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+}
+
+.settings-center-dropdown .filter-trigger:disabled {
+    pointer-events: none;
+    opacity: 0.55;
+}
+
+.settings-center-dropdown .filter-menu {
+    width: 100%;
+    max-height: min(220px, var(--center-menu-height, 40dvh));
+    overflow-y: auto;
+}
+
+.settings-center-dropdown .filter-menu button {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.settings-center-dropdown.opens-up .filter-menu {
+    top: auto;
+    bottom: calc(100% + 7px);
+}
+
 .settings-field input:hover,
 .settings-field select:hover,
 .select-setting select:hover {

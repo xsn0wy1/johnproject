@@ -30,6 +30,59 @@
     let page = 1;
     let view = 'list';
     let renderedPageSize = null;
+    const filterDropdowns = [];
+
+    function syncFilterDropdowns() {
+        filterDropdowns.forEach(({control,button,label,options}) => {
+            window.HospitalI18n.bindText(label, () => window.HospitalI18n.t(control.selectedOptions[0].dataset.i18n));
+            button.classList.toggle('is-filtered', control.value !== control.options[0].value);
+            options.forEach(option => option.setAttribute('aria-pressed', String(option.dataset.filterValue === control.value)));
+        });
+    }
+    function closeFilterDropdown(dropdown) {
+        dropdown.menu.hidden = true;
+        dropdown.button.setAttribute('aria-expanded', 'false');
+    }
+    function setupFilterDropdown(control) {
+        const button = $(control.id + '-button'), menu = $(control.id + '-menu'), label = $(control.id + '-label');
+        // Keep existing option codes/labels as the source for filtering and sorting.
+        const options = [...control.options].map(option => {
+            const choice = document.createElement('button');
+            choice.type = 'button'; choice.dataset.filterValue = option.value;
+            choice.dataset.i18n = option.dataset.i18n; choice.textContent = option.textContent;
+            menu.append(choice); return choice;
+        });
+        const dropdown = {control,button,menu,label,options,root:button.parentElement};
+        filterDropdowns.push(dropdown);
+        function open() {
+            filterDropdowns.forEach(closeFilterDropdown);
+            menu.hidden = false; button.setAttribute('aria-expanded', 'true');
+        }
+        button.addEventListener('click', () => { if (menu.hidden) open(); else closeFilterDropdown(dropdown); });
+        button.addEventListener('keydown', event => {
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault(); open();
+                (event.key === 'ArrowUp' ? options[options.length - 1] : options.find(option => option.dataset.filterValue === control.value)).focus();
+            } else if (event.key === 'Escape') { event.preventDefault(); closeFilterDropdown(dropdown); }
+        });
+        menu.addEventListener('click', event => {
+            const choice = event.target.closest('[data-filter-value]'); if (!choice) return;
+            const changed = control.value !== choice.dataset.filterValue;
+            control.value = choice.dataset.filterValue; closeFilterDropdown(dropdown);
+            if (changed) control.dispatchEvent(new Event('change', {bubbles:true})); button.focus();
+        });
+        menu.addEventListener('keydown', event => {
+            if (['ArrowDown','ArrowUp','Home','End'].includes(event.key)) {
+                event.preventDefault(); const index = options.indexOf(document.activeElement);
+                const next = event.key === 'Home' ? 0 : event.key === 'End' ? options.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length;
+                options[next].focus();
+            } else if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeFilterDropdown(dropdown); button.focus(); }
+        });
+        control.addEventListener('change', () => {
+            syncFilterDropdowns(); page = 1;
+            if (control.id === 'survey-status') load().catch(error => api.report(error,'surveys')); else render();
+        });
+    }
 
     function activity(date) {
         const today = dateFormat.format(new Date());
@@ -64,6 +117,7 @@
         $('survey-search').value = '';
         $('survey-status').value = 'all';
         $('survey-category').value = 'all';
+        filterDropdowns.forEach(closeFilterDropdown); syncFilterDropdowns();
         page = 1;
     }
     function renderStats() {
@@ -108,6 +162,7 @@
         $('survey-detail-content').scrollTop = 0;
     }
     function render() {
+        syncFilterDropdowns();
         const filtered = filteredSurveys();
         page = Math.max(1, Math.min(page, Math.ceil(filtered.length / pageSize()) || 1));
         renderedPageSize = pageSize();
@@ -200,33 +255,10 @@
         });
         $('delete-dialog').addEventListener('close', () => { pendingDeleteId = null; });
         $('survey-search').addEventListener('input', () => { page = 1; render(); });
-        const filterControls = ['survey-status', 'survey-category', 'survey-sort'].map($);
-        document.addEventListener('pointerdown', event => {
-            const control = document.activeElement;
-            if (filterControls.includes(control) && !control.closest('.survey-select').contains(event.target)) control.blur();
-        }, true);
-        filterControls.forEach(control => {
-            let pointerSelection = false;
-            control.addEventListener('pointerdown', () => {
-                pointerSelection = true;
-                control.dataset.pointerFocus = '';
-            });
-            control.addEventListener('keydown', event => {
-                // Escape dismisses a pointer-opened menu without switching to keyboard focus.
-                if (event.key === 'Escape') return;
-                pointerSelection = false;
-                delete control.dataset.pointerFocus;
-            });
-            control.addEventListener('blur', () => {
-                pointerSelection = false;
-                delete control.dataset.pointerFocus;
-            });
-            control.addEventListener('change', () => {
-                page = 1;
-                if(control.id==='survey-status')load().catch(error=>api.report(error,'surveys'));else render();
-                // Pointer selections finish here; keyboard navigation keeps its focus.
-                if (pointerSelection) control.blur();
-            });
+        ['survey-status', 'survey-category', 'survey-sort'].map($).forEach(setupFilterDropdown);
+        syncFilterDropdowns();
+        for (const eventName of ['click','focusin']) document.addEventListener(eventName, event => {
+            filterDropdowns.forEach(dropdown => { if (!dropdown.root.contains(event.target)) closeFilterDropdown(dropdown); });
         });
         $('clear-filters').addEventListener('click', () => { resetFilters(); load().catch(error=>api.report(error,'surveys')); $('survey-search').focus(); });
         document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => {

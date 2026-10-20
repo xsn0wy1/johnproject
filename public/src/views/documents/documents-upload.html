@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark" data-theme-styles="main-menu documents-upload">
+<html lang="es" data-theme="dark" data-theme-styles="main-menu documents documents-upload">
 
 <head>
   <script src="../../js/theme.js?v=20261019-light"></script>
@@ -13,14 +13,15 @@
     rel="stylesheet">
   <link rel="icon" type="image/x-icon" href="../../../assets/hospital-dark.ico">
   <link rel="stylesheet" href="../../css/main-menu.css?v=20261012-settings">
-  <link rel="stylesheet" href="../../css/documents/documents-upload.css?v=20261012-documents">
+  <link rel="stylesheet" href="../../css/documents/documents.css?v=20261012-documents">
+  <link rel="stylesheet" href="../../css/documents/documents-upload.css?v=20261020-category-dropdown">
   <script src="../../js/i18n.js?v=20261019-i18n" defer></script>
   <script src="../../js/api-client.js?v=20261019-i18n" defer></script>
   <script src="../../js/auth-session.js?v=20261019-light" defer></script>
   <script src="../../js/main-menu.js?v=20261019-light" defer></script>
   <script src="../../js/universal-search.js?v=20261019-role-shortcuts" defer></script>
   <script src="../../js/documents/document-api.js?v=20261019-i18n" defer></script>
-  <script src="../../js/documents/document-form.js?v=20261019-i18n" defer></script>
+  <script src="../../js/documents/document-form.js?v=20261020-category-dropdown" defer></script>
   <link rel="stylesheet" href="../../css/theme.css?v=20261019-button-image">
 </head>
 
@@ -146,13 +147,20 @@
                   </div>
 
                   <div class="document-field">
-                    <label for="categoria" data-i18n="survey.categoria">Categoría</label>
-                    <select id="categoria" name="categoria" required>
-                      <option value="" data-i18n="documents_upload.selecciona_una_opcion">Seleccioná una opción...</option>
-                      <option value="informe" data-i18n="catalog.document_categories.medical_report">Informe Médico</option>
-                      <option value="estudio" data-i18n="catalog.document_categories.laboratory_study">Estudio de Laboratorio</option>
-                      <option value="administrativo" data-i18n="catalog.document_categories.administrative">Documento Administrativo</option>
-                    </select>
+                    <label id="category-field-label" for="category-button" data-i18n="survey.categoria">Categoría</label>
+                    <div class="document-filter document-category">
+                      <select id="categoria" name="categoria" required hidden>
+                        <option value="" data-i18n="documents_edit.selecciona_una_categoria">Seleccioná una categoría</option>
+                        <option value="informe" data-i18n="catalog.document_categories.medical_report">Informe Médico</option>
+                        <option value="estudio" data-i18n="catalog.document_categories.laboratory_study">Estudio de Laboratorio</option>
+                        <option value="administrativo" data-i18n="catalog.document_categories.administrative">Documento Administrativo</option>
+                      </select>
+                      <button type="button" id="category-button" class="filter-trigger" aria-expanded="false" aria-controls="category-menu" aria-labelledby="category-field-label category-label" disabled>
+                        <span id="category-label" data-i18n="documents_edit.selecciona_una_categoria">Seleccioná una categoría</span>
+                        <span class="filter-chevron" aria-hidden="true"></span>
+                      </button>
+                      <div id="category-menu" class="filter-menu" role="group" aria-labelledby="category-field-label" hidden></div>
+                    </div>
                   </div>
                 </div>
 

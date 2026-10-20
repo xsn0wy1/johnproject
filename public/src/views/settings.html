@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark" data-theme-styles="main-menu settings">
+<html lang="es" data-theme="dark" data-theme-styles="main-menu documents settings">
 
 <head>
   <script src="../js/theme.js?v=20261019-light"></script>
@@ -14,12 +14,13 @@
         rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="../../assets/hospital-dark.ico">
     <link rel="stylesheet" href="../css/main-menu.css?v=20261012-settings">
-    <link rel="stylesheet" href="../css/settings.css?v=20261012-settings">
+    <link rel="stylesheet" href="../css/documents/documents.css?v=20261012-documents">
+    <link rel="stylesheet" href="../css/settings.css?v=20261020-center-dropdown">
   <script src="../js/i18n.js?v=20261019-i18n" defer></script>
   <script src="../js/api-client.js?v=20261019-i18n" defer></script>
   <script src="../js/auth-session.js?v=20261019-light" defer></script>
   <script src="../js/main-menu.js?v=20261019-light" defer></script>
-  <script src="../js/settings.js?v=20261019-light" defer></script>
+  <script src="../js/settings.js?v=20261020-center-dropdown" defer></script>
   <link rel="stylesheet" href="../css/theme.css?v=20261019-button-image">
 </head>
 
@@ -119,8 +120,15 @@
                             </div>
 
                             <div class="settings-field">
-                                <label for="settings-center" data-i18n="settings.centro">Centro</label>
-                                <select id="settings-center"><option value=""></option></select>
+                                <label id="settings-center-field-label" for="settings-center-button" data-i18n="settings.centro">Centro</label>
+                                <div class="document-filter settings-center-dropdown">
+                                    <select id="settings-center" hidden><option value=""></option></select>
+                                    <button type="button" id="settings-center-button" class="filter-trigger" aria-expanded="false" aria-controls="settings-center-menu" aria-labelledby="settings-center-field-label settings-center-label" disabled>
+                                        <span id="settings-center-label" data-i18n="settings.selecciona_un_centro">Seleccioná un centro</span>
+                                        <span class="filter-chevron" aria-hidden="true"></span>
+                                    </button>
+                                    <div id="settings-center-menu" class="filter-menu" role="group" aria-labelledby="settings-center-field-label" hidden></div>
+                                </div>
                             </div>
 
                             <div class="specialties-group">

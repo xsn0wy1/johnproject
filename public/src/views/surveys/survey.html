@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark" data-theme-styles="main-menu survey survey-integration">
+<html lang="es" data-theme="dark" data-theme-styles="main-menu survey survey-integration documents">
 <head>
   <script src="../../js/theme.js?v=20261019-light"></script>
   <meta charset="UTF-8">
@@ -7,7 +7,8 @@
   <title data-i18n="survey.encuestas_hospital_de_clinicas">Encuestas | Hospital de Clínicas</title>
   <link rel="icon" type="image/x-icon" href="../../../assets/hospital-dark.ico">
   <link rel="stylesheet" href="../../css/main-menu.css?v=20261012-settings">
-  <link rel="stylesheet" href="../../css/surveys/survey.css?v=20261019-i18n">
+  <link rel="stylesheet" href="../../css/documents/documents.css?v=20261012-documents">
+  <link rel="stylesheet" href="../../css/surveys/survey.css?v=20261020-dropdown">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inclusive+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
@@ -20,7 +21,7 @@
   <script src="../../js/surveys/survey-api.js?v=20261019-i18n" defer></script>
   <link rel="stylesheet" href="../../css/surveys/survey-integration.css?v=20261015-backend">
   <script src="../../js/surveys/survey-templates.js?v=20261019-i18n" defer></script>
-  <script src="../../js/surveys/survey.js?v=20261019-i18n" defer></script>
+  <script src="../../js/surveys/survey.js?v=20261020-dropdown" defer></script>
   <link rel="stylesheet" href="../../css/theme.css?v=20261019-button-image">
 </head>
 <body class="surveys-page">
@@ -64,9 +65,24 @@
 
         <div class="survey-toolbar" role="search" aria-label="Buscar y filtrar encuestas" data-i18n-aria-label="survey.buscar_y_filtrar_encuestas">
           <label class="survey-search"><img src="../../../assets/Icons/search-icon.svg" alt=""><input id="survey-search" type="search" placeholder="Buscar encuesta..." data-i18n-placeholder="survey.buscar_encuesta" autocomplete="off" aria-label="Buscar encuesta" data-i18n-aria-label="survey.buscar_encuesta_2"></label>
-          <label class="survey-select"><span class="visually-hidden" data-i18n="trace_view.estado">Estado</span><select id="survey-status"><option value="all" data-i18n="survey.todos_los_estados">Todos los estados</option><option value="published" data-i18n="routes.activas">Activas</option><option value="draft" data-i18n="survey.borradores">Borradores</option><option value="closed" data-i18n="survey.finalizadas">Finalizadas</option><option value="archived" data-i18n="survey.archivadas">Archivadas</option></select></label>
-          <label class="survey-select"><span class="visually-hidden" data-i18n="survey.categoria">Categoría</span><select id="survey-category"><option value="all" data-i18n="survey.todas_las_categorias">Todas las categorías</option><option value="patient_care" data-i18n="survey.atencion_al_paciente">Atención al paciente</option><option value="transfers" data-i18n="survey.traslados">Traslados</option><option value="emergency" data-i18n="survey.emergencias">Emergencias</option><option value="staff" data-i18n="trace_view.personal">Personal</option><option value="other" data-i18n="survey.otras">Otras</option></select></label>
-          <label class="survey-select sort-select"><span class="visually-hidden" data-i18n="survey.ordenar_encuestas">Ordenar encuestas</span><select id="survey-sort"><option value="recent" data-i18n="trace.mas_recientes">Más recientes</option><option value="oldest" data-i18n="survey.mas_antiguas">Más antiguas</option><option value="name" data-i18n="survey.nombre_a_z">Nombre A–Z</option><option value="responses" data-i18n="survey.mas_respuestas">Más respuestas</option></select></label>
+          <div class="document-filter survey-select">
+            <span class="visually-hidden" id="survey-status-caption" data-i18n="trace_view.estado">Estado</span>
+            <select id="survey-status" hidden aria-hidden="true" tabindex="-1"><option value="all" data-i18n="survey.todos_los_estados">Todos los estados</option><option value="published" data-i18n="routes.activas">Activas</option><option value="draft" data-i18n="survey.borradores">Borradores</option><option value="closed" data-i18n="survey.finalizadas">Finalizadas</option><option value="archived" data-i18n="survey.archivadas">Archivadas</option></select>
+            <button type="button" class="filter-trigger" id="survey-status-button" aria-expanded="false" aria-controls="survey-status-menu" aria-labelledby="survey-status-caption survey-status-label"><span id="survey-status-label" data-i18n="survey.todos_los_estados">Todos los estados</span><span class="filter-chevron" aria-hidden="true"></span></button>
+            <div class="filter-menu" id="survey-status-menu" role="group" aria-labelledby="survey-status-caption" hidden></div>
+          </div>
+          <div class="document-filter survey-select">
+            <span class="visually-hidden" id="survey-category-caption" data-i18n="survey.categoria">Categoría</span>
+            <select id="survey-category" hidden aria-hidden="true" tabindex="-1"><option value="all" data-i18n="survey.todas_las_categorias">Todas las categorías</option><option value="patient_care" data-i18n="survey.atencion_al_paciente">Atención al paciente</option><option value="transfers" data-i18n="survey.traslados">Traslados</option><option value="emergency" data-i18n="survey.emergencias">Emergencias</option><option value="staff" data-i18n="trace_view.personal">Personal</option><option value="other" data-i18n="survey.otras">Otras</option></select>
+            <button type="button" class="filter-trigger" id="survey-category-button" aria-expanded="false" aria-controls="survey-category-menu" aria-labelledby="survey-category-caption survey-category-label"><span id="survey-category-label" data-i18n="survey.todas_las_categorias">Todas las categorías</span><span class="filter-chevron" aria-hidden="true"></span></button>
+            <div class="filter-menu" id="survey-category-menu" role="group" aria-labelledby="survey-category-caption" hidden></div>
+          </div>
+          <div class="document-filter survey-select sort-select">
+            <span class="visually-hidden" id="survey-sort-caption" data-i18n="survey.ordenar_encuestas">Ordenar encuestas</span>
+            <select id="survey-sort" hidden aria-hidden="true" tabindex="-1"><option value="recent" data-i18n="trace.mas_recientes">Más recientes</option><option value="oldest" data-i18n="survey.mas_antiguas">Más antiguas</option><option value="name" data-i18n="survey.nombre_a_z">Nombre A–Z</option><option value="responses" data-i18n="survey.mas_respuestas">Más respuestas</option></select>
+            <button type="button" class="filter-trigger" id="survey-sort-button" aria-expanded="false" aria-controls="survey-sort-menu" aria-labelledby="survey-sort-caption survey-sort-label"><span id="survey-sort-label" data-i18n="trace.mas_recientes">Más recientes</span><span class="filter-chevron" aria-hidden="true"></span></button>
+            <div class="filter-menu" id="survey-sort-menu" role="group" aria-labelledby="survey-sort-caption" hidden></div>
+          </div>
           <div class="view-switch" role="group" aria-label="Vista de encuestas" data-i18n-aria-label="survey.vista_de_encuestas"><button type="button" class="is-active" data-view="list" aria-label="Vista de lista" data-i18n-aria-label="survey.vista_de_lista" aria-pressed="true"><img src="../../../assets/Icons/list-icon.svg" alt=""></button><button type="button" data-view="grid" aria-label="Vista de tarjetas" data-i18n-aria-label="survey.vista_de_tarjetas" aria-pressed="false"><img src="../../../assets/Icons/grid-icon.svg" alt=""></button></div>
         </div>
 

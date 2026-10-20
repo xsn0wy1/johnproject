@@ -1,4 +1,4 @@
--- Hospital user system, schema versions 001–013. MySQL 5.7+/MariaDB 10.4 compatible.
+-- Hospital user system, schema versions 001–014. MySQL 5.7+/MariaDB 10.4 compatible.
 -- Fresh installation: import this file with an administrative SQL account.
 -- Run the PHP setup/migration commands for upgrades. Future changes belong in numbered db/sql/migrations files.
 CREATE DATABASE IF NOT EXISTS hospital CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -686,3 +686,13 @@ CREATE TABLE IF NOT EXISTS document_access_links (
     CONSTRAINT fk_document_access_version FOREIGN KEY (document_version_id) REFERENCES document_versions(id) ON DELETE RESTRICT,
     CONSTRAINT fk_document_access_creator FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
+
+-- The two institution choices in Settings use ordinary shared facility IDs.
+-- Reuse existing names without renaming, duplicating or restoring managed records.
+INSERT INTO facilities (name, facility_type)
+SELECT 'Hospital de Clinicas de Montevideo', 'hospital'
+WHERE NOT EXISTS (SELECT 1 FROM facilities WHERE name = 'Hospital de Clinicas de Montevideo');
+
+INSERT INTO facilities (name, facility_type)
+SELECT 'Facultad de Medicina', 'other'
+WHERE NOT EXISTS (SELECT 1 FROM facilities WHERE name = 'Facultad de Medicina');

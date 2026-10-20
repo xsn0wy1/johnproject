@@ -15,6 +15,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const patientInput = document.getElementById("paciente");
   const patientOptions = document.getElementById("patient-options");
   const categoryInput = document.getElementById("categoria");
+  const categoryButton = document.getElementById("category-button");
+  const categoryMenu = document.getElementById("category-menu");
+  const categoryRoot = categoryButton.parentElement;
+  const panel = document.querySelector(".document-form-panel");
   const editing = form.dataset.mode === "update";
   const id = new URLSearchParams(location.search).get("id");
   let current = null, createToken = null, categories = [], patient = null, options = [], busy = true;
@@ -24,6 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const patientLabel = item => `${item.full_name} · ${item.national_id}`;
   const setBusy = value => {
     busy = value;
+    if (value) closeCategory();
     form.querySelectorAll('input,select,textarea,button').forEach(control => { control.disabled = value; });
     form.setAttribute("aria-busy", String(value));
   };
@@ -44,6 +49,52 @@ document.addEventListener("DOMContentLoaded", async () => {
   function patientRequirement() {
     patientInput.required = Boolean(categories.find(item => item.id === categoryInput.value)?.requires_patient);
   }
+  const categoryLabel = value => value ? window.HospitalI18n.category(categories.find(item => item.id === value)) : window.HospitalI18n.t("documents_edit.selecciona_una_categoria");
+  function syncCategory() {
+    window.HospitalI18n.bindText(document.getElementById("category-label"), () => categoryLabel(categoryInput.value));
+    categoryMenu.querySelectorAll("button").forEach(choice => choice.setAttribute("aria-pressed", String(choice.dataset.value === categoryInput.value)));
+  }
+  function closeCategory() {
+    categoryMenu.hidden = true;
+    categoryButton.setAttribute("aria-expanded", "false");
+  }
+  function openCategory() {
+    if (busy) return;
+    // Respect the existing scroll panel and open upward when it has more room.
+    const trigger = categoryButton.getBoundingClientRect(), bounds = panel.getBoundingClientRect();
+    const clipped = getComputedStyle(panel).overflowY !== "visible";
+    const below = Math.min(innerHeight - 12, clipped ? bounds.bottom - 12 : innerHeight - 12) - trigger.bottom - 7;
+    const above = trigger.top - Math.max(12, clipped ? bounds.top + 12 : 12) - 7;
+    const upwards = below < 200 && above > below;
+    categoryRoot.classList.toggle("opens-up", upwards);
+    categoryRoot.style.setProperty("--category-menu-height", `${Math.max(0, upwards ? above : below)}px`);
+    categoryMenu.hidden = false;
+    categoryButton.setAttribute("aria-expanded", "true");
+  }
+  categoryButton.addEventListener("click", () => { if (categoryMenu.hidden) openCategory(); else closeCategory(); });
+  categoryButton.addEventListener("keydown", event => {
+    if (["ArrowDown", "ArrowUp"].includes(event.key)) {
+      event.preventDefault(); openCategory();
+      (event.key === "ArrowUp" ? categoryMenu.lastElementChild : categoryMenu.querySelector('[aria-pressed="true"]'))?.focus();
+    } else if (event.key === "Escape") { event.preventDefault(); closeCategory(); }
+  });
+  categoryMenu.addEventListener("click", event => {
+    const choice = event.target.closest("button"); if (!choice || busy) return;
+    const changed = categoryInput.value !== choice.dataset.value;
+    categoryInput.value = choice.dataset.value;
+    if (changed) categoryInput.dispatchEvent(new Event("change", { bubbles: true }));
+    closeCategory(); categoryButton.focus();
+  });
+  categoryMenu.addEventListener("keydown", event => {
+    if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+      event.preventDefault(); const choices = [...categoryMenu.children], index = choices.indexOf(document.activeElement);
+      const next = event.key === "Home" ? 0 : event.key === "End" ? choices.length - 1 : (index + (event.key === "ArrowDown" ? 1 : -1) + choices.length) % choices.length;
+      choices[next]?.focus();
+    } else if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); closeCategory(); categoryButton.focus(); }
+  });
+  document.addEventListener("click", event => { if (!categoryRoot.contains(event.target)) closeCategory(); });
+  document.addEventListener("focusin", event => { if (!categoryRoot.contains(event.target)) closeCategory(); });
+  window.addEventListener("resize", closeCategory);
   function selectPatient() {
     patient = options.find(item => patientLabel(item) === patientInput.value) ||
       (current?.patient && patientLabel(current.patient) === patientInput.value ? current.patient : null);
@@ -64,7 +115,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, 220);
   });
   patientInput.addEventListener("change", selectPatient);
-  categoryInput.addEventListener("change", patientRequirement);
+  categoryInput.addEventListener("change", () => { patientRequirement(); syncCategory(); });
   fileInput.addEventListener("change", showFile);
   document.getElementById("clearFile").addEventListener("click", clearFile);
   ["dragenter", "dragover", "dragleave", "drop"].forEach(name => uploadArea.addEventListener(name, event => {
@@ -101,6 +152,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!await window.HospitalAuth.ready) return;
       categories = await api.categories();
       categoryInput.replaceChildren(window.HospitalI18n.option(() => window.HospitalI18n.t("documents_edit.selecciona_una_categoria"), ""), ...categories.map(item => window.HospitalI18n.option(() => window.HospitalI18n.category(item), item.id)));
+      categoryMenu.replaceChildren(...[...categoryInput.options].map(option => {
+        const choice = document.createElement("button"); choice.type = "button"; choice.dataset.value = option.value;
+        window.HospitalI18n.bindText(choice, () => categoryLabel(option.value)); return choice;
+      }));
       if (editing) {
         if (!/^[1-9][0-9]*$/.test(id || "")) throw new Error(window.HospitalI18n.t("documents_viewer.selecciona_un_documento_desde_la_lista"));
         current = await api.get(id);
@@ -116,7 +171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         createToken = (await api.createToken()).create_token;
         form.elements.fecha.value = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Montevideo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
       }
-      patientRequirement(); setBusy(false);
+      patientRequirement(); syncCategory(); setBusy(false);
     } catch (error) { report(error); if (currentFile) currentFile.hidden = true; }
   }
   init();

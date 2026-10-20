@@ -280,6 +280,47 @@ body {
   color: #eeeeee;
 }
 
+/* Reuse the Documents dropdown while retaining the original form-field size. */
+.document-category .filter-trigger {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  min-height: 0;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+#category-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.document-category .filter-trigger:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.document-category .filter-trigger:disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.document-category .filter-menu {
+  width: 100%;
+  max-height: min(260px, var(--category-menu-height, 40dvh));
+  overflow-y: auto;
+}
+
+.document-category .filter-menu button {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.document-category.opens-up .filter-menu {
+  top: auto;
+  bottom: calc(100% + 7px);
+}
+
 .file-section {
   display: flex;
   flex-direction: column;
@@ -557,7 +598,8 @@ body {
   }
 
   .document-field input,
-  .document-field select {
+  .document-field select,
+  .document-category .filter-trigger {
     height: 40px;
   }
 
