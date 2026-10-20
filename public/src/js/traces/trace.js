@@ -71,6 +71,67 @@ document.addEventListener('DOMContentLoaded',async ()=>{
     const refresh=setInterval(()=>{if(!document.hidden&&!isList()&&!loading)load(false,true);},15000);window.addEventListener('pagehide',()=>clearInterval(refresh));
   }
   const form=$('newTransferForm');if(!form)return;
+  const dropdowns=[...form.querySelectorAll('select')].map(control=>{
+    const root=document.createElement('div');root.className='document-filter trace-select';
+    control.before(root);root.append(control);control.hidden=true;
+    const button=document.createElement('button');button.type='button';button.id=control.id+'-button';button.className='filter-trigger trace-select-trigger';
+    const label=document.createElement('span');label.id=control.id+'-label';label.className='trace-select-label';
+    const arrow=document.createElement('span');arrow.className='trace-select-chevron';arrow.setAttribute('aria-hidden','true');
+    const menu=document.createElement('div');menu.id=control.id+'-menu';menu.className='filter-menu';menu.hidden=true;menu.setAttribute('role','group');
+    const fieldLabel=control.labels[0];fieldLabel.id ||= control.id+'-field-label';fieldLabel.htmlFor=button.id;
+    button.setAttribute('aria-labelledby',fieldLabel.id+' '+label.id);button.setAttribute('aria-controls',menu.id);button.setAttribute('aria-expanded','false');menu.setAttribute('aria-labelledby',fieldLabel.id);
+    button.append(label,arrow);root.append(button,menu);
+    const dropdown={control,root,button,label,menu,source:[],choices:[]};
+    button.addEventListener('click',()=>{if(menu.hidden)openDropdown(dropdown);else closeDropdown(dropdown);});
+    button.addEventListener('keydown',event=>{
+      if(['ArrowDown','ArrowUp'].includes(event.key)){
+        event.preventDefault();if(!openDropdown(dropdown))return;
+        const available=dropdown.choices.filter(choice=>!choice.disabled);
+        (available.find(choice=>choice.dataset.value===control.value)||(event.key==='ArrowUp'?available.at(-1):available[0]))?.focus();
+      }else if(event.key==='Escape'){event.preventDefault();closeDropdown(dropdown);}
+    });
+    menu.addEventListener('click',event=>{
+      const choice=event.target.closest('button');if(!choice||choice.disabled||control.disabled)return;
+      const changed=control.value!==choice.dataset.value;control.value=choice.dataset.value;
+      closeDropdown(dropdown);if(changed)control.dispatchEvent(new Event('change',{bubbles:true}));syncDropdowns();button.focus();
+    });
+    menu.addEventListener('keydown',event=>{
+      const choices=dropdown.choices.filter(choice=>!choice.disabled);
+      if(['ArrowDown','ArrowUp','Home','End'].includes(event.key)){
+        event.preventDefault();const index=choices.indexOf(document.activeElement);
+        const next=event.key==='Home'?0:event.key==='End'?choices.length-1:(index+(event.key==='ArrowDown'?1:-1)+choices.length)%choices.length;choices[next]?.focus();
+      }else if(event.key==='Escape'){event.preventDefault();event.stopPropagation();closeDropdown(dropdown);button.focus();}
+    });
+    control.addEventListener('change',syncDropdowns);return dropdown;
+  });
+  function closeDropdown(dropdown){dropdown.menu.hidden=true;dropdown.button.setAttribute('aria-expanded','false');}
+  function closeDropdowns(){dropdowns.forEach(closeDropdown);}
+  function openDropdown(dropdown){
+    if(dropdown.control.disabled)return false;closeDropdowns();
+    dropdown.menu.hidden=false;
+    const rect=dropdown.root.getBoundingClientRect(),below=innerHeight-rect.bottom-19,above=rect.top-19,upwards=below<Math.min(260,dropdown.menu.scrollHeight)&&above>below;
+    dropdown.menu.style.left=`${Math.max(12-rect.left,Math.min(0,innerWidth-12-rect.left-dropdown.menu.offsetWidth))}px`;
+    dropdown.root.classList.toggle('opens-up',upwards);dropdown.root.style.setProperty('--trace-menu-height',`${Math.max(0,upwards?above:below)}px`);
+    dropdown.button.setAttribute('aria-expanded','true');return true;
+  }
+  function syncDropdowns(){
+    dropdowns.forEach(dropdown=>{
+      const {control,button,label,menu}=dropdown,source=[...control.options];
+      if(source.length!==dropdown.source.length||source.some((option,index)=>option!==dropdown.source[index])){
+        dropdown.source=source;dropdown.choices=source.map(option=>{
+          const choice=document.createElement('button');choice.type='button';choice.dataset.value=option.value;
+          window.HospitalI18n.bindText(choice,()=>option.textContent);return choice;
+        });menu.replaceChildren(...dropdown.choices);
+      }
+      window.HospitalI18n.bindText(label,()=>control.selectedOptions[0]?.textContent||'');button.disabled=control.disabled;
+      dropdown.choices.forEach((choice,index)=>{choice.disabled=control.disabled||source[index].disabled;choice.setAttribute('aria-pressed',String(choice.dataset.value===control.value));});
+      if(control.disabled)closeDropdown(dropdown);
+    });
+  }
+  document.addEventListener('click',event=>dropdowns.forEach(dropdown=>{if(!dropdown.root.contains(event.target))closeDropdown(dropdown);}));
+  document.addEventListener('focusin',event=>dropdowns.forEach(dropdown=>{if(!dropdown.root.contains(event.target))closeDropdown(dropdown);}));
+  window.addEventListener('resize',closeDropdowns);
+  window.addEventListener('hospital:localechange',()=>queueMicrotask(syncDropdowns));
   let catalog,patient=null,patientChoices=[],patientRevision=0,patientTimer,draftVersion=0,token,busy=true;
   const crewLabel=item=>`${item.full_name} · #${item.id}`,facilityLabel=api.facilityLabel,patientLabel=item=>`${item.full_name} · ${item.national_id}`;
   function applyRoute(fill=true){
@@ -84,9 +145,9 @@ document.addEventListener('DOMContentLoaded',async ()=>{
   $('routeTemplate').addEventListener('change',()=>applyRoute());
   const findCrew=(value,duty)=>catalog.crew.find(item=>crewLabel(item)===value&&(duty==='driver'?item.role_code==='driver':['copilot','doctor'].includes(item.role_code)));
   const validation=text=>api.report(new window.HospitalApi.ApiError(text,422,'VALIDATION_FAILED'));
-  function setBusy(value){busy=value;form.querySelectorAll('input,select,textarea,button').forEach(control=>{control.disabled=value;});$('patientSex').disabled=true;form.setAttribute('aria-busy',String(value));}
-  function showPatient(item){patient=item;$('patientCedula').value=item?.national_id??'';$('patientAge').value=item?.age??'';window.HospitalI18n.bindAttr($('patientAge'), "title", () => item?.age_is_estimate?window.HospitalI18n.t("trace.edad_estimada_registrada_el_value", {value0: item.age_recorded_on}):'');$('patientSex').value=({female:'femenino',male:'masculino',other:'otro',unspecified:'no-indica'})[item?.sex]??'';}
-  function patientRequirement(){const needed=$('transferType').value==='patient';$('patientName').required=needed;for(const name of ['patientName','patientCedula','patientAge','patientSex'])$(name).disabled=!needed||busy||name==='patientSex';if(!needed){$('patientName').value='';showPatient(null);form.elements.withFamily.checked=false;form.elements.criticalPatient.checked=false;}}
+  function setBusy(value){busy=value;if(value)closeDropdowns();form.querySelectorAll('input,select,textarea,button').forEach(control=>{control.disabled=value;});$('patientSex').disabled=true;form.setAttribute('aria-busy',String(value));syncDropdowns();}
+  function showPatient(item){patient=item;$('patientCedula').value=item?.national_id??'';$('patientAge').value=item?.age??'';window.HospitalI18n.bindAttr($('patientAge'), "title", () => item?.age_is_estimate?window.HospitalI18n.t("trace.edad_estimada_registrada_el_value", {value0: item.age_recorded_on}):'');$('patientSex').value=({female:'femenino',male:'masculino',other:'otro',unspecified:'no-indica'})[item?.sex]??'';syncDropdowns();}
+  function patientRequirement(){const needed=$('transferType').value==='patient';$('patientName').required=needed;for(const name of ['patientName','patientCedula','patientAge','patientSex'])$(name).disabled=!needed||busy||name==='patientSex';if(!needed){$('patientName').value='';showPatient(null);form.elements.withFamily.checked=false;form.elements.criticalPatient.checked=false;}syncDropdowns();}
   $('transferType').addEventListener('change',patientRequirement);
   $('patientName').addEventListener('input',()=>{
     clearTimeout(patientTimer);const r=++patientRevision;showPatient(patientChoices.find(item=>patientLabel(item)===$('patientName').value)??null);
