@@ -6,7 +6,7 @@ html[data-theme="light"] {
   --light-muted: #5e6a82;
   --light-accent: #586ca7;
   --light-icon-filter: brightness(0) saturate(100%) invert(16%) sepia(19%) saturate(1095%) hue-rotate(184deg) brightness(93%) contrast(90%);
-  --light-button-image: linear-gradient(rgba(255,255,255,.64), rgba(255,255,255,.64)), url("../../assets/special-bg-light.jpg");
+  --light-button-image: url("../../assets/special-bg-light.jpg?v=20261019-button-image");
   color-scheme: light;
   color: var(--light-text);
 }
