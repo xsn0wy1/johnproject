@@ -5,6 +5,9 @@ html[data-theme="light"] {
   --light-text: #20283d;
   --light-muted: #5e6a82;
   --light-accent: #586ca7;
+  --light-link-highlight: #315ac4;
+  --light-button-text: #ffffff;
+  --light-button-text-shadow: 0 1px 2px rgba(13, 27, 65, 0.5);
   --light-icon-filter: brightness(0) saturate(100%) invert(16%) sepia(19%) saturate(1095%) hue-rotate(184deg) brightness(93%) contrast(90%);
   --light-button-image: url("../../assets/special-bg-light.jpg?v=20261019-button-image");
   color-scheme: light;
@@ -96,7 +99,7 @@ html[data-theme="light"][data-theme-styles~="log-reg"] .tarjeta input::placehold
 html[data-theme="light"][data-theme-styles~="log-reg"] .tarjeta button { background: rgba(225, 233, 250, 0.45); color: var(--light-text); border: 1px solid rgba(88, 108, 151, 0.16); }
 html[data-theme="light"][data-theme-styles~="log-reg"] .tarjeta button:enabled:hover { background-color: #e1e9fa; }
 html[data-theme="light"][data-theme-styles~="log-reg"] .tarjeta a { color: var(--light-text); }
-html[data-theme="light"][data-theme-styles~="log-reg"] .tarjeta a:hover { color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="log-reg"] .tarjeta a:hover { color: var(--light-link-highlight); }
 html[data-theme="light"][data-theme-styles~="log-reg"] .tarjeta p { color: var(--light-muted); }
 html[data-theme="light"][data-theme-styles~="log-reg"] .tarjeta .password-wrapper button.btn-toggle-eye { filter: var(--light-icon-filter); }
 html[data-theme="light"][data-theme-styles~="log-reg"] .strength-meter { background-color: rgba(89, 110, 167, 0.15); }
@@ -113,7 +116,7 @@ html[data-theme="light"][data-theme-styles~="pass-restore"] .campo input::placeh
 html[data-theme="light"][data-theme-styles~="pass-restore"] .tarjeta button { background-color: #e1e9fa; border: 1px solid rgba(88, 108, 151, 0.16); color: var(--light-text); }
 html[data-theme="light"][data-theme-styles~="pass-restore"] .tarjeta button:enabled:hover { background-color: #e1e9fa; }
 html[data-theme="light"][data-theme-styles~="pass-restore"] .volver { color: var(--light-text); }
-html[data-theme="light"][data-theme-styles~="pass-restore"] .volver:hover { color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="pass-restore"] .volver:hover { color: var(--light-link-highlight); }
 
 /* auth-interactions */
 html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta input:not(:where(.campo input)):enabled:hover,
@@ -123,7 +126,8 @@ html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta .campo
 html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta .campo:has(input:enabled):focus-within { border-color: rgba(88, 108, 151, 0.48); background-color: rgba(89, 110, 167, 0.2256); }
 html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta .campo:has(input:enabled):focus-within { box-shadow: 0 0 0 4px rgba(44, 61, 104, 0.02); }
 html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta button:enabled:not(.btn-toggle-eye):hover { border-color: rgba(88, 108, 151, 0.465); box-shadow: 0 16px 30px rgba(44, 61, 104, 0.085); }
-html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta a:hover { color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta a:hover,
+html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta a:focus-visible { color: var(--light-link-highlight); }
 html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta button:focus-visible,
 html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta a:focus-visible { outline: 2px solid rgba(88, 108, 151, 0.65); }
 html[data-theme="light"][data-theme-styles~="auth-interactions"] .tarjeta .btn-toggle-eye img { filter: var(--light-icon-filter); }
@@ -191,7 +195,7 @@ html[data-theme="light"][data-theme-styles~="settings"] .theme-option { color: v
 html[data-theme="light"][data-theme-styles~="settings"] .theme-option:hover { color: var(--light-text); }
 html[data-theme="light"][data-theme-styles~="settings"] .theme-option img { filter: var(--light-icon-filter); }
 html[data-theme="light"][data-theme-styles~="settings"] .theme-option.active { color: var(--light-text); }
-html[data-theme="light"][data-theme-styles~="settings"] .reset-password { border: 1px solid rgba(88, 108, 151, 0.3); color: var(--light-text); background-color: #e1e9fa; background-image: var(--light-button-image); box-shadow: 0 12px 24px rgba(44, 61, 104, 0.06); }
+html[data-theme="light"][data-theme-styles~="settings"] .reset-password { border: 1px solid rgba(88, 108, 151, 0.3); color: var(--light-button-text); background-color: #e1e9fa; background-image: var(--light-button-image); box-shadow: 0 12px 24px rgba(44, 61, 104, 0.06); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="settings"] .reset-password:hover { border-color: rgba(88, 108, 151, 0.465); box-shadow: 0 16px 30px rgba(44, 61, 104, 0.085); }
 html[data-theme="light"][data-theme-styles~="settings"] .settings-dialog { border: 1px solid rgba(88, 108, 151, 0.3); background: var(--light-canvas); color: var(--light-text); }
 html[data-theme="light"][data-theme-styles~="settings"] .settings-dialog::backdrop { background: rgba(245, 248, 255, 0.55); }
@@ -328,7 +332,7 @@ html[data-theme="light"][data-theme-styles~="documents-upload"] .form-message.er
 html[data-theme="light"][data-theme-styles~="documents-upload"] .form-actions { border: 1px solid rgba(88, 108, 151, 0.18); }
 html[data-theme="light"][data-theme-styles~="documents-upload"] .form-actions .cancel-button { border-right: 1px solid rgba(88, 108, 151, 0.18); color: var(--light-muted); }
 html[data-theme="light"][data-theme-styles~="documents-upload"] .form-actions .cancel-button:hover { background: rgba(89, 110, 167, 0.06); color: #a33450; }
-html[data-theme="light"][data-theme-styles~="documents-upload"] .form-actions .save-button { background-color: #e1e9fa; background-image: var(--light-button-image); color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="documents-upload"] .form-actions .save-button { background-color: #e1e9fa; background-image: var(--light-button-image); color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 @media (max-width: 600px) {
 html[data-theme="light"][data-theme-styles~="documents-upload"] .form-actions .cancel-button { border-bottom: 1px solid rgba(88, 108, 151, 0.18); }
 }
@@ -345,8 +349,8 @@ html[data-theme="light"][data-theme-styles~="documents-viewer"] .back-link { col
 html[data-theme="light"][data-theme-styles~="documents-viewer"] .back-link:hover { color: var(--light-accent); }
 html[data-theme="light"][data-theme-styles~="documents-viewer"] .action-button { border: 1px solid rgba(88, 108, 151, 0.65); background: var(--light-canvas); color: var(--light-text); }
 html[data-theme="light"][data-theme-styles~="documents-viewer"] .action-button:hover { background: #f5f8ff; border-color: rgba(88, 108, 151, 0.65); }
-html[data-theme="light"][data-theme-styles~="documents-viewer"] .download-button { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-text); box-shadow: 0 5px 16px rgba(44, 61, 104, 0.0425); }
-html[data-theme="light"][data-theme-styles~="documents-viewer"] .download-button:hover { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; }
+html[data-theme="light"][data-theme-styles~="documents-viewer"] .download-button { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-button-text); box-shadow: 0 5px 16px rgba(44, 61, 104, 0.0425); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
+html[data-theme="light"][data-theme-styles~="documents-viewer"] .download-button:hover { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="documents-viewer"] .more-menu { border: 1px solid rgba(88, 108, 151, 0.65); background: #f5f8ff; box-shadow: 0 12px 28px rgba(44, 61, 104, 0.08); }
 html[data-theme="light"][data-theme-styles~="documents-viewer"] .more-menu button:hover { background: #f5f8ff; }
 html[data-theme="light"][data-theme-styles~="documents-viewer"] .viewer-container { border: 1px solid rgba(88, 108, 151, 0.65); }
@@ -401,13 +405,13 @@ html[data-theme="light"][data-theme-styles~="routes"] .route-dialog img { filter
 html[data-theme="light"][data-theme-styles~="routes"] .routes-back { background: rgba(245, 248, 255, 0.48); }
 html[data-theme="light"][data-theme-styles~="routes"] .primary-button { color: var(--light-text); background: rgba(245, 248, 255, 0.48); }
 html[data-theme="light"][data-theme-styles~="routes"] .secondary-button { color: var(--light-muted); background: rgba(245, 248, 255, 0.47); }
-html[data-theme="light"][data-theme-styles~="routes"] .save-button { border: 1px solid rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="routes"] .save-button { border: 1px solid rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="routes"] .danger-button { border: 1px solid rgba(163, 52, 80, 0.18); background: rgba(246, 231, 236, 0.06); }
 html[data-theme="light"][data-theme-styles~="routes"] .routes-content .danger-button img { filter: var(--light-icon-filter); }
 html[data-theme="light"][data-theme-styles~="routes"] .routes-content input::placeholder,
 html[data-theme="light"][data-theme-styles~="routes"] .route-dialog :is(input, textarea)::placeholder { color: var(--light-muted); }
 html[data-theme="light"][data-theme-styles~="routes"] .status-filters { background: rgba(245, 248, 255, 0.45); }
-html[data-theme="light"][data-theme-styles~="routes"] .filter-button.is-active { color: var(--light-text); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; border-color: rgba(88, 108, 151, 0.65); }
+html[data-theme="light"][data-theme-styles~="routes"] .filter-button.is-active { color: var(--light-button-text); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; border-color: rgba(88, 108, 151, 0.65); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="routes"] .sort-control::after { border-right: 1.5px solid rgba(88, 108, 151, 0.65); border-bottom: 1.5px solid rgba(88, 108, 151, 0.65); }
 html[data-theme="light"][data-theme-styles~="routes"] .routes-page select option { background: var(--light-canvas); }
 html[data-theme="light"][data-theme-styles~="routes"] .route-card { background: rgba(245, 248, 255, 0.62); }
@@ -419,7 +423,7 @@ html[data-theme="light"][data-theme-styles~="routes"] .corridor-line::after { bo
 html[data-theme="light"][data-theme-styles~="routes"] .route-card-meta { border-top: 1px solid rgba(88, 108, 151, 0.16); }
 html[data-theme="light"][data-theme-styles~="routes"] .directory-footer { color: var(--light-muted); }
 html[data-theme="light"][data-theme-styles~="routes"] .pagination button { background: rgba(245, 248, 255, 0.35); color: var(--light-accent); }
-html[data-theme="light"][data-theme-styles~="routes"] .pagination button.is-active { color: var(--light-text); border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; }
+html[data-theme="light"][data-theme-styles~="routes"] .pagination button.is-active { color: var(--light-button-text); border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="routes"] .detail-panel-heading { border-bottom: 1px solid rgba(88, 108, 151, 0.16); }
 html[data-theme="light"][data-theme-styles~="routes"] .route-schematic { background: rgba(245, 248, 255, 0.62); }
 html[data-theme="light"][data-theme-styles~="routes"] .itinerary li:not(:last-child)::before { border-left: 1px dashed rgba(88, 108, 151, 0.24); }
@@ -482,7 +486,7 @@ html[data-theme="light"][data-theme-styles~="ambulances"] .ambulance-search:focu
 html[data-theme="light"][data-theme-styles~="ambulances"] .ambulance-search input::placeholder { color: var(--light-muted); }
 html[data-theme="light"][data-theme-styles~="ambulances"] .filter-button { color: var(--light-text); }
 html[data-theme="light"][data-theme-styles~="ambulances"] .filter-button:hover { background: rgba(89, 110, 167, 0.11); }
-html[data-theme="light"][data-theme-styles~="ambulances"] .filter-button.is-active { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="ambulances"] .filter-button.is-active { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="ambulances"] .ambulance-list { scrollbar-color: rgba(88, 108, 151, 0.225) transparent; }
 html[data-theme="light"][data-theme-styles~="ambulances"] .ambulance-row:hover { background: rgba(89, 110, 167, 0.035); }
 html[data-theme="light"][data-theme-styles~="ambulances"] .ambulance-row.is-selected { border-color: rgba(88, 108, 151, 0.65); background: rgba(225, 233, 250, 0.12); }
@@ -493,7 +497,7 @@ html[data-theme="light"][data-theme-styles~="ambulances"] .icon-button { backgro
 html[data-theme="light"][data-theme-styles~="ambulances"] .pagination button,
 html[data-theme="light"][data-theme-styles~="ambulances"] .pagination span { color: var(--light-text); }
 html[data-theme="light"][data-theme-styles~="ambulances"] .pagination button:not(:disabled):is(:hover, :focus-visible) { background-color: rgba(89, 110, 167, 0.16); color: var(--light-text); box-shadow: 0 4px 12px rgba(44, 61, 104, 0.045), 0 0 0 2px rgba(44, 61, 104, 0.02); }
-html[data-theme="light"][data-theme-styles~="ambulances"] .pagination button.is-active { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="ambulances"] .pagination button.is-active { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="ambulances"] .ambulance-workspace.has-selection::after { background: rgba(245, 248, 255, 0.45); }
 html[data-theme="light"][data-theme-styles~="ambulances"] .detail-panel { background: var(--light-canvas); box-shadow: -18px 0 48px rgba(44, 61, 104, 0.07); }
 html[data-theme="light"][data-theme-styles~="ambulances"] .ambulance-dialog { background: var(--light-canvas); box-shadow: 0 30px 90px rgba(44, 61, 104, 0.125); }
@@ -507,7 +511,7 @@ html[data-theme="light"][data-theme-styles~="ambulances"] .form-error { color: #
 html[data-theme="light"][data-theme-styles~="ambulances"] .cancel-button { background: rgba(245, 248, 255, 0.48); }
 html[data-theme="light"][data-theme-styles~="ambulances"] .save-button { border: 1px solid rgba(88, 108, 151, 0.65); background: #ffffff; color: var(--light-accent); }
 html[data-theme="light"][data-theme-styles~="ambulances"] .save-button:hover { background: #ffffff; }
-html[data-theme="light"][data-theme-styles~="ambulances"] .ambulance-dialog .save-button { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="ambulances"] .ambulance-dialog .save-button { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="ambulances"] .ambulance-dialog .save-button img { filter: var(--light-icon-filter); }
 html[data-theme="light"][data-theme-styles~="ambulances"] .status-pill--operational { background: rgba(228, 243, 235, 0.12); color: #246c50; }
 html[data-theme="light"][data-theme-styles~="ambulances"] .status-pill--maintenance { background: rgba(248, 242, 223, 0.12); color: #805d15; }
@@ -538,7 +542,7 @@ html[data-theme="light"][data-theme-styles~="destinations"] .destinations-back:h
 html[data-theme="light"][data-theme-styles~="destinations"] .destinations-back img { filter: var(--light-icon-filter); }
 html[data-theme="light"][data-theme-styles~="destinations"] .status-filters { background: rgba(245, 248, 255, 0.45); }
 html[data-theme="light"][data-theme-styles~="destinations"] .filter-button { color: var(--light-muted); }
-html[data-theme="light"][data-theme-styles~="destinations"] .filter-button.is-active { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); color: var(--light-text); box-shadow: 0 8px 20px rgba(44, 61, 104, 0.045); }
+html[data-theme="light"][data-theme-styles~="destinations"] .filter-button.is-active { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); color: var(--light-button-text); box-shadow: 0 8px 20px rgba(44, 61, 104, 0.045); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="destinations"] .toolbar-button:hover { color: var(--light-text); background-color: rgba(225, 233, 250, 0.28); }
 html[data-theme="light"][data-theme-styles~="destinations"] .filter-button:not(.is-active):hover { color: var(--light-text); background: rgba(89, 110, 167, 0.12); box-shadow: inset 0 0 0 1px rgba(44, 61, 104, 0.08); }
 html[data-theme="light"][data-theme-styles~="destinations"] .filter-button img,
@@ -571,7 +575,7 @@ html[data-theme="light"][data-theme-styles~="destinations"] .table-footer { colo
 html[data-theme="light"][data-theme-styles~="destinations"] .pagination button,
 html[data-theme="light"][data-theme-styles~="destinations"] .page-number { background: rgba(245, 248, 255, 0.35); color: var(--light-accent); }
 html[data-theme="light"][data-theme-styles~="destinations"] .pagination button:not(:disabled):hover { border-color: rgba(88, 108, 151, 0.375); background: rgba(225, 233, 250, 0.46); }
-html[data-theme="light"][data-theme-styles~="destinations"] .page-number { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="destinations"] .page-number { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="destinations"] .form-field label { color: var(--light-text); }
 html[data-theme="light"][data-theme-styles~="destinations"] .field-control { background: rgba(245, 248, 255, 0.43); }
 html[data-theme="light"][data-theme-styles~="destinations"] .field-control:hover { border-color: rgba(88, 108, 151, 0.323); background-color: rgba(245, 248, 255, 0.56); }
@@ -580,7 +584,7 @@ html[data-theme="light"][data-theme-styles~="destinations"] .field-control selec
 html[data-theme="light"][data-theme-styles~="destinations"] .select-control::after { border-right: 1.5px solid rgba(88, 108, 151, 0.65); border-bottom: 1.5px solid rgba(88, 108, 151, 0.65); }
 html[data-theme="light"][data-theme-styles~="destinations"] .cancel-button { background: rgba(245, 248, 255, 0.47); color: var(--light-muted); }
 html[data-theme="light"][data-theme-styles~="destinations"] .cancel-button:hover { border-color: rgba(88, 108, 151, 0.338); background: rgba(225, 233, 250, 0.45); }
-html[data-theme="light"][data-theme-styles~="destinations"] .save-button { border: 1px solid rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="destinations"] .save-button { border: 1px solid rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="destinations"] .save-button img { filter: var(--light-icon-filter); }
 html[data-theme="light"][data-theme-styles~="destinations"] .form-feedback { color: #246c50; }
 html[data-theme="light"][data-theme-styles~="destinations"] .destination-dialog { background: var(--light-canvas); box-shadow: 0 28px 90px rgba(44, 61, 104, 0.138); }
@@ -620,7 +624,7 @@ html[data-theme="light"][data-theme-styles~="doctors"] .doctor-search:focus-with
 html[data-theme="light"][data-theme-styles~="doctors"] .specialty-filter:focus-within { background: rgba(225, 233, 250, 0.08); box-shadow: 0 0 0 3px rgba(44, 61, 104, 0.025); }
 html[data-theme="light"][data-theme-styles~="doctors"] .filter-button { color: var(--light-accent); }
 html[data-theme="light"][data-theme-styles~="doctors"] .filter-button:hover { background: rgba(89, 110, 167, 0.11); color: var(--light-text); }
-html[data-theme="light"][data-theme-styles~="doctors"] .filter-button.is-active { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="doctors"] .filter-button.is-active { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="doctors"] .doctor-table tbody tr:hover td { background: rgba(245, 248, 255, 0.5); }
 html[data-theme="light"][data-theme-styles~="doctors"] .doctor-table tr.is-selected td { background: rgba(225, 233, 250, 0.12); border-color: rgba(88, 108, 151, 0.65); }
 html[data-theme="light"][data-theme-styles~="doctors"] .doctor-avatar { background: var(--light-canvas); }
@@ -633,12 +637,12 @@ html[data-theme="light"][data-theme-styles~="doctors"] .icon-button { background
 html[data-theme="light"][data-theme-styles~="doctors"] .directory-footer span { color: var(--light-text); }
 html[data-theme="light"][data-theme-styles~="doctors"] .doctor-pagination button,
 html[data-theme="light"][data-theme-styles~="doctors"] .doctor-pagination span { color: var(--light-text); }
-html[data-theme="light"][data-theme-styles~="doctors"] .doctor-pagination button.is-active { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="doctors"] .doctor-pagination button.is-active { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="doctors"] .detail-scrim { background: rgba(245, 248, 255, 0.55); }
 html[data-theme="light"][data-theme-styles~="doctors"] .doctor-detail { background: var(--light-canvas); box-shadow: -18px 0 48px rgba(44, 61, 104, 0.07); }
 html[data-theme="light"][data-theme-styles~="doctors"] .registration-label { color: var(--light-accent); }
 html[data-theme="light"][data-theme-styles~="doctors"] .detail-card p { color: var(--light-accent); }
-html[data-theme="light"][data-theme-styles~="doctors"] .primary-button { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="doctors"] .primary-button { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="doctors"] .secondary-button { background: rgba(245, 248, 255, 0.48); color: var(--light-accent); }
 html[data-theme="light"][data-theme-styles~="doctors"] .danger-button { border-color: rgba(163, 52, 80, 0.262); background: rgba(246, 231, 236, 0.08); }
 html[data-theme="light"][data-theme-styles~="doctors"] .doctor-dialog { background: var(--light-canvas); box-shadow: 0 30px 90px rgba(44, 61, 104, 0.125); }
@@ -701,7 +705,7 @@ html[data-theme="light"][data-theme-styles~="patients"] .patient-search:focus-wi
 html[data-theme="light"][data-theme-styles~="patients"] .patient-search input::placeholder { color: var(--light-muted); }
 html[data-theme="light"][data-theme-styles~="patients"] .filter-button { color: var(--light-text); }
 html[data-theme="light"][data-theme-styles~="patients"] .filter-button:hover { background: rgba(89, 110, 167, 0.11); }
-html[data-theme="light"][data-theme-styles~="patients"] .filter-button.is-active { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="patients"] .filter-button.is-active { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="patients"] .patient-list { scrollbar-color: rgba(88, 108, 151, 0.225) transparent; }
 html[data-theme="light"][data-theme-styles~="patients"] .patient-row:hover { background: rgba(89, 110, 167, 0.035); }
 html[data-theme="light"][data-theme-styles~="patients"] .patient-row.is-selected { border-color: rgba(88, 108, 151, 0.65); background: rgba(225, 233, 250, 0.12); }
@@ -715,7 +719,7 @@ html[data-theme="light"][data-theme-styles~="patients"] .icon-button { backgroun
 html[data-theme="light"][data-theme-styles~="patients"] .pagination button,
 html[data-theme="light"][data-theme-styles~="patients"] .pagination span { color: var(--light-text); }
 html[data-theme="light"][data-theme-styles~="patients"] .pagination button:not(:disabled):is(:hover, :focus-visible) { background-color: rgba(89, 110, 167, 0.16); color: var(--light-text); box-shadow: 0 4px 12px rgba(44, 61, 104, 0.045), 0 0 0 2px rgba(44, 61, 104, 0.02); }
-html[data-theme="light"][data-theme-styles~="patients"] .pagination button.is-active { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="patients"] .pagination button.is-active { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="patients"] .patient-workspace.has-selection::after { background: rgba(245, 248, 255, 0.45); }
 html[data-theme="light"][data-theme-styles~="patients"] .detail-panel { background: var(--light-canvas); box-shadow: -18px 0 48px rgba(44, 61, 104, 0.07); }
 html[data-theme="light"][data-theme-styles~="patients"] .detail-card dd.stable { color: #246c50; }
@@ -732,7 +736,7 @@ html[data-theme="light"][data-theme-styles~="patients"] .form-error { color: #a3
 html[data-theme="light"][data-theme-styles~="patients"] .cancel-button { background: rgba(245, 248, 255, 0.48); }
 html[data-theme="light"][data-theme-styles~="patients"] .save-button { border: 1px solid rgba(88, 108, 151, 0.65); background: #ffffff; color: var(--light-accent); }
 html[data-theme="light"][data-theme-styles~="patients"] .save-button:hover { background: #ffffff; }
-html[data-theme="light"][data-theme-styles~="patients"] .patient-dialog .save-button { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="patients"] .patient-dialog .save-button { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="patients"] .patient-dialog .save-button img { filter: var(--light-icon-filter); }
 html[data-theme="light"][data-theme-styles~="patients"] .delete-button { border: 1px solid rgba(163, 52, 80, 0.3); background: rgba(246, 231, 236, 0.12); color: #a33450; }
 html[data-theme="light"][data-theme-styles~="patients"] .delete-button:hover { background: rgba(246, 231, 236, 0.2); }
@@ -758,7 +762,7 @@ html[data-theme="light"][data-theme-styles~="personnel"] .personnel-back:hover {
 html[data-theme="light"][data-theme-styles~="personnel"] .personnel-back img { filter: var(--light-icon-filter); }
 html[data-theme="light"][data-theme-styles~="personnel"] .role-tabs { background: rgba(245, 248, 255, 0.45); }
 html[data-theme="light"][data-theme-styles~="personnel"] .role-tab { color: var(--light-muted); }
-html[data-theme="light"][data-theme-styles~="personnel"] .role-tab.is-active { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); color: var(--light-text); box-shadow: 0 8px 20px rgba(44, 61, 104, 0.045); }
+html[data-theme="light"][data-theme-styles~="personnel"] .role-tab.is-active { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); color: var(--light-button-text); box-shadow: 0 8px 20px rgba(44, 61, 104, 0.045); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="personnel"] .toolbar-button:hover { color: var(--light-text); background-color: rgba(225, 233, 250, 0.28); }
 html[data-theme="light"][data-theme-styles~="personnel"] .role-tab:not(.is-active):hover { color: var(--light-text); background: rgba(89, 110, 167, 0.12); box-shadow: inset 0 0 0 1px rgba(44, 61, 104, 0.08); }
 html[data-theme="light"][data-theme-styles~="personnel"] .role-tab img,
@@ -791,7 +795,7 @@ html[data-theme="light"][data-theme-styles~="personnel"] .table-footer { color: 
 html[data-theme="light"][data-theme-styles~="personnel"] .pagination button,
 html[data-theme="light"][data-theme-styles~="personnel"] .page-number { background: rgba(245, 248, 255, 0.35); color: var(--light-accent); }
 html[data-theme="light"][data-theme-styles~="personnel"] .pagination button:not(:disabled):hover { border-color: rgba(88, 108, 151, 0.375); background: rgba(225, 233, 250, 0.46); }
-html[data-theme="light"][data-theme-styles~="personnel"] .page-number { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="personnel"] .page-number { border-color: rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="personnel"] .form-field label { color: var(--light-text); }
 html[data-theme="light"][data-theme-styles~="personnel"] .field-control { background: rgba(245, 248, 255, 0.43); }
 html[data-theme="light"][data-theme-styles~="personnel"] .field-control:hover { border-color: rgba(88, 108, 151, 0.323); background-color: rgba(245, 248, 255, 0.56); }
@@ -800,7 +804,7 @@ html[data-theme="light"][data-theme-styles~="personnel"] .field-control select o
 html[data-theme="light"][data-theme-styles~="personnel"] .select-control::after { border-right: 1.5px solid rgba(88, 108, 151, 0.65); border-bottom: 1.5px solid rgba(88, 108, 151, 0.65); }
 html[data-theme="light"][data-theme-styles~="personnel"] .cancel-button { background: rgba(245, 248, 255, 0.47); color: var(--light-muted); }
 html[data-theme="light"][data-theme-styles~="personnel"] .cancel-button:hover { border-color: rgba(88, 108, 151, 0.338); background: rgba(225, 233, 250, 0.45); }
-html[data-theme="light"][data-theme-styles~="personnel"] .save-button { border: 1px solid rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="personnel"] .save-button { border: 1px solid rgba(88, 108, 151, 0.65); background-color: #e1e9fa; background-image: var(--light-button-image); color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="personnel"] .save-button img { filter: var(--light-icon-filter); }
 html[data-theme="light"][data-theme-styles~="personnel"] .form-feedback { color: #246c50; }
 html[data-theme="light"][data-theme-styles~="personnel"] .person-dialog { background: var(--light-canvas); box-shadow: 0 28px 90px rgba(44, 61, 104, 0.138); }
@@ -818,12 +822,13 @@ html[data-theme="light"][data-theme-styles~="trace"] .action-button.secondary-ac
 html[data-theme="light"][data-theme-styles~="trace"] .primary-action { border-color: rgba(88, 108, 151, 0.562); }
 html[data-theme="light"][data-theme-styles~="trace"] .primary-action,
 html[data-theme="light"][data-theme-styles~="trace"] .filter-button.active,
-html[data-theme="light"][data-theme-styles~="trace"] .page-button.active { background-color: #e1e9fa; background-image: var(--light-button-image); }
+html[data-theme="light"][data-theme-styles~="trace"] .page-button.active { background-color: #e1e9fa; background-image: var(--light-button-image); color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="trace"] .status-tabs { border: 1px solid rgba(88, 108, 151, 0.195); background: rgba(245, 248, 255, 0.14); }
 html[data-theme="light"][data-theme-styles~="trace"] .filter-button { color: var(--light-muted); }
 html[data-theme="light"][data-theme-styles~="trace"] .filter-button span { border: 1px solid rgba(88, 108, 151, 0.16); color: var(--light-muted); }
 html[data-theme="light"][data-theme-styles~="trace"] .filter-button:hover { color: var(--light-text); }
-html[data-theme="light"][data-theme-styles~="trace"] .filter-button.active { color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="trace"] .filter-button.active { color: var(--light-button-text); }
+html[data-theme="light"][data-theme-styles~="trace"] .filter-button.active span { color: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="trace"] .transfer-card { box-shadow: 0 10px 25px rgba(44, 61, 104, 0.015); }
 html[data-theme="light"][data-theme-styles~="trace"] .ambulance-icon>img { filter: var(--light-icon-filter); }
 html[data-theme="light"][data-theme-styles~="trace"] .blue-card .ambulance-icon { background: rgba(245, 248, 255, 0.68); }
@@ -890,7 +895,7 @@ html[data-theme="light"][data-theme-styles~="trace"] .page-button,
 html[data-theme="light"][data-theme-styles~="trace"] .page-arrow { border: 1px solid rgba(88, 108, 151, 0.18); color: var(--light-muted); }
 html[data-theme="light"][data-theme-styles~="trace"] .page-button:hover,
 html[data-theme="light"][data-theme-styles~="trace"] .page-arrow:hover:not(:disabled) { color: var(--light-text); border-color: rgba(88, 108, 151, 0.36); }
-html[data-theme="light"][data-theme-styles~="trace"] .page-button.active { color: var(--light-text); border-color: rgba(88, 108, 151, 0.65); }
+html[data-theme="light"][data-theme-styles~="trace"] .page-button.active { color: var(--light-button-text); border-color: rgba(88, 108, 151, 0.65); }
 
 /* trace-new */
 html[data-theme="light"][data-theme-styles~="trace-new"] { --panel-color: rgba(245, 248, 255, 0.38); --section-color: rgba(245, 248, 255, 0.58); --field-color: rgba(245, 248, 255, 0.42); --border-color: rgba(88, 108, 151, 0.18); --text-color: var(--light-text); --muted-color: var(--light-muted); --field-text-color: var(--light-text); --placeholder-color: rgba(255, 255, 255, 0.5); --focus-color: #ffffff; --focus-ring: rgba(225, 233, 250, 0.2); }
@@ -935,7 +940,7 @@ html[data-theme="light"][data-theme-styles~="trace-new"] .form-actions button:ho
 html[data-theme="light"][data-theme-styles~="trace-new"] .form-actions button:active { background-color: rgba(89, 110, 167, 0.22); box-shadow: inset 0 2px 6px rgba(44, 61, 104, 0.05); }
 html[data-theme="light"][data-theme-styles~="trace-new"] .form-actions .cancel-button { color: #a33450; }
 html[data-theme="light"][data-theme-styles~="trace-new"] .form-actions .cancel-button:hover { color: #a33450; background-color: rgba(246, 231, 236, 0.14); }
-html[data-theme="light"][data-theme-styles~="trace-new"] .form-actions .create-button { border-left: 1px solid rgba(88, 108, 151, 0.338); background-color: #e1e9fa; background-image: var(--light-button-image); color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="trace-new"] .form-actions .create-button { border-left: 1px solid rgba(88, 108, 151, 0.338); background-color: #e1e9fa; background-image: var(--light-button-image); color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="trace-new"] .form-actions .create-button:hover { background-color: #e1e9fa; box-shadow: inset 0 0 0 100px rgba(44, 61, 104, 0.035); }
 html[data-theme="light"][data-theme-styles~="trace-new"] .form-actions .create-button:active { box-shadow: inset 0 0 0 100px rgba(44, 61, 104, 0.075); }
 
@@ -952,7 +957,7 @@ html[data-theme="light"][data-theme-styles~="trace-view"] .detail-button { borde
 html[data-theme="light"][data-theme-styles~="trace-view"] .detail-button:not(:where(#update-status)):hover:not(:disabled) { background-color: rgba(89, 110, 167, 0.055); border-color: rgba(88, 108, 151, 0.45); box-shadow: 0 4px 12px rgba(44, 61, 104, 0.055); }
 html[data-theme="light"][data-theme-styles~="trace-view"] .danger-button { color: #a33450; border-color: rgba(163, 52, 80, 0.262); }
 html[data-theme="light"][data-theme-styles~="trace-view"] .danger-button:hover:not(:disabled) { background: rgba(246, 231, 236, 0.08); border-color: rgba(163, 52, 80, 0.65); color: #a33450; }
-html[data-theme="light"][data-theme-styles~="trace-view"] .primary-button { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; border-color: rgba(88, 108, 151, 0.562); }
+html[data-theme="light"][data-theme-styles~="trace-view"] .primary-button { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; border-color: rgba(88, 108, 151, 0.562); color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="trace-view"] .summary-item { background: rgba(245, 248, 255, 0.25); }
 html[data-theme="light"][data-theme-styles~="trace-view"] .detail-tabs button:hover:not(:disabled) { background: rgba(89, 110, 167, 0.2); color: var(--light-text); box-shadow: inset 0 0 0 1px rgba(44, 61, 104, 0.0625); }
 html[data-theme="light"][data-theme-styles~="trace-view"] .detail-panel { background: rgba(245, 248, 255, 0.38); }
@@ -1113,7 +1118,7 @@ html[data-theme="light"][data-theme-styles~="survey"] .surveys-content img,
 html[data-theme="light"][data-theme-styles~="survey"] .survey-dialog img { filter: var(--light-icon-filter); }
 html[data-theme="light"][data-theme-styles~="survey"] .survey-button:is(:hover, :focus-visible):not(:disabled) { background-color: rgba(89, 110, 167, 0.12); border-color: rgba(88, 108, 151, 0.45); box-shadow: 0 7px 18px rgba(44, 61, 104, 0.05), 0 0 0 3px rgba(44, 61, 104, 0.015); }
 html[data-theme="light"][data-theme-styles~="survey"] .survey-button:active:not(:disabled) { box-shadow: inset 0 2px 6px rgba(44, 61, 104, 0.05); }
-html[data-theme="light"][data-theme-styles~="survey"] .survey-button.primary { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; border-color: rgba(88, 108, 151, 0.65); box-shadow: inset 0 1px 0 rgba(44, 61, 104, 0.035), 0 4px 16px rgba(44, 61, 104, 0.035); }
+html[data-theme="light"][data-theme-styles~="survey"] .survey-button.primary { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; border-color: rgba(88, 108, 151, 0.65); box-shadow: inset 0 1px 0 rgba(44, 61, 104, 0.035), 0 4px 16px rgba(44, 61, 104, 0.035); color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="survey"] .survey-button.primary:is(:hover, :focus-visible) { border-color: rgba(88, 108, 151, 0.65); }
 html[data-theme="light"][data-theme-styles~="survey"] .survey-button.secondary { background: rgba(245, 248, 255, 0.55); }
 html[data-theme="light"][data-theme-styles~="survey"] .survey-button.danger { color: #a33450; border-color: rgba(163, 52, 80, 0.18); background: rgba(246, 231, 236, 0.06); }
@@ -1170,7 +1175,7 @@ html[data-theme="light"][data-theme-styles~="survey"] .view-switch button:is(:ho
 html[data-theme="light"][data-theme-styles~="survey"] .survey-pagination button:is(:hover, :focus-visible):not(:disabled),
 html[data-theme="light"][data-theme-styles~="survey"] .icon-button:is(:hover, :focus-visible):not(:disabled) { border-color: rgba(88, 108, 151, 0.488); background-color: rgba(89, 110, 167, 0.12); box-shadow: 0 5px 13px rgba(44, 61, 104, 0.05); }
 html[data-theme="light"][data-theme-styles~="survey"] .view-switch button.is-active,
-html[data-theme="light"][data-theme-styles~="survey"] .survey-pagination button[aria-current] { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; border-color: rgba(88, 108, 151, 0.65); color: var(--light-text); box-shadow: inset 0 1px 0 rgba(44, 61, 104, 0.0325); }
+html[data-theme="light"][data-theme-styles~="survey"] .survey-pagination button[aria-current] { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; border-color: rgba(88, 108, 151, 0.65); color: var(--light-button-text); box-shadow: inset 0 1px 0 rgba(44, 61, 104, 0.0325); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="survey"] .row-menu summary:is(:hover, :focus-visible),
 html[data-theme="light"][data-theme-styles~="survey"] .text-button:is(:hover, :focus-visible) { color: var(--light-accent); background-color: rgba(89, 110, 167, 0.1); }
 html[data-theme="light"][data-theme-styles~="survey"] .row-menu-content button:is(:hover, :focus-visible) { background-color: rgba(89, 110, 167, 0.15); }
@@ -1184,7 +1189,7 @@ html[data-theme="light"][data-theme-styles~="survey-new"] .draft-tag { color: va
 html[data-theme="light"][data-theme-styles~="survey-new"] .builder-step:hover { background-color: rgba(89, 110, 167, 0.06); }
 html[data-theme="light"][data-theme-styles~="survey-new"] .step-number { border: 1px solid rgba(88, 108, 151, 0.65); }
 html[data-theme="light"][data-theme-styles~="survey-new"] .builder-step.is-current { color: var(--light-text); }
-html[data-theme="light"][data-theme-styles~="survey-new"] .builder-step.is-current .step-number { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; border-color: rgba(88, 108, 151, 0.65); box-shadow: 0 0 0 4px rgba(44, 61, 104, 0.0225); color: var(--light-text); }
+html[data-theme="light"][data-theme-styles~="survey-new"] .builder-step.is-current .step-number { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; border-color: rgba(88, 108, 151, 0.65); box-shadow: 0 0 0 4px rgba(44, 61, 104, 0.0225); color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="survey-new"] .builder-step.is-complete .step-number { color: #246c50; border-color: rgba(36, 108, 80, 0.65); background: rgba(228, 243, 235, 0.08); }
 html[data-theme="light"][data-theme-styles~="survey-new"] .step-connector.is-complete { background: #e1e9fa; }
 html[data-theme="light"][data-theme-styles~="survey-new"] .section-number { color: var(--light-muted); }
@@ -1304,7 +1309,7 @@ html[data-theme="light"][data-theme-styles~="survey-user"] { color-scheme: light
 html[data-theme="light"][data-theme-styles~="survey-user"] body { background: radial-gradient(ellipse at 12% 85%, rgba(225, 233, 250, 0.17), transparent 48%), radial-gradient(ellipse at 95% 10%, rgba(225, 233, 250, 0.12), transparent 48%), var(--light-canvas); }
 html[data-theme="light"][data-theme-styles~="survey-user"] img { filter: var(--light-icon-filter); }
 html[data-theme="light"][data-theme-styles~="survey-user"] .skip-link { background: #ffffff; color: var(--light-accent); }
-html[data-theme="light"][data-theme-styles~="survey-user"] .hospital-mark { border: 1px solid rgba(88, 108, 151, 0.65); color: var(--light-accent); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; box-shadow: inset 0 1px 0 rgba(44, 61, 104, 0.05), 0 4px 12px rgba(44, 61, 104, 0.045); }
+html[data-theme="light"][data-theme-styles~="survey-user"] .hospital-mark { border: 1px solid rgba(88, 108, 151, 0.65); color: var(--light-button-text); background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; box-shadow: inset 0 1px 0 rgba(44, 61, 104, 0.05), 0 4px 12px rgba(44, 61, 104, 0.045); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="survey-user"] .header-purpose { color: var(--light-accent); }
 html[data-theme="light"][data-theme-styles~="survey-user"] .header-purpose img { filter: var(--light-icon-filter); }
 html[data-theme="light"][data-theme-styles~="survey-user"] .language-control { color: var(--light-accent); }
@@ -1342,7 +1347,7 @@ html[data-theme="light"][data-theme-styles~="survey-user"] .rating-option:hover 
 html[data-theme="light"][data-theme-styles~="survey-user"] .rating-option:has(input:checked) { color: var(--light-text); border-color: rgba(88, 108, 151, 0.65); }
 html[data-theme="light"][data-theme-styles~="survey-user"] .skip-question { color: var(--light-accent); }
 html[data-theme="light"][data-theme-styles~="survey-user"] .skip-question:hover { color: var(--light-text); }
-html[data-theme="light"][data-theme-styles~="survey-user"] .patient-button.primary { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; border-color: rgba(88, 108, 151, 0.65); box-shadow: inset 0 1px 0 rgba(44, 61, 104, 0.0325); }
+html[data-theme="light"][data-theme-styles~="survey-user"] .patient-button.primary { background-color: #e1e9fa; background-image: var(--light-button-image); background-position: center; background-size: cover; background-repeat: no-repeat; border-color: rgba(88, 108, 151, 0.65); box-shadow: inset 0 1px 0 rgba(44, 61, 104, 0.0325); color: var(--light-button-text); text-shadow: var(--light-button-text-shadow); --light-icon-filter: brightness(0) invert(1); --light-text: var(--light-button-text); }
 html[data-theme="light"][data-theme-styles~="survey-user"] .patient-button.secondary { background: rgba(245, 248, 255, 0.4); }
 html[data-theme="light"][data-theme-styles~="survey-user"] .patient-button:hover:not(:disabled) { border-color: rgba(88, 108, 151, 0.65); background-color: #f5f8ff; box-shadow: 0 6px 16px rgba(44, 61, 104, 0.05); }
 html[data-theme="light"][data-theme-styles~="survey-user"] .navigation-note::before { border: 1.5px solid rgba(36, 108, 80, 0.65); color: #246c50; }
